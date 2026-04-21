@@ -71,7 +71,7 @@ def register_release_with_kitmaker(wheel_filename: str, version: str, dry_run: b
             "https://kitmaker-portal.nvidia.com/api/v0/projects/958/releases",
             json=payload,
             headers={"Authorization": f"Bearer {api_token}"},
-            verify=False,
+            verify=False,  # CI/CD runners may not have NVIDIA internal CA certificates installed
             timeout=60,
         )
         if response.status_code in (200, 201, 202):
