@@ -13,11 +13,6 @@ requires-python = ">=3.10,<3.13"
 usd = ["usd-core>=22.11"]
 numpy = ["numpy>=1,<2"]
 
-[project.scripts]
-nvidia_usd_validate = "nvidia_usd_validation:cli_main"
-
-[project.entry-points."nvidia_usd_validation"]
-default = "nvidia_usd_validation:DefaultPlugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nvidia_usd_validation"]
