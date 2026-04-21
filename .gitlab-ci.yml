@@ -19,13 +19,10 @@ workflow:
     - !reference [.default-rules, rules]
 
 stages:
+  - check
   - build
   - test
-  - check
-  - security
   - deploy
-  - prepare
-  - release
 
 # ==============================================================================================================
 # Common Templates
@@ -175,7 +172,7 @@ publish-pip-kitmaker:
 # ==============================================================================================================
 
 prepare-release-notes:
-  stage: prepare
+  stage: deploy
   extends:
     - .ipp_lnx_x86_64_cpu_micro
   needs: []
@@ -189,7 +186,7 @@ prepare-release-notes:
     - !reference [.release-rules, rules]
 
 release_job:
-  stage: release
+  stage: deploy
   extends:
     - .ipp_lnx_x86_64_cpu_micro
   image: registry.gitlab.com/gitlab-org/release-cli:latest
