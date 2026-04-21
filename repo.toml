@@ -27,7 +27,7 @@ enabled = true
 
 [repo_profiles_codegen.python]
 docs_root = "${root}/specs"
-namespace = "omni.capabilities"
+namespace = "nvidia_usd_validation.capabilities"
 destination_dir = "${root}/source/python"
 
 ########################################################################################################################
