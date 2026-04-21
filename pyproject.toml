@@ -1,0 +1,31 @@
+[project]
+name = "nvidia-usd-validation"
+version = "1.0.0a1"
+description = "NVIDIA Asset Validator"
+authors = [
+    {name = "NVIDIA"},
+]
+license = {text = "Apache-2.0"}
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+
+[project.optional-dependencies]
+usd = ["usd-core>=22.11"]
+numpy = ["numpy>=1,<2"]
+
+[project.scripts]
+nvidia_usd_validate = "nvidia_usd_validation.asset_validator:cli_main"
+
+[project.entry-points."nvidia_usd_validation.asset_validator"]
+default = "nvidia_usd_validation.asset_validator:DefaultPlugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nvidia_usd_validation"]
+artifacts = [
+    "src/nvidia_usd_validation/capabilities/**/*",
+    "src/nvidia_usd_validation/asset_validator/_version.py",
+]
+
+[build-system]
+requires = ["hatchling"] # SWIPAT filed under: http://nvbugs/5866335
+build-backend = "hatchling.build"
