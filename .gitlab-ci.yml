@@ -172,20 +172,6 @@ publish-pip-kitmaker:
 # Release Jobs
 # ==============================================================================================================
 
-prepare-release-notes:
-  stage: deploy
-  extends:
-    - .ipp_lnx_x86_64_cpu_micro
-  needs: []
-  script:
-    - ./repo.sh uv -- run tools/ci/release_notes.py --root $CI_PROJECT_DIR --output release-notes.md
-    - cat release-notes.md
-  artifacts:
-    paths:
-      - release-notes.md
-  rules:
-    - !reference [.release-rules, rules]
-
 release_job:
   stage: deploy
   extends:
@@ -194,15 +180,13 @@ release_job:
   needs:
     - job: check-version
       artifacts: true
-    - job: prepare-release-notes
-      artifacts: true
     - job: test-pip
       artifacts: false
   script:
     - echo "Creating release"
   release:
     name: 'NVIDIA USD Validation ${VERSION}'
-    description: release-notes.md
+    description: CHANGELOG.md
     tag_name: '${VERSION}'
     ref: '$CI_COMMIT_SHA'
   rules:
