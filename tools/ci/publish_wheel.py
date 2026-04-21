@@ -91,7 +91,7 @@ def main():
     parser.add_argument(
         "--wheel-dir",
         help="Directory containing wheel files (relative to repo root)",
-        nargs="?"
+        required=True,
     )
     parser.add_argument(
         "--dry-run",
