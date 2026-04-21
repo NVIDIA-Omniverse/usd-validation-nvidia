@@ -15,4 +15,3 @@ ignore = [
 
 [lint.per-file-ignores]
 "**/__init__.py" = ["F401"]  # Ignore unused imports, unused imports are used for unit tests
-"**/omni/asset_validator/core/complianceChecker.py" = ["N999"] # Ignore backwards compatible module
