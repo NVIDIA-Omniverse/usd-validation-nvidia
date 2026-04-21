@@ -49,7 +49,7 @@ usd = [
 
 [package.metadata]
 requires-dist = [
-    { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1,<2" },
+    { name = "numpy", marker = "extra == 'numpy'", specifier = ">=1" },
     { name = "usd-core", marker = "extra == 'usd'", specifier = ">=22.11" },
 ]
 provides-extras = ["usd", "numpy"]

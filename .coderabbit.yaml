@@ -1,5 +1,6 @@
-path_filters:
-  - "!tools/packman/**"
-  - "!tools/repoman/**"
-  - "!repo.bat"
-  - "!repo.sh"
+reviews:
+  path_filters:
+    - "!tools/packman/**"
+    - "!tools/repoman/**"
+    - "!repo.bat"
+    - "!repo.sh"
