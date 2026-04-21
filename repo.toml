@@ -6,8 +6,8 @@
 logging = "warn"
 
 # Reposiory Name. It is used for solution name and final package name
-name = "asset-validator"
-repo_url = "https://gitlab-master.nvidia.com/omniverse/kit-extensions/asset-validator"
+name = "nvidia-usd-validation"
+repo_url = "https://gitlab-master.nvidia.com/omniverse/usd-rels/nvidia-usd-validation"
 
 [repo.folders]
 version_file = "${root}/VERSION.md"
@@ -59,72 +59,7 @@ files.exclude."++" = [
     "specs/*",
 ]
 
-########################################################################################################################
-# Test Runner
-########################################################################################################################
 
-[repo_test]
-default_suite = "all"
-archive_pattern = "${root}/_build/packages/*validator*.7z"
-archive_post_unpack_cmd = []
-archive_post_unpack_cmds = [
-    ["${root}/repo${shell_ext}", "ci", "archive_post_unpack"],
-]
-aggregated_log_file = "_build/aggregated-results.xml"
-
-[repo_test.python_executable]
-packman_file_path = "${root}/deps/usd-deps.packman.xml"
-packman_package_name = "python"
-python_executable_path = "python${exe_ext}"
-
-[repo_test.suites."omni.asset_validator"]
-kind = "pytest"
-log_file = "_build/package-results.xml"
-python_paths = [
-  "${env:PM_PACKAGES_ROOT}/packman-common/${env:PM_PACKMAN_VERSION}",
-  "${root}/_build/usd-deps/usd/${config}/lib/python",
-  "${test_root}/python",  # from archive
-  "${test_root}/package",  # from build
-]
-library_paths = [
-  "${root}/_build/usd-deps/python/lib", # For Linux
-  "${root}/_build/usd-deps/python", # For Windows
-  "${root}/_build/usd-deps/usd/${config}/lib",
-  "${root}/_build/usd-deps/usd/${config}/bin",
-]
-discover_path = "${root}/source/python/tests"
-python_source_path = "*/omni/asset_validator/*"
-
-########################################################################################################################
-# Packaging
-########################################################################################################################
-
-# package content
-[repo_package.packages.main_package]
-archive_format = "7z"
-configs = ["release"]
-package_per_config = true
-
-[repo_package.packages.docs]
-omniverse_flow_version_scheme = true
-
-[repo_package.packages."omni.asset_validator"]
-omniverse_flow_version_scheme = true
-configs = ["release"]
-package_per_config = true
-remove_pycache = true
-
-########################################################################################################################
-# Package publisher
-########################################################################################################################
-
-[repo_publish]
-enabled = true
-fail_if_nothing_found = true
-fail_if_exist = false  # allow re-runs of failed publish CI jobs to account for infrastructure issues
-packages = [
-    "omni.asset_validator*",
-]
 
 ########################################################################################################################
 # Linting
@@ -137,52 +72,10 @@ enabled = false
 enabled = true
 config = "${root}/ruff.toml"
 files.include = [
-    "source/**/*.py",
+    "src/**/*.py",
+    "tests/**/*.py",
 ]
 files.exclude."++" = [
-    "source/python/omni/capabilities/*",
+    "src/nvidia_usd_validation/capabilities/*",
 ]
 
-########################################################################################################################
-# API Check tool
-########################################################################################################################
-
-[repo_checkapi]
-
-# Must be explicitly enabled. To avoid showing tools that might be misconfigured/unwanted.
-enabled = true
-
-########################################################################################################################
-# Python API checker
-[repo_checkapi.python]
-
-# where to search for extensions what provide API and to check for python API
-exts.folders = [
-    "${root}/_build/${platform}/${config}/exts"
-]
-
-# Extra ext folders to pass, that also provide API, but not to check API usage for those
-exts.extra_folders = []
-
-# Extra sys.path to search modules. Those will be treated as public API.
-public_python_paths = [
-    "${root}/_build/${platform}/${config}/exts/omni.asset_validator.core/pip_prebundle"
-]
-
-# Skip traversing these modules/packages, will be treated as "unknown" when importing. And don't check API in those
-# Only top-level or in any subpackage:
-skip_toplevel_packages = [
-    "omni.capabilities",
-    "pxr",
-    "pip_requests",
-    "pip_debugpy",
-    "debugpy",
-    "ext_template",
-    "idl",
-]
-skip_packages = [
-    "tests",
-]
-
-# Fail tool when generating API produced new changes. That forces users to commit those changes.
-fail_on_changed_api = true
