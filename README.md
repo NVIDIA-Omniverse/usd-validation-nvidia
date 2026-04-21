@@ -38,7 +38,7 @@ pip install nvidia-usd-validation[usd,numpy]
 ## Basic usage
 
 ```python
-from nvidia_usd_validation.asset_validator import ValidationEngine, IssueFixer
+from nvidia_usd_validation import ValidationEngine, IssueFixer
 
 engine = ValidationEngine()
 results = engine.validate("path/to/asset.usda")

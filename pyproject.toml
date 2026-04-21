@@ -14,16 +14,16 @@ usd = ["usd-core>=22.11"]
 numpy = ["numpy>=1,<2"]
 
 [project.scripts]
-nvidia_usd_validate = "nvidia_usd_validation.asset_validator:cli_main"
+nvidia_usd_validate = "nvidia_usd_validation:cli_main"
 
-[project.entry-points."nvidia_usd_validation.asset_validator"]
-default = "nvidia_usd_validation.asset_validator:DefaultPlugin"
+[project.entry-points."nvidia_usd_validation"]
+default = "nvidia_usd_validation:DefaultPlugin"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nvidia_usd_validation"]
 artifacts = [
     "src/nvidia_usd_validation/capabilities/**/*",
-    "src/nvidia_usd_validation/asset_validator/_version.py",
+    "src/nvidia_usd_validation/_version.py",
 ]
 
 [build-system]
