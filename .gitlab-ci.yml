@@ -3,8 +3,9 @@ include:
     file: 'modules/include.yml'
     ref: v2_latest
   - project: 'omniverse/sectools/vault'
-    file: 'templates/v3/linux/packman_s3.gitlab-ci.yml'
-    file: 'templates/v3/linux/artifactory.gitlab-ci.yml'
+    file:
+      - 'templates/v3/linux/packman_s3.gitlab-ci.yml'
+      - 'templates/v3/linux/artifactory.gitlab-ci.yml'
 
 .default-rules:
   rules:
