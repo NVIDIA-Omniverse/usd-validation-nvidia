@@ -68,7 +68,7 @@ def register_release_with_kitmaker(wheel_filename: str, version: str, dry_run: b
     try:
         logger.info("Registering release with KitMaker Portal: both_devzone_pypi")
         response = requests.post(
-            "https://kitmaker-portal.nvidia.com/api/v0/projects/958/releases",
+            "https://kitmaker-portal.nvidia.com/api/v0/projects/2014/releases",
             json=payload,
             headers={"Authorization": f"Bearer {api_token}"},
             verify=False,  # CI/CD runners may not have NVIDIA internal CA certificates installed
