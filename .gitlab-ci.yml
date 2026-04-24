@@ -6,6 +6,12 @@ include:
     file:
       - 'templates/v3/linux/packman_s3.gitlab-ci.yml'
       - 'templates/v3/linux/artifactory.gitlab-ci.yml'
+  - project: 'omniverse/devplat/gitlab/templates/common/github-mirror-control'
+    file: 'templates/candidate-pipeline.yml'
+    ref: v1_latest
+
+variables:
+  MIRROR_REPO_ID: "omniverse-usd-rels-nvidia-usd-validation"
 
 .default-rules:
   rules:
