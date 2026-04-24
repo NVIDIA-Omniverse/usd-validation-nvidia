@@ -1,0 +1,141 @@
+#usda 1.0
+
+def Xform "root"
+{
+    float3 xformOp:rotateXYZ = (0, 0, 0)
+    float3 xformOp:scale = (100, 100, 100)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+
+    // No primvars, inf and NaN values
+    def Mesh "Quad_0"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (-inf, 0, 1), (0, nan, nan), (0, 0, inf)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // No primvars, non-unit length values
+    def Mesh "Quad_1"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (1, 0, 1), (0, 1, 2), (0, 0, 177)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, inf and NaN values
+    def Mesh "Quad_2"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 0, 1), (-inf, 0, 1), (0, nan, nan), (0, 0, inf)] (
+            interpolation = "vertex"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, non-unit length values
+    def Mesh "Quad_3"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 0, 1), (1, 0, 1), (0, 1, 2), (0, 0, 177)] (
+            interpolation = "vertex"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, indexed non-unit length values
+    def Mesh "Quad_4"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 0, 1), (1, 0, 0), (0, 0, 177)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:normals:indices = [0, 1, 1, 2]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, indexed unit length values, per corner
+    def Mesh "Quad_5"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 0, 1), (1, 0, 0)] (
+            interpolation = "faceVarying"
+        )
+        int[] primvars:normals:indices = [0, 1, 0, 1]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, indexed non-unit length values, per corner
+    def Mesh "Quad_6"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 77, 1), (1, 0, 0)] (
+            interpolation = "faceVarying"
+        )
+        int[] primvars:normals:indices = [0, 1, 0, 1]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, constant interpolation, inf and NaN value
+    def Mesh "Quad_7"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(-inf, nan, 1)] (
+            interpolation = "constant"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, constant interpolation, non-unit length
+    def Mesh "Quad_8"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(1, 0, 1)] (
+            interpolation = "constant"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, uniform interpolation, inf and NaN values
+    def Mesh "Quad_9"
+    {
+        int[] faceVertexCounts = [3, 3]
+        int[] faceVertexIndices = [0, 1, 3, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (-inf, nan, 1)] (
+            interpolation = "uniform"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    // Primvars, uniform interpolation, non-unit lengths
+    def Mesh "Quad_10"
+    {
+        int[] faceVertexCounts = [3, 3]
+        int[] faceVertexIndices = [0, 1, 3, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (3, 0, 1)] (
+            interpolation = "uniform"
+        )
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+}

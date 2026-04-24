@@ -1,0 +1,78 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    """
+    A material with a connected but not authored normal map should pass the NormalMapTextureChecker validation
+    """
+)
+
+def Scope "Root"
+{
+    def Scope "Looks"
+    {
+        def Material "Material"
+        {
+            asset inputs:NormalTexture
+            asset inputs:OpacityTexture
+            asset inputs:ORMTexture
+            token outputs:displacement.connect = </Root/Looks/Material/PreviewSurface.outputs:displacement>
+            token outputs:surface.connect = </Root/Looks/Material/PreviewSurface.outputs:surface>
+
+            def Shader "PreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor.connect = </Root/Looks/Material.inputs:diffuseColor>
+                float inputs:ior.connect = </Root/Looks/Material.inputs:ior>
+                float inputs:metallic.connect = </Root/Looks/Material/ORMTexture.outputs:b>
+                normal3f inputs:normal.connect = </Root/Looks/Material/NormalTexture.outputs:rgb>
+                float inputs:occlusion.connect = </Root/Looks/Material/ORMTexture.outputs:r>
+                float inputs:opacity.connect = </Root/Looks/Material/OpacityTexture.outputs:r>
+                float inputs:opacityThreshold.connect = </Root/Looks/Material.inputs:opacityThreshold>
+                float inputs:roughness.connect = </Root/Looks/Material/ORMTexture.outputs:g>
+                token outputs:displacement
+                token outputs:surface
+            }
+
+            def Shader "TexCoordReader"
+            {
+                uniform token info:id = "UsdPrimvarReader_float2"
+                token inputs:varname = "st"
+                float2 outputs:result
+            }
+
+            def Shader "NormalTexture"
+            {
+                uniform token info:id = "UsdUVTexture"
+                float4 inputs:bias = (-1, -1, -1, 0)
+                float4 inputs:fallback = (0, 0, 1, 1)
+                asset inputs:file.connect = </Root/Looks/Material.inputs:NormalTexture>
+                float4 inputs:scale = (2, 2, 2, 1)
+                token inputs:sourceColorSpace = "raw"
+                float2 inputs:st.connect = </Root/Looks/Material/TexCoordReader.outputs:result>
+                float3 outputs:rgb
+            }
+
+            def Shader "ORMTexture"
+            {
+                uniform token info:id = "UsdUVTexture"
+                float4 inputs:fallback = (1, 0.5, 0, 1)
+                asset inputs:file.connect = </Root/Looks/Material.inputs:ORMTexture>
+                token inputs:sourceColorSpace = "raw"
+                float2 inputs:st.connect = </Root/Looks/Material/TexCoordReader.outputs:result>
+                float outputs:b
+                float outputs:g
+                float outputs:r
+            }
+
+            def Shader "OpacityTexture"
+            {
+                uniform token info:id = "UsdUVTexture"
+                float4 inputs:fallback = (1, 0, 0, 1)
+                asset inputs:file.connect = </Root/Looks/Material.inputs:OpacityTexture>
+                token inputs:sourceColorSpace = "raw"
+                float2 inputs:st.connect = </Root/Looks/Material/TexCoordReader.outputs:result>
+                float outputs:r
+            }
+        }
+    }
+}

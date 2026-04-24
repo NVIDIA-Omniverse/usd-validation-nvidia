@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD contains MDL file references and search paths.
+    It is intended to test MDL support in the SupportedFileTypesChecker.
+    """
+)
+
+def "World" {
+    def "use_mdl_file" {
+        custom asset Asset = @./Materials/material.mdl@
+    }
+    def "use_mdl_search" {
+        custom asset Asset = @test.mdl@
+    }
+}

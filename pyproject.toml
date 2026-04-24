@@ -13,13 +13,22 @@ requires-python = ">=3.10,<3.13"
 usd = ["usd-core>=22.11"]
 numpy = ["numpy>=1"]
 
+[project.scripts]
+nvidia_usd_validate = "nvidia_usd_validation:cli_main"
+
+[project.entry-points."nvidia_usd_validation"]
+default = "nvidia_usd_validation:DefaultPlugin"
+
+[tool.hatch.build.targets.sdist]
+artifacts = [
+    "src/nvidia_usd_validation/capabilities",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nvidia_usd_validation"]
-artifacts = [
-    "src/nvidia_usd_validation/capabilities/**/*",
-    "src/nvidia_usd_validation/_version.py",
-]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/nvidia_usd_validation/capabilities" = "nvidia_usd_validation/capabilities"
 
 [build-system]
 requires = ["hatchling"] # SWIPAT filed under: http://nvbugs/5866335

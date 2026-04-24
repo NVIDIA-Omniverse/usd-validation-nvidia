@@ -101,6 +101,7 @@ build-pip:
   extends:
     - .ipp_lnx_x86_64_cpu_medium
   script:
+    - ./repo.sh usd_profiles_codegen
     - ./repo.sh uv -- build -o dist
   artifacts:
     paths:

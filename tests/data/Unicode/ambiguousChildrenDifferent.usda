@@ -1,0 +1,22 @@
+#usda 1.0
+(
+"""Content violates the rule that all prim names should be NFC normalized, and
+it should not include ambiguous children after unicode normalization applied.
+
+This file includes 3 prims with non-normalized unicode names, among which:
+* Two prims are ambiguous after their names are normalized with NFC or NFD.
+* All prims are ambiguous after their names are normalized with NFKC or NFKD.
+"""
+)
+
+def "primẛ̣"
+{
+}
+
+def "primẛ̣"
+{
+}
+
+def "primṩ"
+{
+}

@@ -1,0 +1,194 @@
+#usda 1.0
+
+def Xform "root"
+{
+    float3 xformOp:rotateXYZ = (0, 0, 0)
+    float3 xformOp:scale = (100, 100, 100)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+
+    // No primvars
+    def Mesh "Quad_0"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // IndexError
+    def Mesh "Quad_1"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        float3[] primvars:testing = [(0, 0, 0)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing:indices = [0, 0, 0, 2]
+    }
+
+    // TypeError
+    def Mesh "Quad_2"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        float primvars:testing = 0.0 (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing:indices = [0, 0, 0, 0]
+    }
+
+    // Normal compression
+    def Mesh "Quad_3"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        float3[] primvars:testing = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+            interpolation = "vertex"
+        )
+    }
+
+    // Element size, skip
+    def Mesh "Quad_4"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        int[] primvars:testing = [42, 42, 42, 42, 42, 43, 43, 43, 43, 43] (
+            elementSize = 5
+            interpolation = "vertex"
+        )
+    }
+
+    // Unreferenced values
+    def Mesh "Quad_5"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        float3[] primvars:testing = [(0, 0, 0), (0, 0, 1)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing:indices = [0, 0, 0, 0]
+    }
+
+    // valid unindexed primvar types, no issue reported
+    def Mesh "Quad_6"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        bool[] primvars:testing_b = [true, true, false, false] (
+            interpolation = "varying"
+        )
+        uchar[] primvars:testing_c = [1, 1, 2, 2] (
+            interpolation = "varying"
+        )
+        uint[] primvars:testing_ui = [1, 1, 2, 2] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing_i = [1, 1, 2, 2] (
+            interpolation = "vertex"
+        )
+        int64[] primvars:testing_i64 = [1, 1, 2, 2] (
+            interpolation = "vertex"
+        )
+        uint64[] primvars:testing_ui64 = [1, 1, 2, 2] (
+            interpolation = "vertex"
+        )
+    }
+
+    // Indexed primvars on simple array types. This is the opposite case of "Quad_6". It is valid now, but we should
+    // update the tests once we start asserting that these types should not be indexed.
+    def Mesh "Quad_7"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        bool[] primvars:testing_b = [true, false] (
+            interpolation = "varying"
+        )
+        int[] primvars:testing_b:indices = [0, 0, 1, 1]
+        uchar[] primvars:testing_c = [1, 2] (
+            interpolation = "varying"
+        )
+        int[] primvars:testing_c:indices = [0, 0, 1, 1]
+        uint[] primvars:testing_ui = [1, 2] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing_ui:indices = [0, 0, 1, 1]
+        int[] primvars:testing_i = [1, 2] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing_i:indices = [0, 0, 1, 1]
+        int64[] primvars:testing_i64 = [1, 2] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing_i64:indices = [0, 0, 1, 1]
+        uint64[] primvars:testing_ui64 = [1, 2] (
+            interpolation = "vertex"
+        )
+        int[] primvars:testing_ui64:indices = [0, 0, 1, 1]
+    }
+    // OM-123165. usdSkel related primvars cannot be indexed.
+    // Unindexed primvars:skel:* attributes should not be reported by asset validator.
+    def Mesh "Quad_8" (
+        apiSchemas = ["SkelBindingAPI"]
+    )
+    {
+        float3[] extent = [(-100, 0, -100), (100, 0, 100)]
+        int[] faceVertexCounts = [4, 4]
+        int[] faceVertexIndices = [0, 1, 4, 5, 1, 2, 3, 4]
+        uniform token orientation = "rightHanded"
+        point3f[] points = [(-100, 0, -100), (-100, 0, 0), (-100, 0, 100), (100, 0, 100), (100, 0, 0), (100, 0, -100)]
+        normal3f[] primvars:normals = [(0, 1, 0)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:normals:indices = [0, 0, 0, 0, 0, 0]
+        matrix4d primvars:skel:geomBindTransform = ( (1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1) )
+        int[] primvars:skel:jointIndices = [0, 1, 2, 2, 1, 0] (
+            elementSize = 1
+            interpolation = "vertex"
+        )
+        float[] primvars:skel:jointWeights = [1, 1, 1, 1, 1, 1] (
+            elementSize = 1
+            interpolation = "vertex"
+        )
+        uniform token subdivisionScheme = "none"
+    }
+    // primvars have no value - should not reported in UnusedPrimvarCheckerTest
+    def Mesh "Quad_9"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        bool[] primvars:testing_b = []
+        uchar[] primvars:testing_c = [] (
+            interpolation = "varying"
+        )
+        uint[] primvars:testing_ui
+    }
+
+    // primvars have no value but with indices
+    def Mesh "Quad_10"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        float3[] primvars:testing = [] (
+            interpolation = "varying"
+        )
+        int[] primvars:testing:indices = [0, 0, 1, 1]
+    }
+}

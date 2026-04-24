@@ -1,0 +1,75 @@
+#usda 1.0
+(
+"""Content violates the following rules in the Layer Validation Specification
+  - C0/R4: Relationships should not be time varying.
+    * /prim.emptyTimesamplesWithDefault. It has empty timesamples with default target paths set. Empty timesamples should
+        be removed.
+    * /prim.singleTimesampleWithDefault. It has single timesample with default target paths set. Timesamples should be removed.
+
+    * /prim.multipleTimesamplesWithDefault. It has two timesamples with the same sample value and default target paths set.
+        Timesamples should be removed.
+
+    * /prim.differentTimesamplesWithDefault. It has two timesamples with different sample values and default target paths set.
+        Timesamples should be removed.
+
+    * /prim.emptyTimesamplesWithoutDefault. It has empty timesamples without default target paths set. Empty timesamples
+        should be removed.
+
+    * /prim.singleTimesampleWithoutDefault. It has single timesample without default target paths set. It should suggest
+        to convert the single timesample as the default target paths.
+
+    * /prim.multipleTimesamplesWithoutDefault. It has timesamples with the same sample value and default target paths is
+        not set. It should suggest to convert the timesample value as the default target paths.
+
+    * /prim.differentTimesamplesWithoutDefault. It has two timesamples with different sample values and default target paths is
+        not set. It should only fail validator without suggestion.
+"""
+)
+
+def "prim" (
+)
+{
+    # Suggestion to remove timesamples.
+    rel emptyTimesamplesWithDefault = </prim/child>
+    rel emptyTimesamplesWithDefault.timeSamples = {
+    }
+
+    rel singleTimesampleWithDefault = </prim/child>
+    rel singleTimesampleWithDefault.timeSamples = {
+        1.0: </prim/child>
+    }
+
+    rel multipleTimesamplesWithDefault = </prim/child>
+    rel multipleTimesamplesWithDefault.timeSamples = {
+        1.0: </prim/child>,
+        2.0: </prim/child>
+    }
+
+    rel differentTimesamplesWithDefault = </prim/child>
+    rel differentTimesamplesWithDefault.timeSamples = {
+        1.0: </prim/child>,
+        2.0: </prim/child2>
+    }
+
+    rel emptyTimesamplesWithoutDefault.timeSamples = {
+    }
+
+    # Suggestion to use the first timesample as the default.
+    rel singleTimesampleWithoutDefault.timeSamples = {
+        1.0: </prim/child>
+    }
+
+    rel multipleTimesamplesWithoutDefault.timeSamples = {
+        1.0: </prim/child>,
+        2.0: </prim/child>
+    }
+
+    # No suggestion as it has no default value and multiple timesamples present with different values.
+    rel differentTimesamplesWithoutDefault.timeSamples = {
+        1.0: </prim/child>,
+        2.0: </prim/child2>
+    }
+
+    def "child" {
+    }
+}

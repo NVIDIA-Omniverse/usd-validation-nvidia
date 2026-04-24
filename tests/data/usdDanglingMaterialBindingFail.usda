@@ -1,0 +1,17 @@
+#usda 1.0
+(
+    endFrame = 10
+    startFrame = 1
+    upAxis = "Y"
+    metersPerUnit = 1
+    defaultPrim = "Mesh"
+)
+
+def Xform "World"
+{
+    def "Mesh" (
+    )
+    {
+        rel material:binding = </Material>
+    }
+}

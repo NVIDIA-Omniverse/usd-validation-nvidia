@@ -1,0 +1,63 @@
+#usda 1.0
+(
+    defaultPrim = "Looks"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "Material"
+    {
+        def Shader "EmptySourceImpl"
+        {
+            uniform token info:implementationSource = ""
+        }
+
+        def Shader "IllegalSourceImpl"
+        {
+            uniform token info:implementationSource = "fake"
+        }
+
+        def Shader "NoShaderId"
+        {
+            uniform token info:implementationSource = "id"
+        }
+
+        def Shader "EmptyShaderId"
+        {
+            uniform token info:implementationSource = "id"
+            uniform token info:id = ""
+        }
+
+        def Shader "AmbiguousShaderId"
+        {
+            uniform token info:implementationSource = "id"
+            uniform token info:id = "UsdPreviewSurface"
+            uniform asset info:mdl:sourceAsset = @./material.mdl@
+            uniform token info:mdl:sourceAsset:subIdentifier = "MatX"
+            uniform string info:foo:sourceCode = "foo_impl()"
+            uniform string info:sourceCode = "universal_impl()"
+        }
+
+        def Shader "AmbiguousShaderSourceAsset"
+        {
+            uniform token info:implementationSource = "sourceAsset"
+            uniform token info:id = "UsdPreviewSurface"
+            uniform asset info:mdl:sourceAsset = @./material.mdl@
+            uniform token info:mdl:sourceAsset:subIdentifier = "MatX"
+            uniform string info:foo:sourceCode = "foo_impl()"
+            uniform string info:sourceCode = "universal_impl()"
+        }
+
+        def Shader "AmbiguousShaderCode"
+        {
+            uniform token info:implementationSource = "sourceCode"
+            uniform token info:id = "UsdPreviewSurface"
+            uniform asset info:mdl:sourceAsset = @./material.mdl@
+            uniform token info:mdl:sourceAsset:subIdentifier = "MatX"
+            uniform string info:foo:sourceCode = "foo_impl()"
+            uniform string info:sourceCode = "universal_impl()"
+        }
+    }
+}

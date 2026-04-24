@@ -1,0 +1,28 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD sublayers and references other Usds that contain AssetPath attributes.
+    It is intended to test the SupportedFileTypesChecker.
+    """
+    subLayers = [
+        @./supportedFileTypesLayer.usda@
+    ]
+)
+
+def "World" {
+    def "use_vdb" {
+        custom asset Asset = @volumn.vdb@
+    }
+    def "usd_abc" (
+        references = @./supportedFileTypesReference.usda@
+    )
+    {
+    }
+    def "usdz" (
+        references = @./usdzWithUdimTexture.usdz@
+    )
+    {
+    }
+}

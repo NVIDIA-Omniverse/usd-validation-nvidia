@@ -1,0 +1,27 @@
+#usda 1.0
+(
+    """
+    This USDz sublayers, payloads, and references other Usds including materials and other assets.
+    It is intended to test the Atomic Asset Rules.
+    """
+    defaultPrim = "World"
+    subLayers = [
+        @./relativeAssetPath.usda@
+    ]
+)
+
+def "World"
+{
+    def "reference_reference_asset_path" (
+        references = @./relativeAssetPath.usda@
+    )
+    {
+        asset invalid_file_type_in_zip = @./textures/diffuse.xyz@
+    }
+
+    def "reference_material_udim" (
+        references = @./materialUdim.usda@
+    )
+    {
+    }
+}

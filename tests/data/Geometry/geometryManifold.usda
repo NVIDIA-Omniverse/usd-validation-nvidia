@@ -1,0 +1,86 @@
+#usda 1.0
+
+def Xform "root"
+{
+    float3 xformOp:rotateXYZ = (0, 0, 0)
+    float3 xformOp:scale = (100, 100, 100)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+
+
+    // OK
+    def Mesh "Quad_0"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // OK, consistent winding
+    def Mesh "Quad_1"
+    {
+        int[] faceVertexCounts = [3, 3]
+        int[] faceVertexIndices = [0, 1, 3, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // NOK, Inconsistent winding
+    def Mesh "Quad_2"
+    {
+        int[] faceVertexCounts = [3, 3]
+        int[] faceVertexIndices = [0, 1, 3, 1, 3, 2]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // NOK, Non-manifold edges
+    def Mesh "Quad_3"
+    {
+        int[] faceVertexCounts = [6]
+        int[] faceVertexIndices = [0, 1, 2, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // NOK, Non-manifold vertices (Two planes touching at one vertex)
+    def Mesh "Quad_4"
+    {
+        int[] faceVertexCounts = [4, 4]
+        int[] faceVertexIndices = [0, 1, 3, 2, 4, 2, 6, 5]
+        normal3f[] normals = [(0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0)]
+        point3f[] points = [(-0.5, 0, 0.5), (0.5, 0, 0.5), (-0.5, 0, -0.5), (0.5, 0, -0.5), (-1.5, 0, -0.5), (-1.5, 0, -1.5), (-0.5, 0, -1.5)]
+    }
+    // No mesh data (points, normals, faceVertexIndices, faceVertexCounts, ...) defined - Not report failure, error
+    def Mesh "Quad_5"
+    {
+    }
+
+    // OK, bug/5216709
+    def Mesh "Quad_6"
+    {
+        int[] faceVertexCounts = [3, 3, 3]
+        int[] faceVertexIndices = [0, 1, 3, 2, 1, 0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+
+    // NOK, Non-manifold vertices (Two cubes touching at one vertex)
+    def Mesh "Quad_7"
+    {
+        int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        int[] faceVertexIndices = [0, 1, 3, 2, 2, 3, 5, 4, 4, 5, 7, 6, 6, 7, 1, 0, 1, 7, 5, 3, 6, 0, 2, 4, 8, 9, 11, 10, 10, 11, 12, 1, 1, 12, 14, 13, 13, 14, 9, 8, 9, 14, 12, 11, 13, 8, 10, 1]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-1.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-1.5, 1.5, -0.5), (-0.5, 1.5, -0.5), (-1.5, 1.5, -1.5), (-0.5, 1.5, -1.5), (-1.5, 0.5, -1.5), (-0.5, 0.5, -1.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5), (-0.5, 0.5, 0.5), (0.5, 0.5, 0.5), (0.5, 0.5, -0.5), (-0.5, -0.5, -0.5), (0.5, -0.5, -0.5)]
+    }
+
+    // OK, Pyramid with rectangular base and 4 triangular faces
+    def Mesh "Quad_8"
+    {
+        int[] faceVertexCounts = [3, 3, 3, 3, 4]
+        int[] faceVertexIndices = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4, 0, 3, 2, 1]
+        normal3f[] normals = [(0, 0.707, 0.707), (0.707, 0.707, 0), (0, 0.707, -0.707), (-0.707, 0.707, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0)]
+        point3f[] points = [(-1, 0, -1), (1, 0, -1), (1, 0, 1), (-1, 0, 1), (0, 2, 0)]
+    }
+}

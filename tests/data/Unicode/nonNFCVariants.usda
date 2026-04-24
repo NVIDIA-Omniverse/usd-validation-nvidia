@@ -1,0 +1,16 @@
+#usda 1.0
+(
+"""Content violates the rule that variant names should be NFC normalized."""
+)
+
+// Non-NFC normalized variants.
+def "prim" (
+    prepend variantSets = "variantSetÅ"
+)
+{
+    variantSet "variantSetÅ" = {
+        "variantÅ" {
+
+        }
+    }
+}

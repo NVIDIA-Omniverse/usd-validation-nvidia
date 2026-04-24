@@ -1,0 +1,20 @@
+#usda 1.0
+(
+    defaultPrim = "Root"
+    """
+    A material with a empty normal map should not pass the NormalMapTextureChecker validation
+    """
+    subLayers = [
+        @./normalMapNotAuthored.usda@
+    ]
+)
+over "Root"
+{
+    over "Looks"
+    {
+        over "Material"
+        {
+            asset inputs:NormalTexture = @@
+        }
+    }
+}

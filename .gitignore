@@ -3,3 +3,4 @@
 **/__pycache__/
 _repo
 dist
+src/nvidia_usd_validation/capabilities/

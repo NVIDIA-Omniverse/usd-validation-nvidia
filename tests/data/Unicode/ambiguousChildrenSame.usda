@@ -1,0 +1,32 @@
+#usda 1.0
+(
+"""Content violates the rule that all prim names should be NFC normalized, and
+it should not include ambiguous children after unicode normalization applied.
+
+This file includes 3 prims with non-normalized unicode names, and all prims
+are ambiguous after their names are normalized with NFC, NFD, NFKC and NFKD.
+"""
+)
+
+def "reference" {
+    // Non-NFC normalized
+    def "primÅ"
+    {
+    }
+}
+
+def "primÅ"
+{
+    // InstanceProxy will not be verified during traversal.
+    def "reference" (
+        instanceable = true
+        prepend references = </reference/primÅ>
+    )
+    {
+    }
+}
+
+// non-def prim should be travered also.
+over "primÅ"
+{
+}

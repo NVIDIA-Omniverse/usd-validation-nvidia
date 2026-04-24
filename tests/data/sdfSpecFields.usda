@@ -1,0 +1,50 @@
+#usda 1.0
+(
+"""Content violates the following rules in the Layer Validation Specification
+  - C0/R5: prim and its properties use deprecated fields:
+    * permission
+    * symmetricPeer
+    * symmetryArguments
+    * symmetryFunction
+    * prefix
+    * suffix
+"""
+)
+
+def "prim" (
+    permission=public
+    symmetricPeer="b"
+    symmetryArguments={}
+    symmetryFunction=
+    prefix="e"
+    suffix="f"
+)
+{
+    rel relationship = </prim/child> (
+        permission=public
+        symmetricPeer="b"
+        symmetryArguments={}
+        symmetryFunction=
+        prefix="e"
+        suffix="f"
+    )
+
+    token attribute = "bcd" (
+        permission=public
+        symmetricPeer="b"
+        symmetryArguments={}
+        symmetryFunction=
+        prefix="e"
+        suffix="f"
+    )
+
+    # Int value checks should be passed as python treats all of them as int type.
+    uchar value_char = 0
+    uint value_uint = 1
+    int64 int_64_bit = 2
+    uint64 unsigned_int_64 = 3
+    uchar value_char_none = None
+    uint value_uint_none = None
+    int64 int_64_bit_none = None
+    uint64 unsigned_int_64_none = None
+}

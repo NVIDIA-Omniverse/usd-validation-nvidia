@@ -1,0 +1,38 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    endTimeCode = 100
+    metersPerUnit = 0.01
+    startTimeCode = 0
+    timeCodesPerSecond = 24
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def CylinderLight "CylinderLight" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        color3f color = (1, 1, 1)
+        float diffuse = 3
+        bool enableColorTemperature = 0
+        float exposure = 2
+        float intensity = 30000
+        float length = 700
+        bool normalize = 0
+        float radius = 4
+        float shaping:cone:angle = 180
+        float shaping:cone:softness = 7
+        float shaping:focus = 9
+        color3f shaping:focusTint = (1, 0, 0)
+        asset shaping:ies:file
+        float shaping:ies:angleScale = 1
+        bool shaping:ies:normalize = 0
+        float specular = 2
+        double3 xformOp:rotateXYZ = (0, 0, 0)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (34.319339752197266, -81.30550384521484, 46.98616027832031)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+    }
+}
