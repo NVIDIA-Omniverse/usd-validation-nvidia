@@ -123,6 +123,7 @@ test-pip:
       NUMPY_ARG=""
       [ -n "$NUMPY_VERSION" ] && NUMPY_ARG="--with numpy==$NUMPY_VERSION"
       ./repo.sh uv -- run \
+        --no-project \
         --with ./dist/nvidia_usd_validation-*.whl \
         --with usd-core==$USD_VERSION \
         $NUMPY_ARG \
