@@ -101,7 +101,6 @@ build-pip:
   extends:
     - .ipp_lnx_x86_64_cpu_medium
   script:
-    - mkdir -p src/nvidia_usd_validation/capabilities
     - ./repo.sh usd_profiles_codegen
     - ./repo.sh uv -- build -o dist
   artifacts:
