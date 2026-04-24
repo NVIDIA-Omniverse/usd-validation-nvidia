@@ -1,0 +1,81 @@
+########################################################################################################################
+# Repo tool base settings
+########################################################################################################################
+
+[repo]
+logging = "warn"
+
+# Reposiory Name. It is used for solution name and final package name
+name = "nvidia-usd-validation"
+repo_url = "https://gitlab-master.nvidia.com/omniverse/usd-rels/nvidia-usd-validation"
+
+[repo.folders]
+version_file = "${root}/VERSION.md"
+
+[repo.python_executable]
+packman_package_name = "python"
+packman_package_version = "3.11.10+nv3-${platform}"
+packman_link_path = "${root}/_repo/deps/python"
+python_executable_path = "python${exe_ext}"
+
+########################################################################################################################
+# Requirements code generation
+########################################################################################################################
+
+[repo_profiles_codegen]
+enabled = true
+
+[repo_profiles_codegen.python]
+docs_root = "${root}/specs"
+namespace = "nvidia_usd_validation.capabilities"
+destination_dir = "${root}/source/python"
+
+########################################################################################################################
+# Formatting
+########################################################################################################################
+
+[repo_format]
+license_preamble = '''
+SPDX-FileCopyrightText: Copyright (c) {years} NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+SPDX-License-Identifier: Apache-2.0
+'''
+license_text = ""
+
+[repo_format.cpp]
+files.include = [
+]
+files.exclude = [
+    "**"
+]
+
+[repo_format.python]
+maintain_legal_blurbs = true
+files.include = [
+    "**"
+]
+files.exclude."++" = [
+    "venv/*",
+    "tools/*",
+    "specs/*",
+]
+
+
+
+########################################################################################################################
+# Linting
+########################################################################################################################
+
+[repo_lint.flake8]
+enabled = false
+
+[repo_lint.ruff]
+enabled = true
+config = "${root}/ruff.toml"
+files.include = [
+    "src/**/*.py",
+    "tests/**/*.py",
+]
+files.exclude."++" = [
+    "src/nvidia_usd_validation/capabilities/*",
+]
+

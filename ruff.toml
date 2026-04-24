@@ -1,0 +1,17 @@
+line-length = 120 # Line Length should match repo.toml
+target-version = "py310"
+
+[lint]
+select = ["RUF", "UP", "N", "F"]
+ignore = [
+    "E402",   # Ignore module-import-not-at-top-of-file
+    "E501",   # Ignore line-too-long because comments exceed length
+    "SIM108", # Ignore if-else-block-instead-of-if-exp as team thinks it's not always better
+    "RUF001", # Ignore unicode characters for tests
+    "RUF012", # Ignore mutable class attributes since most classes are single instances
+    "N802",   # Function name should be lowercase
+    "N803",   # Argument name should be lowercase
+]
+
+[lint.per-file-ignores]
+"**/__init__.py" = ["F401"]  # Ignore unused imports, unused imports are used for unit tests

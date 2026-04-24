@@ -1,0 +1,5 @@
+.claude/settings.local.json
+.venv
+**/__pycache__/
+_repo
+dist
