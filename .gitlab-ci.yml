@@ -11,7 +11,7 @@ include:
     ref: v1_latest
 
 variables:
-  MIRROR_REPO_ID: "omniverse-usd-rels-nvidia-usd-validation"
+  MIRROR_REPO_ID: "nvidia-usd-validation"
 
 .default-rules:
   rules:
