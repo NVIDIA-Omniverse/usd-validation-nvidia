@@ -1,4 +1,4 @@
-["nvidia-usd-validation"]
+["nvidia_usd_validation"]
 files = [
     ["dist", "."],
 ]
