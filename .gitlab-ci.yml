@@ -124,9 +124,24 @@ test-pip:
         python -m unittest discover -s tests
 
 # ==============================================================================================================
-# Publish Jobs
+# Packman Package Builds
 # ==============================================================================================================
 
+build-package:
+  stage: build
+  needs: []
+  extends:
+    - .ipp_lnx_x86_64_cpu_medium
+  script:
+    - ./repo.sh usd_profiles_codegen
+    - ./repo.sh package -m nvidia_usd_validation -c release
+  artifacts:
+    paths:
+      - _build/packages
+
+# ==============================================================================================================
+# Publish Jobs
+# ==============================================================================================================
 
 publish-cloudfront:
   stage: deploy
@@ -134,13 +149,13 @@ publish-cloudfront:
     - .ipp_lnx_x86_64_cpu_micro
     - .osec:vault:v3:prod_token_job
   needs:
+    - job: build-package
+      artifacts: true
     - job: test-pip
       artifacts: false
   before_script:
     - !reference [.osec:vault:v3:linux, packman_s3:perform_vault_requests]
   script:
-    - ./repo.sh usd_profiles_codegen
-    - ./repo.sh package -m nvidia_usd_validation -c release
     - ./repo.sh publish
   rules:
     - if: $CI_COMMIT_TAG
