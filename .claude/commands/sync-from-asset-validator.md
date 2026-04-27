@@ -23,6 +23,7 @@ Also copies:
 - `tests/` subpackage (test helper mixins) → `src/nvidia_usd_validation/tests/`
 - `C:\sources\asset-validator\source\python\tests\` (actual tests + data) → `tests/`
 - `C:\sources\asset-validator\specs\` → `specs/`
+- `C:\sources\asset-validator\source\python\docs\CHANGELOG.md` → `CHANGELOG.md` (with rename applied)
 
 **Not copied** (intentionally):
 - `_version.py` — this repo has its own static `_version.py` using `importlib.metadata`; upstream's version is a hardcoded string and must not overwrite ours
@@ -58,6 +59,7 @@ import shutil
 SRC_AV = Path("C:/sources/asset-validator/source/python/omni/asset_validator")
 SRC_TESTS = Path("C:/sources/asset-validator/source/python/tests")
 SRC_SPECS = Path("C:/sources/asset-validator/specs")
+SRC_DOCS = Path("C:/sources/asset-validator/source/python/docs")
 DST = Path("src/nvidia_usd_validation")  # relative to repo root
 
 def transform(content: str) -> str:
@@ -107,6 +109,11 @@ for src_file in sorted(SRC_SPECS.rglob("*")):
     dst_file = specs_dst / rel
     dst_file.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src_file, dst_file)
+
+# --- changelog ---
+changelog = (SRC_DOCS / "CHANGELOG.md").read_text(encoding="utf-8")
+changelog = changelog.replace("omni.asset_validator", "nvidia_usd_validation")
+Path("CHANGELOG.md").write_text(changelog, encoding="utf-8")
 
 print("Sync complete.")
 ```
