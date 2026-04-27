@@ -1,0 +1,60 @@
+#usda 1.0
+
+# https://graphics.pixar.com/usd/release/api/class_usd_geom_point_instancer.html#UsdGeomPointInstancer_protoProcessing
+def PointInstancer "Crowd_Mid"
+{
+    rel prototypes = [ </Crowd_Mid/Prototypes/MaleThin_Business>, </Crowd_Mid/Prototypes/MaleThin_Casual> ]
+
+    over "Prototypes"
+    {
+        def "MaleThin_Business" (
+            variants = {
+                string modelingVariant = "Thin"
+                string costumeVariant = "BusinessAttire"
+            }
+        )
+        {}
+
+        def "MaleThin_Casual" (
+        )
+        {}
+    }
+}
+
+def Xform "Connect_Model" {
+    def Xform "Processor" {
+        token outputs:surface.connect = </Connect_Model/Hidden/Transform1/Transform2/Data.outputs:result>
+        token outputs:rgb.connect = </Connect_Model/Color.outputs:rgb>
+    }
+
+    over "Hidden" {
+        def Xform "Transform1" {
+            def Xform "Transform2" {
+                def Xform "Data"
+                {
+                    float2 outputs:result
+                }
+            }
+
+            def Xform "Dummy" {}
+        }
+    }
+
+    over "Color" {
+        def Xform "Transform1" {
+            def Xform "Tranform2" {
+                def Xform "Transform3" {
+                    rel links = </Connect_Model/HiddenIndirect/UnderOver.rainbow>
+                }
+            }
+        }
+
+        color3f outputs:rgb
+    }
+
+    over "HiddenIndirect" {
+        over "UnderOver" {
+            color3f rainbow
+        }
+    }
+}

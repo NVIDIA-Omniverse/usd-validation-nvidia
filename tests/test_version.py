@@ -3,12 +3,14 @@
 #
 import unittest
 
-from nvidia_usd_validation import __version__
+from nvidia_usd_validation import __version__, get_version
 
 
 class TestVersion(unittest.TestCase):
-    """Tests for package version metadata."""
+    def test___version___is_string(self):
+        self.assertIsInstance(__version__, str)
+        self.assertRegex(__version__, r"^\d+\.\d+\.\d+.*$")
 
-    def test_version_is_set(self):
-        """Verify that __version__ is set to a non-empty string."""
-        self.assertTrue(__version__)
+    def test_get_version_matches___version__(self):
+        version = get_version()
+        self.assertEqual(version, __version__)

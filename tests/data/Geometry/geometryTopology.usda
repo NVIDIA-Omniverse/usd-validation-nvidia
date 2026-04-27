@@ -1,0 +1,153 @@
+#usda 1.0
+
+def Xform "root"
+{
+    float3 xformOp:rotateXYZ = (0, 0, 0)
+    float3 xformOp:scale = (100, 100, 100)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+
+    // Static, OK
+    def Mesh "Quad_0"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+    // Missing counts
+    def Mesh "Quad_1"
+    {
+        int[] faceVertexCounts = [4, 3]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+    // Missing index
+    def Mesh "Quad_2"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+    // Missing points
+    def Mesh "Quad_3"
+    {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500)]
+    }
+    // Dynamic topology, missing counts
+    def Mesh "Quad_4"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            0: [4],
+            1: [4, 3]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            0: [0, 1, 2, 3],
+            1: [0, 1, 2, 3]
+        }
+        normal3f[] normals.timeSamples = {
+            0: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)],
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+    // Dynamic topology, missing indices
+    def Mesh "Quad_5"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            0: [4],
+            1: [4]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            0: [0, 1, 2, 3],
+            1: [0, 1, 2]
+        }
+        normal3f[] normals.timeSamples = {
+            0: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)],
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+    }
+    // Dynamic topology, missing points
+    def Mesh "Quad_6"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            0: [4],
+            1: [4]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            0: [0, 1, 2, 3],
+            1: [0, 1, 2, 3]
+        }
+        normal3f[] normals.timeSamples = {
+            0: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)],
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500)]
+    }
+    // Dynamic, NOK
+    def Mesh "Quad_7"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            0: [4],
+            1: [4, 3]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            0: [0, 1, 2, 3],
+            1: [0, 1, 2, 3]
+        }
+        normal3f[] normals.timeSamples = {
+            0: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)],
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points.timeSamples = {
+            0: [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)],
+            1: [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        }
+    }
+    // Dynamic, OK
+    def Mesh "Quad_8"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            0: [4],
+            1: [4]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            0: [0, 1, 2, 3],
+            1: [0, 1, 2, 3]
+        }
+        normal3f[] normals.timeSamples = {
+            0: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)],
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points.timeSamples = {
+            0: [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)],
+            1: [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        }
+    }
+    // Earlier time, OK
+    def Mesh "Quad_9"
+    {
+        int[] faceVertexCounts.timeSamples = {
+            1: [4]
+        }
+        int[] faceVertexIndices.timeSamples = {
+            1: [0, 1, 2, 3]
+        }
+        normal3f[] normals.timeSamples = {
+            1: [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        }
+        point3f[] points.timeSamples = {
+            1: [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        }
+    }
+    // No mesh data (points, normals, faceVertexIndices, faceVertexCounts, ...) defined
+    def Mesh "Quad_10"
+    {
+    }
+}

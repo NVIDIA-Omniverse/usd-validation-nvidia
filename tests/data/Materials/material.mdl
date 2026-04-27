@@ -1,0 +1,5 @@
+mdl 1.5;
+
+import C::MatC;
+
+export material MatX() = C::MatC();

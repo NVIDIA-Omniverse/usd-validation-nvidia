@@ -1,0 +1,202 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def PhysicsScene "physicsScene"
+    {
+    }
+
+    def Cube "cube" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsCollisionAPI"]
+    )
+    {
+        float3[] extent = [(-50, -50, -50), (50, 50, 50)]
+        double size = 100
+        float3 xformOp:translate = (65, 300, 65)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+    }
+
+    def Mesh "quad" (
+        apiSchemas = ["PhysicsCollisionAPI", "PhysicsMeshCollisionAPI"]
+    )
+    {
+        float3[] extent = [(-500, 0, -500), (500, 0, 500)]
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        uniform token orientation = "rightHanded"
+        uniform token physics:approximation = "none"
+        point3f[] points = [(-500, 0, -500), (-500, 0, 500), (500, 0, 500), (500, 0, -500)]
+        uniform token subdivisionScheme = "none"
+    }
+
+    def Mesh "box_0" (
+        apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsCollisionAPI", "PhysicsMeshCollisionAPI", "MaterialBindingAPI"]
+    )
+    {
+        float3[] extent = [(-50, -50, -50), (50, 50, 50)]
+        int[] faceVertexCounts = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+        int[] faceVertexIndices = [0, 1, 2, 1, 3, 2, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23]
+        rel material:binding = </World/Looks/Fieldstone>
+        normal3f[] normals = [(0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0)]
+        uniform token orientation = "rightHanded"
+        uniform token physics:approximation = "convexHull"
+        point3f[] points = [(50, -50, -50), (-50, -50, -50), (50, 50, -50), (-50, 50, -50), (50, 50, 50), (-50, 50, 50), (-50, -50, 50), (50, -50, 50), (50, -50, 50), (-50, -50, 50), (-50, -50, -50), (50, -50, -50), (50, 50, 50), (50, -50, 50), (50, -50, -50), (50, 50, -50), (-50, 50, 50), (50, 50, 50), (50, 50, -50), (-50, 50, -50), (-50, -50, 50), (-50, 50, 50), (-50, 50, -50), (-50, -50, -50)]
+        color3f[] primvars:displayColor = [(0.463, 0.725, 0)]
+        texCoord2f[] primvars:st = [(0, 0), (0, 1), (1, 0), (1, 1)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:st:indices = [0, 1, 3, 2, 0, 1, 3, 2, 0, 1, 3, 2, 0, 1, 3, 2, 0, 1, 3, 2, 0, 1, 3, 2]
+        double3 xformOp:rotateXYZ = (20, 0, 20)
+        double3 xformOp:translate = (0, 100, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ"]
+        uniform token subdivisionScheme = "none"
+    }
+
+    def DistantLight "DistantLight"
+    {
+        float angle = 0.53
+        color3f color = (1, 1, 0.745)
+        float intensity = 5000
+        float inputs:angle = 0.53
+        color3f inputs:color = (1, 1, 0.745)
+        float inputs:intensity = 5000
+        float inputs:diffuse = 3
+        bool inputs:enableColorTemperature = 0
+        float inputs:exposure = 5
+        bool inputs:normalize = 0
+        float inputs:specular = 1
+    }
+
+    def Scope "Looks"
+    {
+        def Material "Fieldstone"
+        {
+            token outputs:mdl:surface.connect = </World/Looks/Fieldstone/Fieldstone.outputs:out>
+            token outputs:surface.connect = </World/Looks/Fieldstone/FieldstonePreviewSurface.outputs:surface>
+
+            def Shader "FieldstoneShader"
+            {
+                uniform token info:id = "mdlMaterial"
+                uniform token info:implementationSource = "sourceAsset"
+                uniform asset info:mdl:sourceAsset = @./Materials/Fieldstone.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "Fieldstone"
+                token outputs:out
+            }
+
+            def Shader "PrimST"
+            {
+                uniform token info:id = "UsdPrimvarReader_float2"
+                float2 inputs:fallback = (0, 0)
+                string inputs:varname = "st" (
+                    connectability = "interfaceOnly"
+                )
+                float2 outputs:result
+            }
+
+            def Shader "FieldstoneDiffuseColorTex"
+            {
+                uniform token info:id = "UsdUVTexture"
+                float4 inputs:bias = (0, 0, 0, 0) (
+                    connectability = "interfaceOnly"
+                )
+                float4 inputs:fallback = (0, 0, 0, 1)
+                asset inputs:file = @./Materials/Fieldstone/Fieldstone_BaseColor.png@ (
+                    connectability = "interfaceOnly"
+                )
+                float4 inputs:scale = (1, 1, 1, 1) (
+                    connectability = "interfaceOnly"
+                )
+                token inputs:sourceColorSpace = "auto" (
+                    allowedTokens = ["raw", "sRGB", "auto"]
+                    connectability = "interfaceOnly"
+                )
+                float2 inputs:st = (0, 0)
+                float2 inputs:st.connect = </World/Looks/Fieldstone/PrimST.outputs:result>
+                token inputs:wrapS = "useMetadata" (
+                    allowedTokens = ["black", "clamp", "repeat", "mirror", "useMetadata"]
+                    connectability = "interfaceOnly"
+                )
+                token inputs:wrapT = "useMetadata" (
+                    allowedTokens = ["black", "clamp", "repeat", "mirror", "useMetadata"]
+                    connectability = "interfaceOnly"
+                )
+                float outputs:a
+                float outputs:b
+                float outputs:g
+                float outputs:r
+                float3 outputs:rgb
+            }
+
+            def Shader "FieldstoneNormalTex"
+            {
+                uniform token info:id = "UsdUVTexture"
+                float4 inputs:bias = (-1, -1, -1, 0) (
+                    connectability = "interfaceOnly"
+                )
+                float4 inputs:fallback = (0, 0, 0, 1)
+                asset inputs:file = @./Materials/Fieldstone/Fieldstone_N.png@ (
+                    connectability = "interfaceOnly"
+                )
+                float4 inputs:scale = (2, 2, 2, 2) (
+                    connectability = "interfaceOnly"
+                )
+                token inputs:sourceColorSpace = "raw" (
+                    allowedTokens = ["raw", "sRGB", "auto"]
+                    connectability = "interfaceOnly"
+                )
+                float2 inputs:st = (0, 0)
+                float2 inputs:st.connect = </World/Looks/Fieldstone/PrimST.outputs:result>
+                token inputs:wrapS = "useMetadata" (
+                    allowedTokens = ["black", "clamp", "repeat", "mirror", "useMetadata"]
+                    connectability = "interfaceOnly"
+                )
+                token inputs:wrapT = "useMetadata" (
+                    allowedTokens = ["black", "clamp", "repeat", "mirror", "useMetadata"]
+                    connectability = "interfaceOnly"
+                )
+                float outputs:a
+                float outputs:b
+                float outputs:g
+                float outputs:r
+                float3 outputs:rgb
+            }
+
+            def Shader "FieldstonePreviewSurface"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                float inputs:clearcoat = 0
+                float inputs:clearcoatRoughness = 0.01
+                color3f inputs:diffuseColor = (0.18, 0.18, 0.18)
+                color3f inputs:diffuseColor.connect = </World/Looks/Fieldstone/FieldstoneDiffuseColorTex.outputs:rgb>
+                float inputs:displacement = 0
+                color3f inputs:emissiveColor = (0, 0, 0)
+                float inputs:ior = 1.5
+                float inputs:metallic = 0
+                normal3f inputs:normal = (0, 0, 1)
+                normal3f inputs:normal.connect = </World/Looks/Fieldstone/FieldstoneNormalTex.outputs:rgb>
+                float inputs:occlusion = 1
+                float inputs:opacity = 1
+                float inputs:opacityThreshold = 0 (
+                    connectability = "interfaceOnly"
+                )
+                float inputs:roughness = 0.5
+                color3f inputs:specularColor = (0, 0, 0)
+                int inputs:useSpecularWorkflow = 0 (
+                    connectability = "interfaceOnly"
+                )
+                token outputs:displacement (
+                    renderType = "material"
+                )
+                token outputs:surface (
+                    renderType = "material"
+                )
+            }
+        }
+    }
+}

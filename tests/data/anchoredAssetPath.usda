@@ -1,0 +1,42 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD sublayers, payloads, and references other Usds using both absolute and relative path.
+    It is intended to test the AnchoredAssetPathsChecker.
+    """
+    subLayers = [
+        @./relativeAssetPath.usda@,
+        @./absoluteAssetPath.usda@,
+        @/absolute/path/to/an_absolute.usda@,
+        @./file_not_exist.usd@,
+    ]
+)
+
+def "World" {
+    def "reference_reference_asset_path" (
+        references = @./relativeAssetPath.usda@
+    )
+    {
+        asset file_not_exist = @./textures/not_a_real_path.png@
+    }
+
+    def "reference_absolute_asset_path" (
+        references = @./absoluteAssetPath.usda@
+    )
+    {
+    }
+
+    def "material" (
+        payload = @./usdzWithUdimTexture.usda@
+    )
+    {
+    }
+
+    def "use_search_path" (
+        references = @a_search_path.usda@
+    )
+    {
+    }
+}

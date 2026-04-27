@@ -1,0 +1,27 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD uses absolute paths for sublayers, payloads, and references.
+    It is intended to test the Atomic Asset Rules.
+    """
+    subLayers = [
+        @/absolute/path/to/an_absolute.usda@
+    ]
+)
+
+def "World"
+{
+    def "absolute_reference" (
+        references = @/absolute/path/to/an_absolute.usda@
+    )
+    {
+    }
+
+    def "absolute_payload" (
+        payload = @/absolute/payload/path/to/an_absolute.usda@
+    )
+    {
+    }
+}

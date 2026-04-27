@@ -1,0 +1,17 @@
+#usda 1.0
+
+def Xform "Root" (
+    kind = "assembly"
+)
+{
+    def Scope "StaticMeshes" (
+        kind = "group"
+    )
+    {
+        def Xform "Floor_14" (
+            kind = "component"
+        )
+        {
+        }
+    }
+}

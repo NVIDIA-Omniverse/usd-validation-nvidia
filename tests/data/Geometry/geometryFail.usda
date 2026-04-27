@@ -1,0 +1,61 @@
+#usda 1.0
+
+def Xform "root"
+{
+    float3 xformOp:rotateXYZ = (0, 0, 0)
+    float3 xformOp:scale = (100, 100, 100)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+
+    def Scope "materials"
+    {
+    }
+
+    def Xform "lights"
+    {
+        def Xform "environment"
+        {
+        }
+    }
+
+    def Xform "Cube_001"
+    {
+        def Mesh "Cube_001" (
+            active = true
+        )
+        {
+            int[] faceVertexCounts = [4, 4, 4, 4, 4, 4, 3, 4, 4, 4, 4]
+            int[] faceVertexIndices = [6, 4, 5, 7, 7, 5, 10, 9, 9, 10, 8, 11, 11, 8, 4, 6, 7, 9, 11, 6, 7, 6, 2, 3, 1, 0, 2, 15, 13, 12, 14, 6, 11, 21, 20, 20, 21, 23, 22, 22, 23, 25, 24]
+            normal3f[] normals = [(-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -0.99999994), (0, 0, -0.99999994), (0, 0, -0.99999994), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, -0.99999994), (0, 0, -0.99999994), (0, 0, -0.99999994), (0, 0, -0.99999994)] (
+                interpolation = "faceVarying"
+            )
+            point3f[] points = [(-2.794587, 1, -1), (-2.794587, -1, -1), (-2.0027864, -1, -1), (-2.0027864, 1, -1), (-1, -1, 1), (-1, 1, 1), (-1, -1, -1), (-1, 1, -1), (1, -1, 1), (1, 1, -1), (1, 1, 1), (1, -1, -1), (-1, -1, 1), (-1, 1, 1), (1, -1, 1), (1, 1, 1), (-1, -1, 1.6612971), (-1, 1, 1.6612971), (1, -1, 1.6612971), (1, 1, 1.6612971), (-1, -1.8023958, -1), (1, -1.8023958, -1), (-1, -1.8023958, -1), (1, -1.8023958, -1), (-1, -2.1638453, -1), (1, -2.1638453, -1)]
+            texCoord2f[] primvars:st = [(0.375, 0), (0.625, 0), (0.625, 0.25), (0.375, 0.25), (0.375, 0.25), (0.625, 0.25), (0.625, 0.5), (0.375, 0.5), (0.375, 0.5), (0.625, 0.5), (0.625, 0.75), (0.375, 0.75), (0.375, 0.75), (0.625, 0.75), (0.625, 1), (0.375, 1), (0.125, 0.5), (0.375, 0.5), (0.375, 0.75), (0.125, 0.75), (0.375, 0.25), (0.375, 0), (0.375, 0), (0.375, 0.25), (0, 0), (0, 0), (0, 0), (0.625, 0.5), (0.875, 0.5), (0.875, 0.75), (0.625, 0.75), (0.375, 1), (0.375, 0.75), (0.375, 0.75), (0.375, 1), (0.375, 1), (0.375, 0.75), (0.375, 0.75), (0.375, 1), (0.375, 1), (0.375, 0.75), (0.375, 0.75), (0.375, 1)] (
+                interpolation = "faceVarying"
+            )
+            uniform token subdivisionScheme = "none"
+        }
+    }
+    // No mesh data (points, normals, faceVertexIndices, faceVertexCounts, ...) Should not report failures, errors
+    // The failure cases are tested in ValidateTopologyCheckerTest using omniGeometryTopology.usda
+    def Mesh "Quad_1"
+    {
+    }
+
+    def Mesh "Quad_2" {
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        # Too many points authored.  points[4] is unreferenced
+        point3f[] points = [(1, 0, 0), (2, 0, 0), (3, 0, 0), (4, 0, 0), (5, 0, 0)]
+
+        # Extra values of vertex or varying primvars should be removed too during fix.
+        float[] primvars:value1 = [1, 2, 3, 4, 5] (interpolation = "vertex")
+        float[] primvars:value2 = [1, 2, 3, 4, 5] (interpolation = "varying")
+        float[] primvars:value3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (interpolation = "vertex"; elementSize = 2)
+        float[] primvars:value4 = [0, 1, 2, 3] (interpolation = "faceVarying")
+        float3[] primvars:value5 = [(1, 0, 0), (2, 0, 0)] (
+            interpolation = "vertex"
+        )
+        int[] primvars:value5:indices = [0, 1, 0, 1, 1]
+    }
+}

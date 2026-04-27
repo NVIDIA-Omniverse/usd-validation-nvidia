@@ -1,0 +1,82 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    def Scope "NoExtent"
+    {
+        def Scope "Warn"
+        {
+            def Points "Pass"
+            {
+                point3f[] points = [(8388.607, 0.0, 0.0)]
+            }
+            def Points "Fail"
+            {
+                point3f[] points = [(8388.608, 0.0, 0.0)]
+            }
+        }
+        def Scope "Error"
+        {
+            def Points "Pass"
+            {
+                point3f[] points = [(8388608.0, 0.0, 0.0)]
+            }
+            def Points "Fail"
+            {
+                point3f[] points = [(8388609.0, 0.0, 0.0)]
+            }
+        }
+        def Scope "Points"
+        {
+            def Points "Fallback"
+            {
+            }
+            def Points "Empty"
+            {
+                point3f[] points = []
+            }
+        }
+    }
+    def Scope "Extent"
+    {
+        def Scope "Warn"
+        {
+            def Points "Pass"
+            {
+                float3[] extent = [(0.0, 0.0, 0.0), (8388.607, 0, 0)]
+                point3f[] points = [(0.0, 0.0, 0.0)]
+            }
+            def Points "Fail"
+            {
+                float3[] extent = [(0.0, 0.0, 0.0), (8388.608, 0, 0)]
+                point3f[] points = [(0.0, 0.0, 0.0)]
+            }
+        }
+        def Scope "Error"
+        {
+            def Points "Pass"
+            {
+                float3[] extent = [(0.0, 0.0, 0.0), (8388608, 0, 0)]
+                point3f[] points = [(0.0, 0.0, 0.0)]
+            }
+            def Points "Fail"
+            {
+                float3[] extent = [(0.0, 0.0, 0.0), (8388609, 0, 0)]
+                point3f[] points = [(0.0, 0.0, 0.0)]
+            }
+        }
+        def Points "Empty"
+        {
+            float3[] extent = []
+        }
+        def Points "Invalid"
+        {
+            float3[] extent = [(-99999999, 0, 0)]
+        }
+    }
+}

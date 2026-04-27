@@ -1,0 +1,54 @@
+#usda 1.0
+
+def Xform "Root" (
+    kind = "assembly"
+)
+{
+    # EmptyKindAncestor node should be fixed with kind = "group".
+    def Scope "EmptyKindAncestor" (
+        kind = ""
+    )
+    {
+        # EmptyKindParent node should be fixed with kind = "group".
+        def Xform "EmptyKindParent" {
+            def Xform "node" (
+                kind = "component"
+            )
+            {
+                # Child should be fixed with kind = "subcomponent".
+                def Xform "child" (
+                    kind = "component"
+                )
+                {
+                }
+            }
+        }
+
+        def Xform "node" (
+            kind = "component"
+        )
+        {
+            # Parent should be fixed with kind = "subcomponent".
+            def Xform "parent" {
+                # Child should be fixed with kind = "subcomponent".
+                def Xform "child" (
+                    kind = "component"
+                )
+                {
+                }
+            }
+        }
+    }
+}
+
+def Xform "ComponentKindRoot" (
+    kind = "component"
+)
+{
+    # Child should be fixed with kind = "subcomponent".
+    def Xform "ComponentKindParent" (
+        kind = "component"
+    )
+    {
+    }
+}

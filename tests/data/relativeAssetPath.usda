@@ -1,0 +1,23 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD uses relative paths for sublayers, payloads, and references.
+    It is intended to test the Atomic Asset Rules.
+    """
+    subLayers = [
+        @./curves.usda@
+    ]
+)
+
+def "World"
+{
+    def "relative_reference" (
+        references = @./curves.usda@</curve>
+    )
+    {
+        asset valid_udim_file = @./textures/diffuse.<UDIM>.png@
+        asset invalid_file_type = @./textures/diffuse.xyz@
+    }
+}

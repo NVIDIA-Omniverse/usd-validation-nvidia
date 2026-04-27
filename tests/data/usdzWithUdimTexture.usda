@@ -1,0 +1,26 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD sublayers and references other Usds including a usdz file.
+    It is intended to test the Atomic Asset Rules.
+    """
+    subLayers = [
+        @./relativeAssetPath.usda@,
+    ]
+)
+
+def "World" {
+    def "reference_usdz" (
+        references = @./usdzWithUdimTexture.usdz@
+    )
+    {
+    }
+
+    def "udim_material" (
+        references = @./materialUdim.usda@
+    )
+    {
+    }
+}

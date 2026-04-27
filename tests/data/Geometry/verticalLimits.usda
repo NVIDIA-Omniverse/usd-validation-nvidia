@@ -1,0 +1,66 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 0.01
+    upAxis = "Y"
+)
+
+def Xform "World"
+{
+    class Scope "Prototypes"
+    {
+        def Xform "Parent"
+        {
+            double3 xformOp:translate = (0.0, 0.0, 0.0)
+            double3 xformOp:scale = (1.0, 1.0, 1.0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+
+            def Cube "Cube"
+            {
+                float3[] extent = [(-1, -1, -1), (1, 1, 1)]
+                double size = 2.0
+                double3 xformOp:translate = (0.0, 0.0, 0.0)
+                double3 xformOp:scale = (1.0, 1.0, 1.0)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+            }
+        }
+        def Cube "Fail"
+        {
+            float3[] extent = [(-1, -1, -1), (1, 1, 1)]
+            double size = 2.0
+            double3 xformOp:translate = (0.0, -1.0, 0.0)
+            double3 xformOp:scale = (1.0, 1.0, 1.0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
+        }
+    }
+
+    def Xform "TranslateY"
+    {
+        over "Pass" ( prepend references = </World/Prototypes/Parent/Cube> )
+        {
+            double3 xformOp:translate = (0.0, 1.0, 0.0)
+        }
+        over "Fail" ( prepend references = </World/Prototypes/Parent/Cube> )
+        {
+            double3 xformOp:translate = (0.0, -1.0, 0.0)
+        }
+    }
+
+    def Xform "Instance"
+    {
+        over "Pass" (
+            instanceable = true
+            prepend references = </World/Prototypes/Parent>
+        )
+        {
+            double3 xformOp:translate = (0.0, 1.0, 0.0)
+        }
+        over "Fail" (
+            instanceable = true
+            prepend references = </World/Prototypes/Parent>
+        )
+        {
+            double3 xformOp:translate = (0.0, -1.0, 0.0)
+        }
+    }
+}

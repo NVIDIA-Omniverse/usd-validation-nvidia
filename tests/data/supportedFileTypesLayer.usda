@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+
+    """
+    This USD contains AssetPath attributes.
+    It is intended to test the SupportedFileTypesChecker.
+    """
+)
+
+def "World" {
+    def "use_xml" {
+        custom asset Asset = @xml.xml@
+    }
+    def "use_png" {
+        custom asset Asset = @pic.png@
+    }
+}

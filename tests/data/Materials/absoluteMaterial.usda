@@ -1,0 +1,22 @@
+#usda 1.0
+(
+    defaultPrim = "Looks"
+    upAxis = "Y"
+)
+def "Looks"
+{
+    def Material "MatX"
+    {
+        token outputs:mdl:displacement.connect = </Looks/MatX/Shader.outputs:out>
+        token outputs:mdl:surface.connect = </Looks/MatX/Shader.outputs:out>
+        token outputs:mdl:volume.connect = </Looks/MatX/Shader.outputs:out>
+
+        def Shader "Shader"
+        {
+            uniform token info:implementationSource = "sourceAsset"
+            uniform asset info:mdl:sourceAsset = @replace.mdl@
+            uniform token info:mdl:sourceAsset:subIdentifier = "MatX"
+            token outputs:out
+        }
+    }
+}

@@ -1,0 +1,39 @@
+#usda 1.0
+(
+    defaultPrim = "Looks"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Scope "Looks"
+{
+    def Material "Material"
+    {
+        def Shader "ShaderId"
+        {
+            uniform token info:implementationSource = "id"
+            uniform token info:id = "UsdPreviewSurface"
+        }
+
+        def Shader "NoSourceImplUsesId"
+        {
+            uniform token info:id = "UsdPreviewSurface"
+        }
+
+        def Shader "ShaderSourceAsset"
+        {
+            uniform token info:implementationSource = "sourceAsset"
+            uniform asset info:mdl:sourceAsset = @./material.mdl@
+            uniform token info:mdl:sourceAsset:subIdentifier = "MatX"
+            uniform asset info:foo:sourceAsset = @./material.mdl@
+            uniform asset info:bar:sourceAsset = @./material.mdl@
+        }
+
+        def Shader "AmbiguousShaderCode"
+        {
+            uniform token info:implementationSource = "sourceCode"
+            uniform string info:foo:sourceCode = "foo_impl()"
+            uniform string info:sourceCode = "universal_impl()"
+        }
+    }
+}

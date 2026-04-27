@@ -1,0 +1,26 @@
+#usda 1.0
+(
+    endFrame = 10
+    startFrame = 1
+    upAxis = "Y"
+    metersPerUnit = 1
+    defaultPrim = "Root"
+)
+
+def Xform "Root"(
+    variants = {
+        string Main = "variant1"
+    }
+    prepend variantSets = ["Main"]
+)
+{
+    variantSet "Main" = {
+        "variant1" {
+            over "World"(
+                references = @./helloworld.usda@
+            )
+            {
+            }
+        }
+    }
+}
