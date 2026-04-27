@@ -86,7 +86,7 @@ check-version:
       dotenv: dotenv.env
 
 # ==============================================================================================================
-# Pip Package Builds
+# Build Jobs
 # ==============================================================================================================
 
 build-pip:
@@ -100,6 +100,18 @@ build-pip:
   artifacts:
     paths:
       - dist
+
+build-package:
+  stage: build
+  needs: []
+  extends:
+    - .ipp_lnx_x86_64_cpu_medium
+  script:
+    - ./repo.sh usd_profiles_codegen
+    - ./repo.sh package -m nvidia_usd_validation -c release
+  artifacts:
+    paths:
+      - _build/packages
 
 test-pip:
   stage: test
@@ -122,22 +134,6 @@ test-pip:
         --with usd-core==$USD_VERSION \
         $NUMPY_ARG \
         python -m unittest discover -s tests
-
-# ==============================================================================================================
-# Packman Package Builds
-# ==============================================================================================================
-
-build-package:
-  stage: build
-  needs: []
-  extends:
-    - .ipp_lnx_x86_64_cpu_medium
-  script:
-    - ./repo.sh usd_profiles_codegen
-    - ./repo.sh package -m nvidia_usd_validation -c release
-  artifacts:
-    paths:
-      - _build/packages
 
 # ==============================================================================================================
 # Publish Jobs
