@@ -89,18 +89,6 @@ check-version:
 # Build Jobs
 # ==============================================================================================================
 
-build-pip:
-  stage: build
-  needs: []
-  extends:
-    - .ipp_lnx_x86_64_cpu_medium
-  script:
-    - ./repo.sh usd_profiles_codegen
-    - ./repo.sh uv -- build -o dist
-  artifacts:
-    paths:
-      - dist
-
 build-package:
   stage: build
   needs: []
@@ -112,6 +100,18 @@ build-package:
   artifacts:
     paths:
       - _build/packages
+
+build-pip:
+  stage: build
+  needs: []
+  extends:
+    - .ipp_lnx_x86_64_cpu_medium
+  script:
+    - ./repo.sh usd_profiles_codegen
+    - ./repo.sh uv -- build -o dist
+  artifacts:
+    paths:
+      - dist
 
 test-pip:
   stage: test
