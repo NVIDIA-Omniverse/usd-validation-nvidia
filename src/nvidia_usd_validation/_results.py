@@ -12,6 +12,7 @@ from functools import singledispatch
 from pxr import Usd
 
 from ._issues import Issue, IssuePredicate, IssuesList
+from ._validation_context import ValidationContext
 
 __all__ = [
     "Results",
@@ -37,6 +38,7 @@ class Results(Sequence[Issue]):
 
     asset: str
     issues: list[Issue] | IssuesList = field(default_factory=list)
+    context: ValidationContext | None = None
 
     def __post_init__(self):
         object.__setattr__(self, "issues", to_issues_list(self.issues))
@@ -71,6 +73,7 @@ class Results(Sequence[Issue]):
         return Results(
             asset=self.asset,
             issues=self.issues.filter_by(predicate),
+            context=self.context,
         )
 
     def __len__(self) -> int:
@@ -108,6 +111,7 @@ class Results(Sequence[Issue]):
 @dataclass(frozen=True)
 class ResultsList(Sequence[Results]):
     results: list[Results] = field(default_factory=list)
+    context: ValidationContext | None = None
 
     def __len__(self) -> int:
         return len(self.results)

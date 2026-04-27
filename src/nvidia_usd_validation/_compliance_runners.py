@@ -45,6 +45,7 @@ class ComplianceCheckerEventType(Enum):
     LAYER = attrgetter(BaseRuleChecker.CheckLayer.__name__)
     ZIP_FILE = attrgetter(BaseRuleChecker.CheckZipFile.__name__)
     PRIM = attrgetter(BaseRuleChecker.CheckPrim.__name__)
+    FORMAT_DEPENDENCY = attrgetter(BaseRuleChecker.CheckFormatDependency.__name__)
     RESET_CACHE = attrgetter(BaseRuleChecker.ResetCaches.__name__)
     FLUSH = None
 
@@ -106,6 +107,10 @@ class ComplianceCheckerEventRule:
             or (self.type is ComplianceCheckerEventType.LAYER and not self.metadata.is_layer_implemented())
             or (self.type is ComplianceCheckerEventType.ZIP_FILE and not self.metadata.is_zip_implemented())
             or (self.type is ComplianceCheckerEventType.PRIM and not self.metadata.is_prim_implemented())
+            or (
+                self.type is ComplianceCheckerEventType.FORMAT_DEPENDENCY
+                and not self.metadata.is_format_dependency_implemented()
+            )
         )
 
     def is_heavy_task(self) -> bool:
@@ -113,6 +118,10 @@ class ComplianceCheckerEventRule:
             (self.type is ComplianceCheckerEventType.STAGE and self.metadata.is_only_stage_implemented())
             or (self.type is ComplianceCheckerEventType.LAYER and self.metadata.is_only_layer_implemented())
             or (self.type is ComplianceCheckerEventType.ZIP_FILE and self.metadata.is_only_zip_implemented())
+            or (
+                self.type is ComplianceCheckerEventType.FORMAT_DEPENDENCY
+                and self.metadata.is_only_format_dependency_implemented()
+            )
         )
 
     def is_async_task(self) -> bool:

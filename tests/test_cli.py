@@ -19,13 +19,17 @@ from nvidia_usd_validation import (
     CompressionChecker,
     IssueGroupsBy,
     IssuePredicates,
+    ProfileRegistry,
     StageMetadataChecker,
     UsdzPackageValidator,
     ValidationArgsExec,
     __version__,
     cli_main,
     create_validation_parser,
+    register_profile,
+    unregister_profile,
 )
+from nvidia_usd_validation.capabilities import Capability, Profile
 from pxr import Ar
 
 
@@ -45,11 +49,13 @@ class ValidationParserTest(unittest.TestCase):
         self.assertIn("usage: validate", stdout)
         self.assertIn("--rule", stdout)
         self.assertIn("--fix", stdout)
+        self.assertIn("--stamp", stdout)
         self.assertIn("--predicate", stdout)
         self.assertIn("--variants", stdout)
         self.assertIn("--requirement", stdout)
         self.assertIn("--capability", stdout)
         self.assertIn("--feature", stdout)
+        self.assertIn("--profile", stdout)
         self.assertIn("--parameter", stdout)
         self.assertIn("NAME=VALUE", stdout)
 
@@ -316,6 +322,20 @@ class ValidationParserTest(unittest.TestCase):
         stdout = f.getvalue()
         self.assertIn("usage: validate", stdout)
 
+    def test_non_existent_profile(self):
+        parser = create_validation_parser()
+        f = io.StringIO()
+        g = io.StringIO()
+        with redirect_stdout(f), redirect_stderr(g):
+            with self.assertRaises(SystemExit):
+                parser.parse_args(["--profile", "DOES.NOT.EXIST", "asset.usda"])
+        # It will show error
+        stderr = g.getvalue()
+        self.assertIn("invalid choice: 'DOES.NOT.EXIST'", stderr)
+        # It will present HELP
+        stdout = f.getvalue()
+        self.assertIn("usage: validate", stdout)
+
     def test_fix(self):
         parser = create_validation_parser()
         args = parser.parse_args(["--fix", "asset.usda"])
@@ -558,6 +578,34 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertEqual(args.enabled_features, [])
         self.assertEqual(args.disabled_features, [])
 
+    def test_profiles_getter(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["asset.usda"])
+        args = ValidationArgsExec(args)
+        self.assertEqual(args.profiles, [])
+        self.assertEqual(args.enabled_profiles, [])
+        self.assertEqual(args.disabled_profiles, [])
+
+    def test_create_engine_profile_with_version(self):
+        profile = Profile(
+            id="test-profile",
+            version="1.0.0",
+            path="",
+            features=[],
+            capabilities=[Capability(id="test-cap", version="1.0.0", path="", requirements=[])],
+        )
+        register_profile(profile)
+        try:
+            parser = create_validation_parser()
+            args = parser.parse_args(["--profile", f"{profile.id}@{profile.version}", "asset.usda"])
+            args = ValidationArgsExec(args)
+            engine = args.create_engine()
+            self.assertFalse(engine.init_rules)
+            self.assertEqual(len(engine.enabled_profiles), 1)
+            self.assertEqual(engine.enabled_profiles[0].id, profile.id)
+        finally:
+            unregister_profile(profile)
+
     def test_create_engine_feature_with_version(self):
         parser = create_validation_parser()
         feature_id: str = cap.Features.MINIMAL_PLACEABLE_VISUAL.id
@@ -681,6 +729,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertIn("--requirement", stdout)
         self.assertIn("--capability", stdout)
         self.assertIn("--feature", stdout)
+        self.assertIn("--profile", stdout)
 
     def test_cli_resolver_context(self):
         url = get_url("materialInScope.usda")
@@ -758,3 +807,53 @@ class ValidationArgsTest(unittest.TestCase):
         params = args.parameters
         # All whitespace should be stripped from both name and value
         self.assertEqual(params, {"name": "value", "name2": "value2", "name3": "value3"})
+
+
+class AutoDetectionTest(unittest.TestCase):
+    """Tests for profile auto-detection mode (OMPE-89326)."""
+
+    def test_should_auto_detect_false_with_explicit_profile(self):
+        parser = create_validation_parser()
+        # Can't test with --profile because no profiles registered in this env,
+        # but we can test with --rule which also disables auto-detect
+        args = parser.parse_args(["--rule", "StageMetadataChecker", "asset.usda"])
+        exec = ValidationArgsExec(args)
+        self.assertFalse(exec._should_auto_detect())
+
+    def test_should_auto_detect_false_with_no_profiles_registered(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["asset.usda"])
+        exec = ValidationArgsExec(args)
+        # Auto-detect requires profiles to be in the registry
+        if len(ProfileRegistry().latest_values()) == 0:
+            self.assertFalse(exec._should_auto_detect())
+
+    def test_should_auto_detect_false_with_feature(self):
+        parser = create_validation_parser()
+        feature_id = cap.Features.MINIMAL_PLACEABLE_VISUAL.id
+        args = parser.parse_args(["--feature", feature_id, "asset.usda"])
+        exec = ValidationArgsExec(args)
+        self.assertFalse(exec._should_auto_detect())
+
+    def test_auto_detect_no_rules_profile_counts_as_matched(self):
+        """A profile with no requirements shows as PASS in Matching profiles output."""
+        profile = Profile(
+            id="empty-rules-profile",
+            version="1.0.0",
+            path="",
+            features=[],
+            capabilities=[Capability(id="empty-cap", version="1.0.0", path="", requirements=[])],
+        )
+        register_profile(profile)
+        try:
+            url = get_url("helloworld.usda")
+            parser = create_validation_parser()
+            exec = ValidationArgsExec(parser.parse_args([url]))
+            with self.assertLogs(level="INFO") as cm:
+                exec.run_validation()
+            output = os.linesep.join(cm.output)
+            self.assertIn("Matching profiles:", output)
+            self.assertIn("empty-rules-profile", output)
+            self.assertNotIn("Non-matching profiles:", output)
+        finally:
+            unregister_profile(profile)

@@ -6,19 +6,25 @@ import os
 import pathlib
 import unittest
 from tempfile import TemporaryDirectory
+from unittest.mock import Mock
 
 from common import get_url
 from nvidia_usd_validation import (
     BaseRuleChecker,
+    FeatureStatus,
     Issue,
     IssueJSONEncoder,
     IssueSeverity,
     LayerId,
+    ProfileStatus,
+    RequirementStatus,
     Results,
     ResultsList,
     Suggestion,
+    ValidationContext,
     export_json_file,
 )
+from nvidia_usd_validation.capabilities import Requirement as CapRequirement
 
 
 class MyRuleChecker(BaseRuleChecker):
@@ -131,3 +137,109 @@ class IssueJSONEncoderTest(unittest.TestCase):
         self.assertIn("suggestions", result)
         self.assertEqual(result["suggestions"], [])
         self.assertIsNone(result["suggestion"])
+
+    def test_issue_json_tree_metadata(self):
+        """JSON output includes tree-structured metadata with pass/fail when provided"""
+        mock_req = Mock()
+        mock_req.code = "VG.001"
+        mock_req.version = "1.0.0"
+        mock_feature = Mock()
+        mock_feature.id = "FET001"
+        mock_feature.version = "1.0.0"
+        mock_profile = Mock()
+        mock_profile.id = "Robot-Body-Isaac"
+        mock_profile.version = "1.0.0"
+
+        metadata = ValidationContext(
+            profiles=[
+                ProfileStatus(
+                    profile=mock_profile,
+                    status="FAIL",
+                    features=[
+                        FeatureStatus(
+                            feature=mock_feature,
+                            status="PASS",
+                            requirements=[RequirementStatus(requirement=mock_req, status="PASS")],
+                        )
+                    ],
+                )
+            ]
+        )
+        results = Results(
+            asset="test.usd",
+            issues=[Issue(severity=IssueSeverity.FAILURE, rule=MyRuleChecker, message="failure")],
+        )
+        encoder = IssueJSONEncoder(metadata=metadata)
+        result = json.loads(encoder.encode(ResultsList([results])))
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("profiles", result)
+        profile = result["profiles"][0]
+        self.assertEqual(profile["id"], "Robot-Body-Isaac")
+        self.assertEqual(profile["status"], "FAIL")
+        self.assertEqual(profile["features"][0]["status"], "PASS")
+        self.assertIn("rules", result)
+
+    def test_issue_json_no_metadata(self):
+        """JSON output omits metadata fields when not provided"""
+        results = Results(
+            asset="test.usd",
+            issues=[Issue(severity=IssueSeverity.FAILURE, rule=MyRuleChecker, message="failure")],
+        )
+        result = json.loads(json.dumps(ResultsList([results]), cls=IssueJSONEncoder))
+        self.assertEqual(result["status"], "FAIL")
+        self.assertNotIn("profiles", result)
+        self.assertNotIn("features", result)
+
+    def test_export_json_file_with_tree_metadata(self):
+        """export_json_file includes tree-structured metadata when provided"""
+        mock_req = Mock()
+        mock_req.code = "VG.001"
+        mock_req.version = "1.0.0"
+        mock_feature = Mock()
+        mock_feature.id = "FET001"
+        mock_feature.version = "1.0.0"
+
+        metadata = ValidationContext(
+            features=[
+                FeatureStatus(
+                    feature=mock_feature,
+                    status="PASS",
+                    requirements=[RequirementStatus(requirement=mock_req, status="PASS")],
+                )
+            ]
+        )
+        results = Results(
+            asset="test.usd",
+            issues=[Issue(severity=IssueSeverity.FAILURE, rule=MyRuleChecker, message="failure")],
+        )
+        with TemporaryDirectory() as tmp:
+            json_path = os.path.join(tmp, "results.json")
+            export_json_file(json_path, ResultsList([results]), metadata=metadata)
+            data = json.loads(pathlib.Path(json_path).read_text())
+            self.assertIn("features", data)
+            self.assertEqual(data["features"][0]["id"], "FET001")
+            self.assertEqual(data["features"][0]["status"], "PASS")
+            self.assertIn("rules", data)
+
+    def test_issue_json_with_requirement(self):
+        """JSON output includes requirement info when present on an issue"""
+        req = CapRequirement(code="VG.001", version="1.0.0")
+        issue = Issue(
+            severity=IssueSeverity.FAILURE,
+            message="failure with requirement",
+            requirement=req,
+        )
+        result = json.loads(json.dumps(issue, cls=IssueJSONEncoder))
+        self.assertIn("requirement", result)
+        self.assertEqual(result["requirement"]["code"], "VG.001")
+        self.assertEqual(result["requirement"]["version"], "1.0.0")
+
+    def test_issue_json_without_requirement(self):
+        """JSON output omits requirement when not present on an issue"""
+        issue = Issue(
+            severity=IssueSeverity.FAILURE,
+            rule=MyRuleChecker,
+            message="no requirement",
+        )
+        result = json.loads(json.dumps(issue, cls=IssueJSONEncoder))
+        self.assertNotIn("requirement", result)

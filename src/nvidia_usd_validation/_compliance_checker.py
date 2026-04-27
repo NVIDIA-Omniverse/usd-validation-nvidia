@@ -16,6 +16,7 @@ from math import nextafter
 
 from pxr import Ar, Sdf, Usd, UsdUtils
 
+from ._asset_format import AssetFormat, AssetFormatRegistry, FormatDependency
 from ._assets import AssetType
 from ._base_rule_checker import BaseRuleChecker
 from ._base_rule_metadata import BaseRuleCheckerMetadata
@@ -30,6 +31,7 @@ from ._identifiers import ANON_VALIDATOR_LAYER_NAME
 from ._issues import Issue, IssueSeverity
 from ._parameters import ParameterMapping
 from ._stats import ValidationStats
+from ._url_utils import LocalUriResolver, UriResolver
 
 __all__ = [
     "ComplianceChecker",
@@ -71,11 +73,13 @@ class ComplianceChecker:
         skip_variants: bool = False,
         stats: ValidationStats | None = None,
         parameters: ParameterMapping | None = None,
+        resolver: UriResolver | None = None,
     ):
         self._doVariants = not skip_variants
         self._issues = []
         self._stats = stats or ValidationStats()
         self._parameters = parameters or ParameterMapping()
+        self._resolver: UriResolver = resolver if resolver is not None else LocalUriResolver()
         # Once a package has been checked, it goes into this set.
         self._checkedPackages = set()
 
@@ -287,7 +291,7 @@ class ComplianceChecker:
                 `UsdUtils.ComputeAllDependencies` on the given asset in order to speed up the process.
         """
         if isinstance(asset, str) and not Usd.Stage.IsSupportedFile(asset):
-            self._AddError(f"Cannot open file '{asset}' on a USD stage.")
+            yield from self._check_asset_format(asset)
             return
 
         with DelegateContextManager() as ctx:
@@ -345,6 +349,29 @@ class ComplianceChecker:
                 with DelegateContextManager():
                     asset_dependencies = UsdUtils.ComputeAllDependencies(Sdf.AssetPath(identifier))
                     return asset_dependencies
+
+    def _check_asset_format(self, asset_path: str) -> Iterator[ComplianceCheckerEvent]:
+        """Yield events for each path returned by the matching AssetFormat handler.
+
+        USD paths are routed through the normal compliance workflow (CheckStage, CheckLayer, etc.).
+        Non-USD paths yield FORMAT_DEPENDENCY events for rules to inspect.
+        If no handler is registered for *asset_path*, records an error and yields nothing.
+        """
+        asset_format: AssetFormat | None = AssetFormatRegistry().find(asset_path)
+        if asset_format is None:
+            self._AddError(f"Cannot open file '{asset_path}': no registered format handler.")
+            return
+        for dependency_path in asset_format.get_dependencies(asset_path, self._resolver):
+            if Usd.Stage.IsSupportedFile(dependency_path):
+                yield from self._check_compliance(dependency_path)
+            else:
+                format_dependency = FormatDependency(
+                    path=dependency_path,
+                    uri_resolver=self._resolver,
+                    root_asset_path=asset_path,
+                )
+                yield ComplianceCheckerEvent(ComplianceCheckerEventType.FORMAT_DEPENDENCY, format_dependency)
+        yield ComplianceCheckerEvent(ComplianceCheckerEventType.FLUSH, None)
 
     def _check_package(self, package_path) -> Iterator[ComplianceCheckerEvent]:
 

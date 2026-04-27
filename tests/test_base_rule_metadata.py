@@ -20,10 +20,12 @@ class BaseRuleCheckerMetadataTest(TestCase):
         self.assertFalse(metadata.is_layer_implemented())
         self.assertFalse(metadata.is_zip_implemented())
         self.assertFalse(metadata.is_prim_implemented())
+        self.assertFalse(metadata.is_format_dependency_implemented())
         self.assertFalse(metadata.is_asset_implemented())
         self.assertFalse(metadata.is_only_stage_implemented())
         self.assertFalse(metadata.is_only_layer_implemented())
         self.assertFalse(metadata.is_only_zip_implemented())
+        self.assertFalse(metadata.is_only_format_dependency_implemented())
         self.assertFalse(metadata.has_async_implementations())
 
     def test_is_stage_implemented_ok(self):
@@ -143,6 +145,17 @@ class BaseRuleCheckerMetadataTest(TestCase):
         # When / Then
         self.assertTrue(metadata.is_asset_implemented())
 
+    def test_is_asset_implemented_format_dependency_nok(self):
+        # is_asset_implemented covers USD-level checks (layers/zip/deps/unresolved) only
+        # Given
+        class _RuleWithFormatDependency(BaseRuleChecker):
+            def CheckFormatDependency(self, dependency): ...
+
+        metadata = BaseRuleCheckerMetadata(_RuleWithFormatDependency)
+
+        # When / Then
+        self.assertFalse(metadata.is_asset_implemented())
+
     def test_is_only_stage_implemented_nok_empty(self):
         # Given
         metadata = BaseRuleCheckerMetadata(BaseRuleChecker)
@@ -230,6 +243,45 @@ class BaseRuleCheckerMetadataTest(TestCase):
         # When / Then
         self.assertFalse(metadata.is_only_zip_implemented())
 
+    def test_is_format_dependency_implemented_ok(self):
+        # Given
+        class _RuleWithFormatDependency(BaseRuleChecker):
+            def CheckFormatDependency(self, dependency): ...
+
+        metadata = BaseRuleCheckerMetadata(_RuleWithFormatDependency)
+
+        # When / Then
+        self.assertTrue(metadata.is_format_dependency_implemented())
+
+    def test_is_only_format_dependency_implemented_nok_empty(self):
+        # Given
+        metadata = BaseRuleCheckerMetadata(BaseRuleChecker)
+
+        # When / Then
+        self.assertFalse(metadata.is_only_format_dependency_implemented())
+
+    def test_is_only_format_dependency_implemented_ok(self):
+        # Given
+        class _RuleOnlyFormatDependency(BaseRuleChecker):
+            def CheckFormatDependency(self, dependency): ...
+
+        metadata = BaseRuleCheckerMetadata(_RuleOnlyFormatDependency)
+
+        # When / Then
+        self.assertTrue(metadata.is_only_format_dependency_implemented())
+
+    def test_is_only_format_dependency_implemented_nok_multiple(self):
+        # Given
+        class _RuleFormatDependencyAndStage(BaseRuleChecker):
+            def CheckFormatDependency(self, dependency): ...
+
+            def CheckStage(self, stage): ...
+
+        metadata = BaseRuleCheckerMetadata(_RuleFormatDependencyAndStage)
+
+        # When / Then
+        self.assertFalse(metadata.is_only_format_dependency_implemented())
+
     def test_has_async_implementations_nok_empty(self):
         # Given
         metadata = BaseRuleCheckerMetadata(BaseRuleChecker)
@@ -313,6 +365,16 @@ class BaseRuleCheckerMetadataTest(TestCase):
             async def CheckDependencies(self, usdStage, layerDeps, assetDeps): ...
 
         metadata = BaseRuleCheckerMetadata(_RuleAsyncDependencies)
+
+        # When / Then
+        self.assertTrue(metadata.has_async_implementations())
+
+    def test_has_async_implementations_format_dependency_ok(self):
+        # Given
+        class _RuleAsyncFormatDependency(BaseRuleChecker):
+            async def CheckFormatDependency(self, dependency): ...
+
+        metadata = BaseRuleCheckerMetadata(_RuleAsyncFormatDependency)
 
         # When / Then
         self.assertTrue(metadata.has_async_implementations())

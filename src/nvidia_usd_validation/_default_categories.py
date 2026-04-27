@@ -68,7 +68,7 @@ __all__ = [
 @deprecated("Use CategoryRuleRegistry instead")
 class DefaultCategoryRules(Enum):
     """
-    The declared Categories and Rules defined in `omni.asset_validator` module. For additional classes use
+    The declared Categories and Rules defined in `nvidia_usd_validation` module. For additional classes use
     `CategoryRuleRegistry`.
 
     Args:

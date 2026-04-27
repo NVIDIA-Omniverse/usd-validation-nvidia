@@ -3,16 +3,18 @@
 #
 import asyncio
 import contextlib
+import dataclasses
 import logging
-import os.path
 import traceback
 from collections.abc import Callable, Coroutine
-from functools import lru_cache, singledispatchmethod
+from datetime import datetime, timezone
+from functools import cached_property, lru_cache, singledispatchmethod
 from typing import TypeVar
 from urllib.parse import ParseResult, urlparse
 
-from pxr import Usd
+from pxr import Sdf, Usd
 
+from ._asset_format import AssetFormatRegistry
 from ._assets import AssetLocatedCallback, AssetProgress, AssetProgressCallback, AssetType, AssetValidatedCallback
 from ._base_rule_checker import BaseRuleChecker
 from ._capabilities import Capability
@@ -22,13 +24,20 @@ from ._deprecate import deprecated
 from ._features import Feature
 from ._issues import Issue, IssuePredicate, IssueSeverity
 from ._parameters import Parameter, ParameterMapping
+from ._plugins import PluginManager
+from ._profiles import Profile, ProfileRegistry
 from ._requirements import Requirement, RequirementsRegistry
 from ._results import Results, ResultsList
 from ._stats import ValidationStats
+from ._url_utils import LocalUriResolver, UriResolver
+from ._validation_context import ValidationContext
+from ._version import __version__
 
 __all__ = [
     "ValidationEngine",
 ]
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
@@ -47,9 +56,9 @@ class ValidationEngine:
 
         .. code-block:: python
 
-            import omni.asset_validator
+            import nvidia_usd_validation
 
-            engine = omni.asset_validator.ValidationEngine()
+            engine = nvidia_usd_validation.ValidationEngine()
             engine.enable_rule(MyRule)
 
             # Validate a single OpenUSD file
@@ -96,9 +105,15 @@ class ValidationEngine:
         self._disabled_capabilities: list[Capability] = []
         self._enabled_features: list[Feature] = []
         self._disabled_features: list[Feature] = []
+        self._enabled_profiles: list[Profile] = []
+        self._disabled_profiles: list[Profile] = []
         self._tasks = set()
         self._stats = ValidationStats()
         self._parameters = []
+
+    @cached_property
+    def _resolver(self) -> UriResolver:
+        return LocalUriResolver()
 
     @property
     def init_rules(self) -> bool:
@@ -172,7 +187,7 @@ class ValidationEngine:
     @classmethod
     def _(cls, asset: str) -> bool:
         parse_result: ParseResult = urlparse(asset)
-        return Usd.Stage.IsSupportedFile(parse_result.path)
+        return Usd.Stage.IsSupportedFile(parse_result.path) or AssetFormatRegistry().find(asset) is not None
 
     @singledispatchmethod
     @classmethod
@@ -314,6 +329,46 @@ class ValidationEngine:
     def disabled_features(self) -> list[Feature]:
         return self._disabled_features
 
+    def enable_profile(self, profile: Profile) -> None:
+        """
+        Enable a given profile on this engine.
+
+        Args:
+            profile (Profile): A `Profile` to be enabled
+        """
+        self._enabled_profiles.append(profile)
+        with contextlib.suppress(ValueError):
+            self._disabled_profiles.remove(profile)
+
+    def enable_profile_detection(self) -> None:
+        """Enable all registered profiles for compliance evaluation.
+
+        After calling this, a normal ``validate()`` call will populate
+        ``result.context.profiles`` with a :py:class:`ProfileStatus`
+        (PASS/FAIL) for every registered profile.
+        """
+        for profile in ProfileRegistry().latest_values():
+            self.enable_profile(profile)
+
+    def disable_profile(self, profile: Profile) -> None:
+        """
+        Disable a given profile on this engine.
+
+        Args:
+            profile (Profile): A `Profile` to be disabled
+        """
+        self._disabled_profiles.append(profile)
+        with contextlib.suppress(ValueError):
+            self._enabled_profiles.remove(profile)
+
+    @property
+    def enabled_profiles(self) -> list[Profile]:
+        return self._enabled_profiles
+
+    @property
+    def disabled_profiles(self) -> list[Profile]:
+        return self._disabled_profiles
+
     @property
     def _direct_rules(self) -> list[type[BaseRuleChecker]]:
         """
@@ -342,6 +397,10 @@ class ValidationEngine:
         for feature in self.enabled_features:
             for req in feature.requirements:
                 requirements[(req.code, req.version)] = req
+        for profile in self.enabled_profiles:
+            for capability in profile.capabilities:
+                for req in capability.requirements:
+                    requirements[(req.code, req.version)] = req
 
         for req in self.disabled_requirements:
             requirements.pop((req.code, req.version), None)
@@ -351,6 +410,10 @@ class ValidationEngine:
         for feature in self.disabled_features:
             for req in feature.requirements:
                 requirements.pop((req.code, req.version), None)
+        for profile in self.disabled_profiles:
+            for capability in profile.capabilities:
+                for req in capability.requirements:
+                    requirements.pop((req.code, req.version), None)
         return list(requirements.values())
 
     @property
@@ -401,39 +464,6 @@ class ValidationEngine:
 
         return predicate
 
-    @classmethod
-    def _is_uri_found(cls, identifier: str) -> bool:
-        """
-        Args:
-            identifier: An asset identifier or Prefix identifier.
-
-        Returns:
-            True if asset exists.
-        """
-        return os.path.exists(identifier)
-
-    @classmethod
-    def _is_uri_prefix(cls, identifier: str) -> bool:
-        """
-        Args:
-            identifier: The asset identifier.
-
-        Returns:
-            True if it may contain multiple assets, i.e. folder.
-        """
-        return os.path.isdir(identifier)
-
-    @classmethod
-    def _list_uris(cls, prefix: str) -> list[str]:
-        """
-        Args:
-            prefix:
-
-        Returns:
-            A list of resources under this asset prefix.
-        """
-        return [os.path.join(prefix, entry) for entry in os.listdir(prefix)]
-
     def validate(self, asset: AssetType) -> Results:
         """
         Run the enabled rules on the given asset. **(Blocking version)**
@@ -453,10 +483,10 @@ class ValidationEngine:
         if isinstance(asset, Usd.Stage):
             return self._validate(asset)
 
-        if not self._is_uri_found(asset):
+        if not self._resolver.is_uri_found(asset):
             return self._access_failure(asset)
 
-        if self._is_uri_prefix(asset):
+        if self._resolver.is_uri_prefix(asset):
             raise RuntimeError(
                 "ValidationEngine: Synchronous validation of folders/containers is not available. "
                 "Use `validate_async` or `validate_with_callbacks`"
@@ -467,7 +497,8 @@ class ValidationEngine:
                 asset=desc,
                 issues=[
                     Issue(
-                        severity=IssueSeverity.ERROR, message=f'Validation requires a readable USD file, not "{desc}".'
+                        severity=IssueSeverity.ERROR,
+                        message=f'"{desc}" is not a readable USD file and has no registered format handler.',
                     )
                 ],
             )
@@ -494,9 +525,10 @@ class ValidationEngine:
         """
         if isinstance(asset, Usd.Stage):
             result: Results = await self._validate_async(asset=asset, asset_progress_fn=None)
-            return ResultsList(results=[result])
+            results_list = ResultsList(results=[result])
+            return dataclasses.replace(results_list, context=self.build_context(results_list))
 
-        if not self._is_uri_found(asset):
+        if not self._resolver.is_uri_found(asset):
             result: Results = self._access_failure(asset)
             return ResultsList(results=[result])
 
@@ -569,10 +601,111 @@ class ValidationEngine:
                 ],
             )
         else:
-            return Results.create(
+            result = Results.create(
                 asset=asset,
                 issues=checker.GetIssues(),
             ).filter_by(self.predicate)
+            return dataclasses.replace(result, context=self.build_context(result))
+
+    @singledispatchmethod
+    def build_context(self, results) -> ValidationContext | None:
+        """Build a typed validation context summarising pass/fail for every enabled
+        profile, feature, and requirement.
+
+        Returns ``None`` when no profile/feature/capability scope is active so that
+        callers can skip structured output entirely for plain rule-based validation.
+
+        Args:
+            results: Validation results to evaluate against enabled profiles/features.
+        """
+        raise NotImplementedError(f"Unknown type {type(results)}")
+
+    @build_context.register
+    def _(self, results: Results) -> ValidationContext | None:
+        """Build context for a single asset, collecting failed requirements from its issues."""
+        failed_requirements: dict[tuple[str, str | None], Requirement] = {}
+        for issue in results.issues:
+            if issue.severity not in (IssueSeverity.FAILURE, IssueSeverity.ERROR):
+                continue
+            if requirement := issue.requirement:
+                failed_requirements[(requirement.code, requirement.version)] = requirement
+        return ValidationContext.build(
+            enabled_profiles=self.enabled_profiles,
+            enabled_features=self.enabled_features,
+            enabled_capabilities=self.enabled_capabilities,
+            failed_requirements=failed_requirements.values(),
+        )
+
+    @build_context.register
+    def _(self, results: ResultsList) -> ValidationContext | None:
+        """Build aggregate context for a batch, unioning failed requirements across all assets."""
+        failed_requirements: dict[tuple[str, str | None], Requirement] = {}
+        for result in results:
+            per_context = self.build_context(result)
+            if per_context is None:
+                continue
+            for req in per_context.failed_requirements:
+                failed_requirements[(req.code, req.version)] = req
+        return ValidationContext.build(
+            enabled_profiles=self.enabled_profiles,
+            enabled_features=self.enabled_features,
+            enabled_capabilities=self.enabled_capabilities,
+            failed_requirements=failed_requirements.values(),
+        )
+
+    def stamp_asset(self, asset: AssetType, results: Results, *, key: str = "asset_validator") -> Sdf.Layer | None:
+        """Stamp the USD asset's customLayerData with validation profile metadata.
+
+        Only stamps when profiles are enabled and validation produced no
+        FAILURE or ERROR issues. Skips silently otherwise.
+
+        Args:
+            asset: The asset to stamp (Usd.Stage or file path).
+            results: Validation results to check for pass/fail.
+            key: The top-level key in customLayerData to write under.
+                Configurable to allow different consumers (e.g. "SimReady_Metadata").
+
+        Returns:
+            The :class:`Sdf.Layer` that was stamped, or ``None`` if stamping was
+            skipped (no profiles enabled, validation failures, or unresolvable asset).
+            Callers are responsible for saving the layer if persistence is required.
+        """
+        if not self.enabled_profiles:
+            return None
+
+        has_failures = any(issue.severity in (IssueSeverity.FAILURE, IssueSeverity.ERROR) for issue in results.issues)
+        if has_failures:
+            logger.info("Skipping stamp: validation has failures.")
+            return None
+
+        if isinstance(asset, Usd.Stage):
+            layer = asset.GetRootLayer()
+        elif isinstance(asset, str):
+            layer = Sdf.Layer.FindOrOpen(asset)
+        else:
+            layer = None
+
+        if layer is None:
+            logger.warning(f"Skipping stamp: could not resolve layer for '{asset}'.")
+            return None
+
+        profiles_data = {p.id: {"profile_version": str(p.version)} for p in self.enabled_profiles}
+
+        plugin_versions = {p.distribution_name: p.version for p in PluginManager().loaded_plugins}
+
+        custom_data = layer.customLayerData
+        custom_data[key] = {
+            "validation": {
+                "profiles": profiles_data,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "validator_version": __version__,
+                "plugins": plugin_versions,
+            }
+        }
+        layer.customLayerData = custom_data
+        profile_ids = list(profiles_data.keys())
+        logger.info(f"Stamped asset with profiles {profile_ids}")
+        return layer
 
     async def _validate_async(self, asset: AssetType, asset_progress_fn: AssetProgressCallback | None) -> Results:
         asset_describe: str = self.describe(asset)
@@ -605,8 +738,8 @@ class ValidationEngine:
                 issues=[*checker.GetIssues(), Issue(severity=IssueSeverity.ERROR, message=message)],
             )
         else:
-            results: Results = Results.create(asset=asset, issues=checker.GetIssues())
-            return results.filter_by(self.predicate)
+            result: Results = Results.create(asset=asset, issues=checker.GetIssues()).filter_by(self.predicate)
+            return dataclasses.replace(result, context=self.build_context(result))
         finally:
             report_progress(1.0)
 
@@ -634,7 +767,9 @@ class ValidationEngine:
             result: Results = await self._validate_async(asset=asset, asset_progress_fn=asset_progress_fn)
             await self._call_async(asset_validated_fn, result)
             results.append(result)
-        return ResultsList(results=results)
+        results_list = ResultsList(results=results)
+        results_list = dataclasses.replace(results_list, context=self.build_context(results_list))
+        return results_list
 
     async def _validate_with_callbacks_async(
         self,
@@ -647,7 +782,9 @@ class ValidationEngine:
             await self._call_async(asset_located_fn, asset)
             result: Results = await self._validate_async(asset=asset, asset_progress_fn=asset_progress_fn)
             await self._call_async(asset_validated_fn, result)
-            return ResultsList(results=[result])
+            results_list = ResultsList(results=[result])
+            results_list = dataclasses.replace(results_list, context=self.build_context(results_list))
+            return results_list
         else:
             result: ResultsList | None = await self._access_failure_with_callbacks(
                 asset, asset_located_fn, asset_progress_fn, asset_validated_fn
@@ -664,7 +801,7 @@ class ValidationEngine:
         asset_progress_fn: AssetProgressCallback | None,
         asset_validated_fn: AssetValidatedCallback | None,
     ) -> ResultsList | None:
-        if not self._is_uri_found(url):
+        if not self._resolver.is_uri_found(url):
             result: Results = self._access_failure(url)
             await self._call_async(asset_located_fn, url)
             await self._call_async(asset_progress_fn, AssetProgress(asset=url, progress=1.0))
@@ -673,11 +810,11 @@ class ValidationEngine:
         return None
 
     async def _check_entry(self, url: str, asset_located_fn: AssetLocatedCallback | None = None) -> list[str]:
-        if self._is_uri_found(url):
+        if self._resolver.is_uri_found(url):
             if self.is_asset_supported(url):
                 await self._call_async(asset_located_fn, url)
                 return [url]
-            elif self._is_uri_prefix(url):
+            elif self._resolver.is_uri_prefix(url):
                 return await self._check_children(url, asset_located_fn)
             else:
                 return []
@@ -686,7 +823,7 @@ class ValidationEngine:
 
     async def _check_children(self, url: str, asset_located_fn: AssetLocatedCallback | None) -> list[str]:
         all_assets: list[str] = []
-        for entry_url in self._list_uris(url):
+        for entry_url in self._resolver.list_uris(url):
             assets: list[str] = await self._check_entry(entry_url, asset_located_fn)
             all_assets.extend(assets)
         return all_assets
@@ -702,6 +839,7 @@ class ValidationEngine:
             stats=self.stats,
             skip_variants=not self.variants,
             parameters=self.parameters,
+            resolver=self._resolver,
         )
         for rule in self.rules:
             checker.AddRule(rule)

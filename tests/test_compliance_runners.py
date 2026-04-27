@@ -4,7 +4,7 @@
 from unittest import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock, Mock
 
-from nvidia_usd_validation import BaseRuleChecker
+from nvidia_usd_validation import BaseRuleChecker, FormatDependency, LocalUriResolver
 from nvidia_usd_validation._compliance_runners import (
     AsyncComplianceCheckerRunner,
     ComplianceCheckerEvent,
@@ -129,6 +129,20 @@ class ComplianceCheckerEventRuleTest(IsolatedAsyncioTestCase):
 
         # When / Then
         self.assertTrue(event_rule.is_async_task())
+
+    def test_is_heavy_task_format_dependency_ok(self):
+        # Given
+        class _RuleOnlyFormatDependency(BaseRuleChecker):
+            def CheckFormatDependency(self, _): ...
+
+        event = ComplianceCheckerEvent(
+            ComplianceCheckerEventType.FORMAT_DEPENDENCY,
+            FormatDependency(path="/dep.json", uri_resolver=LocalUriResolver(), root_asset_path="/dep.json"),
+        )
+        event_rule = ComplianceCheckerEventRule(event=event, rule=_RuleOnlyFormatDependency())
+
+        # When / Then
+        self.assertTrue(event_rule.is_heavy_task())
 
 
 class AsyncComplianceCheckerRunnerTest(IsolatedAsyncioTestCase):

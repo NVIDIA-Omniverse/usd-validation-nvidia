@@ -119,20 +119,20 @@ class Suggestion:
 
         .. code-block:: python
 
-            import omni.asset_validator
+            import nvidia_usd_validation
 
-            suggestion = omni.asset_validator.Suggestion(
+            suggestion = nvidia_usd_validation.Suggestion(
                 callable=lambda stage, at: None,
                 message="A suggestion",
                 at=Sdf.Layer.FindOrOpen("helloworld.usda"),
             )
-            target_id = omni.asset_validator.EditTargetId(
+            target_id = nvidia_usd_validation.EditTargetId(
                 layer_id=LayerId(identifier="helloworld.usda"),
                 path=Sdf.Path("/World/Cube"),
             )
             print(target_id in suggestion) # Will print True
 
-            target_id = omni.asset_validator.EditTargetId(
+            target_id = nvidia_usd_validation.EditTargetId(
                 layer_id=LayerId(identifier="goodbye.usda"),
                 path=Sdf.Path("/World/Cube"),
             )
@@ -232,7 +232,7 @@ class Issue:
 
     .. code-block:: python
 
-        import omni.asset_validator
+        import nvidia_usd_validation
 
         class MyRule(BaseRuleChecker):
             pass
@@ -243,7 +243,7 @@ class Issue:
         def my_suggestion(stage: Usd.Stage, at: Usd.Prim):
             pass
 
-        issue = omni.asset_validator.Issue(
+        issue = nvidia_usd_validation.Issue(
             identifier=Requirements.SL_001.code,
             message=Requirements.SL_001.message,
             severity=IssueSeverity.ERROR,
@@ -447,18 +447,18 @@ class IssuePredicates:
 
     .. code-block:: python
 
-        import omni.asset_validator
+        import nvidia_usd_validation
 
         issues = [
-            omni.asset_validator.Issue(
-                severity=omni.asset_validator.IssueSeverity.ERROR, message="This is an error"),
-            omni.asset_validator.Issue(
-                severity=omni.asset_validator.IssueSeverity.WARNING, message="Important warning!"),
+            nvidia_usd_validation.Issue(
+                severity=nvidia_usd_validation.IssueSeverity.ERROR, message="This is an error"),
+            nvidia_usd_validation.Issue(
+                severity=nvidia_usd_validation.IssueSeverity.WARNING, message="Important warning!"),
         ]
         filtered = list(filter(
-            omni.asset_validator.IssuePredicates.And(
-                omni.asset_validator.IssuePredicates.IsError(),
-                omni.asset_validator.IssuePredicates.ContainsMessage("Important"),
+            nvidia_usd_validation.IssuePredicates.And(
+                nvidia_usd_validation.IssuePredicates.IsError(),
+                nvidia_usd_validation.IssuePredicates.ContainsMessage("Important"),
             ),
             issues
         ))
@@ -714,20 +714,20 @@ class IssueGroupsBy:
         .. code-block:: python
 
             import collections
-            import omni.asset_validator
+            import nvidia_usd_validation
 
             issues = [
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=omni.asset_validator.TypeChecker),
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                    rule=nvidia_usd_validation.TypeChecker),
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=omni.asset_validator.TypeChecker),
+                    rule=nvidia_usd_validation.TypeChecker),
             ]
             groups = set()
-            for group, issue in omni.asset_validator.IssueGroupsBy.message()(issues):
+            for group, issue in nvidia_usd_validation.IssueGroupsBy.message()(issues):
                 groups.add(group)
             print(groups)
 
@@ -742,20 +742,20 @@ class IssueGroupsBy:
         .. code-block:: python
 
             import collections
-            import omni.asset_validator
+            import nvidia_usd_validation
 
             issues = [
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=omni.asset_validator.TypeChecker),
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                    rule=nvidia_usd_validation.TypeChecker),
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=omni.asset_validator.TypeChecker),
+                    rule=nvidia_usd_validation.TypeChecker),
             ]
             groups = set()
-            for group, issue in omni.asset_validator.IssueGroupsBy.rule()(issues):
+            for group, issue in nvidia_usd_validation.IssueGroupsBy.rule()(issues):
                 groups.add(group)
             print(groups)
 
@@ -763,27 +763,27 @@ class IssueGroupsBy:
 
         .. code-block:: bash
 
-            {<class 'omni.asset_validator.TypeChecker'>}
+            {<class 'nvidia_usd_validation.TypeChecker'>}
 
         Groups by severity.
 
         .. code-block:: python
 
             import collections
-            import omni.asset_validator
+            import nvidia_usd_validation
 
             issues = [
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=omni.asset_validator.TypeChecker),
-                omni.asset_validator.Issue(
-                    severity=omni.asset_validator.IssueSeverity.ERROR,
+                    rule=nvidia_usd_validation.TypeChecker),
+                nvidia_usd_validation.Issue(
+                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=omni.asset_validator.TypeChecker),
+                    rule=nvidia_usd_validation.TypeChecker),
             ]
             groups = set()
-            for group, issue in omni.asset_validator.IssueGroupsBy.severity()(issues):
+            for group, issue in nvidia_usd_validation.IssueGroupsBy.severity()(issues):
                 groups.add(group)
             print(groups)
 

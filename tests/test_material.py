@@ -199,7 +199,7 @@ class MaterialPathCheckerTest(AsyncioValidationTestCase):
             dst_mdl: str = os.path.join(tmp, "material.mdl")
             shutil.copy(src_mdl, dst_mdl)
             dst_asset: str = os.path.join(tmp, "absoluteMaterial.usda")
-            pathlib.Path(dst_asset).write_text(content.replace("replace.mdl", dst_mdl))
+            pathlib.Path(dst_asset).write_text(content.replace("replace.mdl", dst_mdl))  # NOSONAR
 
             await self.assertRuleAsync(
                 asset=dst_asset,

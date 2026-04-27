@@ -1,10 +1,76 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-__all__ = ["make_relative_url_if_possible", "normalize_url"]
+__all__ = ["LocalUriResolver", "UriResolver", "make_relative_url_if_possible", "normalize_url"]
 
 import os
+from typing import Protocol, runtime_checkable
 from urllib.parse import unquote, urlparse
+
+
+@runtime_checkable
+class UriResolver(Protocol):
+    """Protocol for resolving URI operations.
+
+    Implementations provide backend-specific URI operations used by
+    :py:class:`ValidationEngine` for asset discovery and folder traversal.
+    The standalone engine uses :py:class:`LocalUriResolver`; the Kit extension
+    uses ``OmniUriResolver``.
+    """
+
+    def is_uri_found(self, uri: str) -> bool:
+        """Return True if the asset at *uri* exists."""
+        ...
+
+    def is_uri_prefix(self, uri: str) -> bool:
+        """Return True if *uri* is a container that may hold child assets."""
+        ...
+
+    def list_uris(self, uri: str) -> list[str]:
+        """Return the direct children of the container at *uri*."""
+        ...
+
+    def parent_uri(self, uri: str) -> str:
+        """Return the parent container of *uri*."""
+        ...
+
+    def join_uri(self, base_uri: str, child: str) -> str:
+        """Return the URI formed by appending *child* to the container *base_uri*."""
+        ...
+
+    def basename(self, uri: str) -> str:
+        """Return the last path component of *uri* (filename for a leaf, directory name for a container)."""
+        ...
+
+    def relative_uri(self, base_uri: str, child_uri: str) -> str:
+        """Return *child_uri* as a path relative to the container *base_uri*."""
+        ...
+
+
+class LocalUriResolver:
+    """A :py:class:`UriResolver` backed by the local filesystem (``os.path``)."""
+
+    def is_uri_found(self, uri: str) -> bool:
+        return os.path.exists(uri)
+
+    def is_uri_prefix(self, uri: str) -> bool:
+        return os.path.isdir(uri)
+
+    def list_uris(self, uri: str) -> list[str]:
+        return [os.path.join(uri, entry) for entry in os.listdir(uri)]
+
+    def parent_uri(self, uri: str) -> str:
+        return os.path.dirname(uri)
+
+    def join_uri(self, base_uri: str, child: str) -> str:
+        return os.path.join(base_uri, child)
+
+    def basename(self, uri: str) -> str:
+        return os.path.basename(uri)
+
+    def relative_uri(self, base_uri: str, child_uri: str) -> str:
+        rel = os.path.relpath(child_uri, base_uri).replace("\\", "/")
+        return rel if rel.startswith("..") else "./" + rel
 
 
 def normalize_url(path_or_url: str) -> str:

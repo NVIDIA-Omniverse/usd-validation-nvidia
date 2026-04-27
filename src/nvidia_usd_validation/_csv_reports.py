@@ -12,9 +12,11 @@ from functools import singledispatch
 from ._identifiers import Identifier, StageId
 from ._issues import Issue, IssueSeverity, IssuesList, Suggestion
 from ._results import Results, ResultsList, to_issues_list
+from ._validation_context import ValidationContext
 
 __all__ = [
     "IssueCSVData",
+    "export_csv_file",
 ]
 
 
@@ -48,6 +50,7 @@ class IssueCSVData:
     severities: list[str] = field(default_factory=list)
     suggestions: list[str] = field(default_factory=list)
     ats: list[str] = field(default_factory=list)
+    requirements: list[str] = field(default_factory=list)
 
     additional_column: dict[str, list[str]] = field(default_factory=dict)
 
@@ -119,6 +122,11 @@ class IssueCSVData:
                 return at.as_str()
             return "None"
 
+        def _get_requirement_str(issue: Issue) -> str:
+            if issue.requirement is not None:
+                return f"{issue.requirement.code}@{issue.requirement.version}"
+            return ""
+
         assets = _parse_asset_str()
         if issue_list:
             rules, severities, messages, suggestions, ats = zip(
@@ -136,6 +144,8 @@ class IssueCSVData:
         else:
             rules, severities, messages, suggestions, ats = [], [], [], [], []
 
+        requirements = [_get_requirement_str(issue) for issue in issue_list]
+
         return cls(
             list(IssueCSVData._Headers),
             assets,
@@ -144,6 +154,7 @@ class IssueCSVData:
             list(severities),
             list(suggestions),
             list(ats),
+            requirements,
         )
 
     def append_column(self, header: str, values: Sequence[str]):
@@ -235,3 +246,33 @@ class IssueCSVData:
         """
         with open(file_url, "w", newline="") as csv_file:
             csv_file.write(self.get_csv_as_str(headers, delimiter))
+
+
+def export_csv_file(
+    csv_output_path: str | pathlib.Path,
+    results: Results | ResultsList,
+    metadata: ValidationContext | None = None,
+) -> None:
+    """Export validation results to a CSV file.
+
+    Mirrors :func:`export_json_file`. When *metadata* is provided (i.e. the
+    validation was profile- or feature-scoped), Profile, Feature, and
+    Requirement columns are appended; otherwise the standard 6-column format
+    is preserved for backwards compatibility.
+
+    Args:
+        csv_output_path: Path to write the CSV file.
+        results: Validation results to export.
+        metadata: Optional :class:`ValidationContext` from the engine.
+    """
+    csv_data = IssueCSVData.from_(results)
+    if metadata:
+        num_issues = max(len(csv_data.assets), 1)
+        if metadata.profiles:
+            value = ", ".join(f"{p.profile.id} ({p.profile.version})" for p in metadata.profiles)
+            csv_data.append_column("Profile", [value] * num_issues)
+        if metadata.features:
+            value = ", ".join(f"{f.feature.id} ({f.feature.version})" for f in metadata.features)
+            csv_data.append_column("Feature", [value] * num_issues)
+        csv_data.append_column("Requirement", csv_data.requirements)
+    csv_data.export_csv(csv_output_path)

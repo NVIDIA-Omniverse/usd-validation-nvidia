@@ -1,9 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
+import unittest
+
 import nvidia_usd_validation.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
 from nvidia_usd_validation import (
+    GaussianSplatSchemaChecker,
     IndexedPrimvarChecker,
     ManifoldChecker,
     NormalsExistChecker,
@@ -411,6 +414,15 @@ class NormalsWindingsCheckerTest(AsyncioValidationTestCase):
                 IsAnError("Mesh '/World/perVertexNormalsLeftHanded' has normals inconsistent with the face windings."),
             ],
         )
+
+
+@unittest.skipUnless(
+    GaussianSplatSchemaChecker.is_implemented(), "OpenUSD 26.03+ required for VG.035 / GaussianSplatSchemaChecker"
+)
+class GaussianSplatSchemaCheckerTest(AsyncioValidationTestCase):
+
+    async def test_validate(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.VG_035)
 
 
 class ContainsMeshCheckerTest(AsyncioValidationTestCase):
