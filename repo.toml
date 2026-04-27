@@ -31,6 +31,28 @@ namespace = "nvidia_usd_validation.capabilities"
 destination_dir = "${root}/src"
 
 ########################################################################################################################
+# Packaging
+########################################################################################################################
+
+[repo_package.packages."nvidia_usd_validation"]
+omniverse_flow_version_scheme = true
+configs = ["release"]
+package_per_config = true
+remove_pycache = true
+
+########################################################################################################################
+# Package publisher
+########################################################################################################################
+
+[repo_publish]
+enabled = true
+fail_if_nothing_found = true
+fail_if_exist = false  # allow re-runs of failed publish CI jobs to account for infrastructure issues
+packages = [
+    "nvidia_usd_validation*",
+]
+
+########################################################################################################################
 # Formatting
 ########################################################################################################################
 
