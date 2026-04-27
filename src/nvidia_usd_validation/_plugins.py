@@ -35,7 +35,6 @@ from __future__ import annotations
 import importlib.metadata
 import logging
 import re
-import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cache
@@ -139,11 +138,6 @@ class PluginManager:
         This method is idempotent - calling it multiple times has no additional effect.
         """
         logger.info("Initializing Asset Validator plugin system")
-
-        # The module is complete in sys.modules but not yet bound as an attribute
-        # on omni (that happens after __init__.py returns), so nvidia_usd_validation.<X>
-        # in on_startup() would fail.
-        nvidia_usd_validation = sys.modules["nvidia_usd_validation"]
 
         entrypoints = self._discover_entrypoints()
         if not entrypoints:
