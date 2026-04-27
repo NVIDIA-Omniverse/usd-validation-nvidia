@@ -1,4 +1,6 @@
 ["nvidia_usd_validation"]
 files = [
-    ["dist", "."],
+    ["src/nvidia_usd_validation", "python/nvidia_usd_validation"],
+    ["specs", "docs"],
+    ["LICENSE", "PACKAGE-LICENSES/nvidia_usd_validation-LICENSE.txt"],
 ]
