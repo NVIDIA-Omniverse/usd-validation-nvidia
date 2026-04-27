@@ -2,9 +2,77 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import os
+import tempfile
 import unittest
 
-from nvidia_usd_validation import make_relative_url_if_possible, normalize_url
+from nvidia_usd_validation import LocalUriResolver, UriResolver, make_relative_url_if_possible, normalize_url
+
+
+class LocalUriResolverTests(unittest.TestCase):
+    def test_satisfies_protocol(self):
+        self.assertIsInstance(LocalUriResolver(), UriResolver)
+
+    def test_is_uri_found_file(self):
+        resolver = LocalUriResolver()
+        with tempfile.NamedTemporaryFile() as f:
+            self.assertTrue(resolver.is_uri_found(f.name))
+
+    def test_is_uri_found_missing(self):
+        resolver = LocalUriResolver()
+        self.assertFalse(resolver.is_uri_found("/does/not/exist.usd"))
+
+    def test_is_uri_prefix_directory(self):
+        resolver = LocalUriResolver()
+        with tempfile.TemporaryDirectory() as d:
+            self.assertTrue(resolver.is_uri_prefix(d))
+
+    def test_is_uri_prefix_file(self):
+        resolver = LocalUriResolver()
+        with tempfile.NamedTemporaryFile() as f:
+            self.assertFalse(resolver.is_uri_prefix(f.name))
+
+    def test_list_uris(self):
+        resolver = LocalUriResolver()
+        with tempfile.TemporaryDirectory() as d:
+            names = ["a.usd", "b.usd"]
+            for name in names:
+                with open(os.path.join(d, name), "w"):
+                    pass
+            result = resolver.list_uris(d)
+            self.assertEqual(sorted(os.path.basename(p) for p in result), sorted(names))
+
+    def test_parent_uri(self):
+        resolver = LocalUriResolver()
+        parent = resolver.parent_uri("/some/path/file.usd")
+        self.assertEqual(parent, "/some/path")
+
+    def test_join_uri(self):
+        resolver = LocalUriResolver()
+        joined = resolver.join_uri("/some/path", "file.usd")
+        self.assertEqual(joined, os.path.join("/some/path", "file.usd"))
+
+    def test_basename_file(self):
+        resolver = LocalUriResolver()
+        self.assertEqual(resolver.basename("/some/path/file.usd"), "file.usd")
+
+    def test_basename_directory(self):
+        resolver = LocalUriResolver()
+        self.assertEqual(resolver.basename("/some/path/subdir"), "subdir")
+
+    def test_relative_uri_child(self):
+        resolver = LocalUriResolver()
+        rel = resolver.relative_uri("/some/base", "/some/base/child/file.usd")
+        self.assertEqual(rel, "./child/file.usd")
+
+    def test_relative_uri_sibling(self):
+        resolver = LocalUriResolver()
+        rel = resolver.relative_uri("/some/base", "/some/other/file.usd")
+        self.assertEqual(rel, "../other/file.usd")
+
+    def test_relative_uri_parent(self):
+        resolver = LocalUriResolver()
+        rel = resolver.relative_uri("/some/base/sub", "/some/file.usd")
+        self.assertEqual(rel, "../../file.usd")
 
 
 class UrlUtilsTests(unittest.IsolatedAsyncioTestCase):

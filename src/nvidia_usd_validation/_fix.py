@@ -11,13 +11,13 @@ A simple use case is as follows:
 
 .. code-block:: python
 
-    import omni.asset_validator
+    import nvidia_usd_validation
 
-    engine = omni.asset_validator.ValidationEngine()
+    engine = nvidia_usd_validation.ValidationEngine()
     results = engine.validate('foo.usd')
     issues = results.issues()
 
-    fixer = omni.asset_validator.IssueFixer('foo.usd')
+    fixer = nvidia_usd_validation.IssueFixer('foo.usd')
     fixer.fix(issues)
     fixer.save()
 
@@ -286,26 +286,26 @@ class IssueFixer:
 
     .. code-block:: python
 
-        import omni.asset_validator
+        import nvidia_usd_validation
 
         # validate a layer file
-        engine = omni.asset_validator.ValidationEngine()
+        engine = nvidia_usd_validation.ValidationEngine()
         results = engine.validate('foo.usd')
         issues = results.issues()
 
         # fix that layer file
-        fixer = omni.asset_validator.IssueFixer('foo.usd')
+        fixer = nvidia_usd_validation.IssueFixer('foo.usd')
         fixer.fix(issues)
         fixer.save()
 
         # fix a live stage directly
         stage = Usd.Stage.Open('foo.usd')
-        engine = omni.asset_validator.ValidationEngine()
+        engine = nvidia_usd_validation.ValidationEngine()
         results = engine.validate(stage)
         issues = results.issues()
 
         # fix that same stage in-memory
-        fixer = omni.asset_validator.IssueFixer(stage)
+        fixer = nvidia_usd_validation.IssueFixer(stage)
         fixer.fix(issues)
         fixer.save()
 

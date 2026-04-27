@@ -409,7 +409,7 @@ class AutoFixTest(unittest.IsolatedAsyncioTestCase):
         try:
             yield file
         finally:
-            file.write_text(old_content)
+            file.write_text(old_content)  # NOSONAR
 
     async def test_commit_fix_url(self):
         url: str = get_url("autofixPrev.usda")
@@ -520,15 +520,15 @@ class VariantTest(unittest.IsolatedAsyncioTestCase):
         # Copy assets to edit
         with TemporaryDirectory() as directory:
             temp_variant = pathlib.Path(directory).joinpath("materialVariantsFail.usda")
-            temp_variant.write_text(variants.read_text())
+            temp_variant.write_text(variants.read_text())  # NOSONAR
             pathlib.Path(directory).joinpath("Materials/").mkdir()
-            pathlib.Path(directory).joinpath("Materials/material.mdl").write_text(material_mdl.read_text())
+            pathlib.Path(directory).joinpath("Materials/material.mdl").write_text(material_mdl.read_text())  # NOSONAR
             temp_correct = pathlib.Path(directory).joinpath("Materials/knownMaterial.usda")
-            temp_correct.write_text(correct.read_text())
+            temp_correct.write_text(correct.read_text())  # NOSONAR
             temp_incorrect = pathlib.Path(directory).joinpath("Materials/incorrectMaterialSublayer.usda")
-            temp_incorrect.write_text(incorrect.read_text())
+            temp_incorrect.write_text(incorrect.read_text())  # NOSONAR
             temp_missing_dot = pathlib.Path(directory).joinpath("Materials/missingDotMaterial.usda")
-            temp_missing_dot.write_text(missing_dot.read_text())
+            temp_missing_dot.write_text(missing_dot.read_text())  # NOSONAR
 
             engine: ValidationEngine = ValidationEngine(init_rules=False)
             engine.enable_rule(MaterialPathChecker)
@@ -552,10 +552,10 @@ class VariantTest(unittest.IsolatedAsyncioTestCase):
         # Copy assets to edit
         with TemporaryDirectory() as directory:
             temp_variant_reference = pathlib.Path(directory).joinpath("nestedVariantsReference.usda")
-            temp_variant_reference.write_text(variant_reference.read_text())
+            temp_variant_reference.write_text(variant_reference.read_text())  # NOSONAR
 
             temp_variants = pathlib.Path(directory).joinpath("nestedVariants.usda")
-            temp_variants.write_text(variants.read_text())
+            temp_variants.write_text(variants.read_text())  # NOSONAR
 
             engine: ValidationEngine = ValidationEngine(init_rules=False)
             engine.enable_rule(ExtentsChecker)

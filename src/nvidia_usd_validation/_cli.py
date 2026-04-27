@@ -17,17 +17,19 @@ from ._assets import AssetProgress
 from ._base_rule_checker import BaseRuleChecker
 from ._capabilities import Capability, CapabilityRegistry
 from ._categories import CategoryRuleRegistry
-from ._csv_reports import IssueCSVData
+from ._csv_reports import export_csv_file
 from ._engine import ValidationEngine
 from ._features import Feature, FeatureRegistry
 from ._fix import IssueFixer
 from ._issues import Issue, IssueGroupBy, IssueGroupsBy, IssuePredicate, IssuePredicates, IssueSeverity, IssuesList
 from ._json_reports import export_json_file
 from ._parameters import ParameterMapping, UserParameter
+from ._profiles import Profile, ProfileRegistry
 from ._registry import VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
 from ._results import Results, ResultsList
 from ._semver import SemVer
+from ._validation_context import ValidationContext
 from ._version import __version__
 
 __all__ = [
@@ -38,6 +40,7 @@ __all__ = [
 ]
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class _ArgFormatter(argparse.RawTextHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
@@ -141,7 +144,7 @@ def create_validation_parser() -> argparse.ArgumentParser:
     - fix/no-fix: Optional. Whether to apply IssueFixer after ValidationEngine.
 
     Other options:
-    - version: Print the version of omni.asset_validator.
+    - version: Print the version of nvidia_usd_validation.
     """
     parser = _ArgParser(allow_abbrev=False)
     parser.prog = "validate"
@@ -280,6 +283,28 @@ def create_validation_parser() -> argparse.ArgumentParser:
         choices=features,
         help=inspect.cleandoc(f"Feature to disable. Valid options include:\n{os.linesep.join(features)}"),
     )
+    profiles: list[str] = _create_options(ProfileRegistry())
+    parser.add_argument(
+        "--profile",
+        "--enable-profile",
+        metavar="PROFILE",
+        required=False,
+        type=str,
+        default=[],
+        action="append",
+        choices=profiles,
+        help=inspect.cleandoc(f"Profile to enable. Valid options include:\n{os.linesep.join(profiles)}"),
+    )
+    parser.add_argument(
+        "--disable-profile",
+        metavar="PROFILE",
+        required=False,
+        type=str,
+        default=[],
+        action="append",
+        choices=profiles,
+        help=inspect.cleandoc(f"Profile to disable. Valid options include:\n{os.linesep.join(profiles)}"),
+    )
     # Parameters
     parser.add_argument(
         "--parameter",
@@ -297,6 +322,13 @@ def create_validation_parser() -> argparse.ArgumentParser:
         default=False,
         action=argparse.BooleanOptionalAction,
         help="Whether to fix issues.",
+    )
+    # Stamp
+    parser.add_argument(
+        "--stamp",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help="Stamp the asset's metadata with validation profile info after successful validation. Requires --profile.",
     )
     # Predicates
     issue_predicates = [
@@ -390,6 +422,14 @@ class ValidationNamespaceExec:
         return self._namespace.variants
 
     @property
+    def stamp(self) -> bool:
+        """
+        Returns:
+            The `stamp` option value.
+        """
+        return self._namespace.stamp
+
+    @property
     def init_rules(self) -> bool:
         """
         Returns:
@@ -402,6 +442,7 @@ class ValidationNamespaceExec:
             and not self.requirements
             and not self.capabilities
             and not self.features
+            and not self.profiles
         )
 
     @property
@@ -430,7 +471,7 @@ class ValidationNamespaceExec:
 
     @property
     def group_by(self) -> IssueGroupBy:
-        if self.requirements or self.capabilities or self.features:
+        if self.requirements or self.capabilities or self.features or self.profiles:
             default = IssueGroupsBy.requirement()
         else:
             default = IssueGroupsBy.rule_name()
@@ -497,6 +538,30 @@ class ValidationNamespaceExec:
             The `disabled_features` option value.
         """
         return self._key_to_values(self._namespace.disable_feature, FeatureRegistry())
+
+    @property
+    def profiles(self) -> list[Profile]:
+        """
+        Returns:
+            The `profiles` option value (enabled profiles).
+        """
+        return self.enabled_profiles
+
+    @property
+    def enabled_profiles(self) -> list[Profile]:
+        """
+        Returns:
+            The `enabled_profiles` option value.
+        """
+        return self._key_to_values(self._namespace.profile, ProfileRegistry())
+
+    @property
+    def disabled_profiles(self) -> list[Profile]:
+        """
+        Returns:
+            The `disabled_profiles` option value.
+        """
+        return self._key_to_values(self._namespace.disable_profile, ProfileRegistry())
 
     @property
     def enabled_rules(self) -> list[type[BaseRuleChecker]]:
@@ -598,12 +663,16 @@ class ValidationNamespaceExec:
             engine.enable_capability(capability)
         for feature in self.enabled_features:
             engine.enable_feature(feature)
+        for profile in self.enabled_profiles:
+            engine.enable_profile(profile)
         for rule in self.disabled_rules:
             engine.disable_rule(rule)
         for rule in self.disable_category_rules:
             engine.disable_rule(rule)
         for feature in self.disabled_features:
             engine.disable_feature(feature)
+        for profile in self.disabled_profiles:
+            engine.disable_profile(profile)
         engine_parameters: ParameterMapping = engine.parameters
         for name, value in self.parameters.items():
             if name not in engine_parameters:
@@ -619,8 +688,6 @@ class ValidationNamespaceExec:
 
     @classmethod
     def _asset_progress_fn(cls, progress: AssetProgress) -> None:
-        logger = logging.getLogger(__name__)
-
         @lru_cache(maxsize=16)
         def func(asset, percent) -> None:
             logger.info(f"Processing {asset}........{percent}%")
@@ -629,7 +696,6 @@ class ValidationNamespaceExec:
 
     @classmethod
     def _log_issue(cls, group_name: str | None, issue: Issue) -> None:
-        logger = logging.getLogger(__name__)
         tokens: list[str] = []
         tokens.append(f"[{group_name if group_name else 'other'}]")
         tokens.append(issue.message)
@@ -658,7 +724,6 @@ class ValidationNamespaceExec:
         return tuple(name.split("."))
 
     def _asset_validated_fn(self, result: Results) -> None:
-        logger = logging.getLogger(__name__)
         logger.info(f"Results for Asset '{result.asset}'")
         groups: list[IssuesList] = result.issues.filter_by(self.predicate).group_by(self.group_by)
         for group in sorted(groups, key=self._group_key_fn):
@@ -674,7 +739,6 @@ class ValidationNamespaceExec:
                 logger.error(f"Failed to save fixes: {e}")
 
     def _assets_summary(self, results: ResultsList) -> None:
-        logger = logging.getLogger(__name__)
         for group in results.issues().filter_by(self.predicate).group_by(self.group_by):
             mapper = Counter()
             for subgroup in group.group_by(IssueGroupsBy.severity()):
@@ -697,16 +761,79 @@ class ValidationNamespaceExec:
         logger.info(f"Errors: {mapper[IssueSeverity.ERROR]}")
         logger.info(f"Infos: {mapper[IssueSeverity.INFO]}")
 
-    def _export_csv(self, results: ResultsList) -> None:
-        csv_data = IssueCSVData.from_(results)
-        csv_data.export_csv(self.csv_output)
+    def _export_csv(self, results: ResultsList, context: ValidationContext | None = None) -> None:
+        export_csv_file(self.csv_output, results, metadata=context)
 
-    def _export_json(self, results: ResultsList) -> None:
-        export_json_file(self.json_output, results)
+    def _export_json(self, results: ResultsList, context: ValidationContext | None = None) -> None:
+        export_json_file(self.json_output, results, metadata=context)
+
+    @classmethod
+    def _log_validation_context(cls, context: ValidationContext | None) -> None:
+        """Log a typed validation context as a profile/feature summary.
+
+        Output format:
+          - Failed requirements listed with which feature they preclude
+          - Profile name and version
+          - List of passed features only
+        """
+        if context is None:
+            return
+
+        all_features = [f for p in context.profiles for f in p.features] + list(context.features)
+        failed_features = [f for f in all_features if f.status == "FAIL"]
+        passed_features = [f for f in all_features if f.status == "PASS"]
+
+        # Log which requirements preclude which features (SimReady format)
+        for f in failed_features:
+            failed_reqs = [r.requirement.code for r in f.requirements if r.status == "FAIL"]
+            logger.info(f"Failed requirements {failed_reqs} preclude feature {f.feature.id}.")
+
+        logger.info("-" * 128)
+        for p in context.profiles:
+            logger.info(f"  Profile: {p.profile.id} ({p.profile.version})")
+
+        # Only list passed features (matching SimReady workspace output)
+        passed_str = [f"{f.feature.id} ({f.feature.version})" for f in passed_features]
+        logger.info(f"  Features: {passed_str}")
+
+    def _should_auto_detect(self) -> bool:
+        """Auto-detect profiles when no explicit validation scope is given
+        and profiles are registered."""
+        has_explicit_scope = (
+            self.rules
+            or self.category_rules
+            or self.requirements
+            or self.capabilities
+            or self.features
+            or self.profiles
+        )
+        return not has_explicit_scope and len(ProfileRegistry().latest_values()) > 0
+
+    @staticmethod
+    def _log_profile_detection(context: ValidationContext | None) -> None:
+        """Log auto-detection results in Matching/Non-matching format."""
+        if context is None:
+            return
+
+        logger.info("-" * 128)
+        if context.matched_profiles:
+            logger.info("Matching profiles:")
+            for p in context.matched_profiles:
+                logger.info(f"  {p.profile.id} ({p.profile.version}) - PASS")
+        if context.failed_profiles:
+            logger.info("Non-matching profiles:")
+            for p in context.failed_profiles:
+                failed_codes = [r.code for r in p.failed_requirements]
+                logger.info(f"  {p.profile.id} ({p.profile.version}) - FAIL: {failed_codes}")
+        if not context.matched_profiles:
+            logger.info("No installed profiles match this asset.")
 
     async def _validate(self) -> bool:
-        logger = logging.getLogger(__name__)
         engine = self.create_engine()
+
+        auto_detect = self._should_auto_detect()
+        if auto_detect:
+            engine.enable_profile_detection()
         asset: str = self.asset
 
         task: asyncio.Task = engine.validate_with_callbacks(
@@ -724,6 +851,12 @@ class ValidationNamespaceExec:
         else:
             self._assets_summary(results)
 
+        context = results.context
+        if auto_detect:
+            self._log_profile_detection(context)
+        else:
+            self._log_validation_context(context)
+
         # Time per rule
         logger.debug("-" * 128)
         logger.debug("Time per Rule:")
@@ -733,11 +866,26 @@ class ValidationNamespaceExec:
             total_time += time
         logger.debug(f"Total Time: {round(total_time, 3)} s.")
 
-        # Saving reports
+        # Stamp asset metadata after successful profile validation
+        if self.stamp:
+            if engine.enabled_profiles:
+                saved = 0
+                for result in results:
+                    layer = engine.stamp_asset(result.asset, result)
+                    if layer and not layer.anonymous:
+                        try:
+                            layer.Save()
+                            saved += 1
+                        except (OSError, Tf.ErrorException) as e:
+                            logger.error(f"Failed to save stamped layer {layer.identifier}: {e}")
+                if saved:
+                    logger.info(f"Saved {saved} stamped layer(s).")
+            else:
+                logger.warning("--stamp requires --profile; skipping stamp.")
         if self.csv_output:
-            self._export_csv(results)
+            self._export_csv(results, context)
         if self.json_output:
-            self._export_json(results)
+            self._export_json(results, context)
         return not has_issues
 
     def run_validation(self) -> bool:

@@ -9,6 +9,7 @@
 import inspect
 from collections.abc import Sequence
 
+from ._asset_format import FormatDependency
 from ._identifiers import AtType
 from ._issues import Issue, IssueSeverity, Suggestion
 from ._parameters import ParameterMapping
@@ -197,6 +198,13 @@ class BaseRuleChecker:
     def CheckZipFile(self, zipFile, packagePath):
         """Check the zipFile object created by opening the package at path
         packagePath.
+        """
+        pass
+
+    def CheckFormatDependency(self, dependency: FormatDependency):
+        """Check a single dependency returned by an :py:class:`~nvidia_usd_validation.AssetFormat` handler.
+
+        Called once per path in the flat list produced by :py:meth:`~nvidia_usd_validation.AssetFormat.get_dependencies`.
         """
         pass
 

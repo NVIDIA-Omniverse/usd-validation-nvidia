@@ -9,13 +9,8 @@ enabling external packages to register validation rules, requirements, features,
 profiles through Python entrypoints.
 
 The built-in validation rules are registered via ``DefaultPlugin``, which is loaded
-by default. External plugins are discovered via the ``omni.asset_validator`` entrypoint
-group. Set the ``NVIDIA_USD_VALIDATION_ISOLATE_ENTRYPOINTS`` environment variable to a
-comma-separated list of entrypoint values (in ``module:object`` format) to control
-which plugins are loaded.
-
-Plugins are discovered via the ``omni.asset_validator`` entrypoint group and are expected
-to provide an object with ``on_startup()`` and ``on_shutdown()`` methods.
+by default. External plugins are discovered via the ``nvidia_usd_validation`` entrypoint
+group and are expected to provide an object with ``on_startup()`` and ``on_shutdown()`` methods.
 
 Example plugin entrypoint in ``pyproject.toml``::
 
@@ -39,8 +34,8 @@ from __future__ import annotations
 
 import importlib.metadata
 import logging
-import os
 import re
+import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import cache
@@ -100,6 +95,14 @@ class LoadedPlugin:
     distribution_name: str
     entrypoint: importlib.metadata.EntryPoint
 
+    @property
+    def version(self) -> str:
+        """Return the installed version of the plugin's distribution package."""
+        try:
+            return importlib.metadata.version(self.distribution_name)
+        except importlib.metadata.PackageNotFoundError:
+            return "unknown"
+
 
 @singleton
 class PluginManager:
@@ -122,7 +125,6 @@ class PluginManager:
     """
 
     ENTRYPOINT_GROUP = "nvidia_usd_validation"
-    ISOLATION_ENV_VAR = "NVIDIA_USD_VALIDATION_ISOLATE_ENTRYPOINTS"
 
     def __init__(self):
         """Initialize the plugin manager."""
@@ -138,6 +140,11 @@ class PluginManager:
         """
         logger.info("Initializing Asset Validator plugin system")
 
+        # The module is complete in sys.modules but not yet bound as an attribute
+        # on omni (that happens after __init__.py returns), so nvidia_usd_validation.<X>
+        # in on_startup() would fail.
+        nvidia_usd_validation = sys.modules["nvidia_usd_validation"]
+
         entrypoints = self._discover_entrypoints()
         if not entrypoints:
             logger.info("No plugins discovered")
@@ -152,23 +159,15 @@ class PluginManager:
 
     def _discover_entrypoints(self) -> list[importlib.metadata.EntryPoint]:
         """
-        Build the allow-list and return matching entrypoints.
+        Discover all entrypoints in the 'nvidia_usd_validation' group.
 
-        When the env var is unset or empty, the allow-list contains only
-        ``DEFAULT_PLUGIN_ENTRYPOINT``. When set, it contains exactly the
-        values listed. Plugins are discovered via ``importlib.metadata``;
-        if the default plugin is in the allow-list but not discovered
-        (e.g. dev mode without pip install), a synthetic entrypoint is
-        created as fallback.
+        Returns all discovered entrypoints in topologically sorted order. If
+        the default plugin is not discovered (e.g. dev mode without pip
+        install), a synthetic entrypoint is created as fallback.
 
         Returns:
             List of EntryPoint objects in topologically sorted order.
         """
-        isolation_env = os.environ.get(self.ISOLATION_ENV_VAR, "")
-        isolation_set = {v.strip() for v in isolation_env.split(",") if v.strip()} or {DEFAULT_PLUGIN_ENTRYPOINT}
-
-        logger.info(f"Plugin allow-list: {sorted(isolation_set)}. Only these entrypoints will be loaded.")
-
         try:
             eps = importlib.metadata.entry_points()
             discovered = list(eps.select(group=self.ENTRYPOINT_GROUP))
@@ -176,10 +175,10 @@ class PluginManager:
             discovered_values = {ep.value for ep in discovered}
             logger.info(f"Discovered plugins: {discovered_values}")
 
-            # Fallback: if the default plugin is in the allow-list but wasn't
-            # discovered (e.g. dev/build mode without pip install), create a
-            # synthetic entrypoint so it still loads.
-            if DEFAULT_PLUGIN_ENTRYPOINT in isolation_set and DEFAULT_PLUGIN_ENTRYPOINT not in discovered_values:
+            # Fallback: if the default plugin wasn't discovered (e.g. dev/build
+            # mode without pip install), create a synthetic entrypoint so it
+            # still loads.
+            if DEFAULT_PLUGIN_ENTRYPOINT not in discovered_values:
                 default_ep = importlib.metadata.EntryPoint(
                     name="default",
                     value=DEFAULT_PLUGIN_ENTRYPOINT,
@@ -187,15 +186,7 @@ class PluginManager:
                 )
                 discovered.append(default_ep)
 
-            filtered = []
-            for ep in discovered:
-                if ep.value not in isolation_set:
-                    module_name = ep.value.split(":")[0]
-                    logger.warning(f"Skipping {self.ENTRYPOINT_GROUP} entrypoint module: '{module_name}'")
-                else:
-                    filtered.append(ep)
-
-            return self._topological_sort(filtered)
+            return self._topological_sort(discovered)
 
         except (ImportError, AttributeError, ValueError):
             logger.exception("Error discovering entrypoints")
@@ -339,17 +330,29 @@ class PluginManager:
         """
         return tuple(self._loaded_plugins)
 
+    def get_loaded_plugin(self, entrypoint_value: str) -> LoadedPlugin | None:
+        """
+        Return the loaded plugin for the given entrypoint value, or ``None`` if not loaded.
+
+        Args:
+            entrypoint_value: The entrypoint value string (e.g. ``"nvidia_usd_validation:DefaultPlugin"``).
+
+        Returns:
+            The :class:`LoadedPlugin` instance, or ``None`` if not found.
+        """
+        return next((p for p in self._loaded_plugins if p.entrypoint.value == entrypoint_value), None)
+
     def is_plugin_loaded(self, entrypoint_value: str) -> bool:
         """
         Check if a plugin is currently loaded.
 
         Args:
-            entrypoint_value: The entrypoint value string (e.g. ``"omni.asset_validator:DefaultPlugin"``).
+            entrypoint_value: The entrypoint value string (e.g. ``"nvidia_usd_validation:DefaultPlugin"``).
 
         Returns:
             ``True`` if the plugin is loaded, ``False`` otherwise.
         """
-        return any(p.entrypoint.value == entrypoint_value for p in self._loaded_plugins)
+        return self.get_loaded_plugin(entrypoint_value) is not None
 
     def __enter__(self) -> PluginManager:
         self.initialize()

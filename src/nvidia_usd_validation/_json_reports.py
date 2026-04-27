@@ -7,12 +7,14 @@ import pathlib
 from functools import singledispatchmethod
 from typing import Any
 
+from nvidia_usd_validation.capabilities import Requirement as _Requirement
 from pxr import Sdf
 
 from ._base_rule_checker import BaseRuleChecker
 from ._identifiers import EditTargetId, LayerId, PrimId, PropertyId, SchemaBaseId, SpecId, StageId
 from ._issues import Issue, IssueGroupsBy, IssueSeverity, IssuesList, Suggestion
 from ._results import Results, ResultsList, to_issues_list
+from ._validation_context import FeatureStatus, ProfileStatus, RequirementStatus, ValidationContext
 
 __all__ = [
     "IssueJSONEncoder",
@@ -38,12 +40,23 @@ class IssueJSONEncoder(json.JSONEncoder):
 
     This encoder handles serializing `Results`, `ResultsList`, `IssuesList`, `Issue`, `Suggestion`, `Identifier`
     and list of Issues.
+
+    Args:
+        rules: Optional list of rule classes to include in the output (even if they produced no issues).
+        metadata: Optional ``ValidationContext`` to include as a structured tree in the top-level JSON output.
     """
 
-    def __init__(self, rules: list[BaseRuleChecker] | None = None, *args, **kwargs):
+    def __init__(
+        self,
+        rules: list[BaseRuleChecker] | None = None,
+        metadata: ValidationContext | None = None,
+        *args,
+        **kwargs,
+    ):
         kwargs["indent"] = 4
         super().__init__(*args, **kwargs)
         self._rules = rules if rules else []
+        self._metadata = metadata
 
     @classmethod
     def _is_rule(cls, o: Any) -> bool:
@@ -79,15 +92,48 @@ class IssueJSONEncoder(json.JSONEncoder):
                 rules.setdefault(rule, {"rule": rule, "status": "PASS", "issues": []})
                 rules[rule]["status"] = "FAIL"
                 rules[rule]["issues"] = list(issues)
-        # Return global one
-        return {
+        result = {
             "status": "FAIL" if o else "PASS",
-            "rules": list(rules.values()),
+        }
+        if self._metadata:
+            result["profiles"] = self._metadata.profiles
+            result["features"] = self._metadata.features
+        result["rules"] = list(rules.values())
+        return result
+
+    @default.register
+    def _(self, o: ValidationContext) -> Any:
+        return {"profiles": o.profiles, "features": o.features}
+
+    @default.register
+    def _(self, o: ProfileStatus) -> Any:
+        return {
+            "id": o.profile.id,
+            "version": o.profile.version,
+            "status": o.status,
+            "features": o.features,
+        }
+
+    @default.register
+    def _(self, o: FeatureStatus) -> Any:
+        return {
+            "id": o.feature.id,
+            "version": o.feature.version,
+            "status": o.status,
+            "requirements": o.requirements,
+        }
+
+    @default.register
+    def _(self, o: RequirementStatus) -> Any:
+        return {
+            "code": o.requirement.code,
+            "version": o.requirement.version,
+            "status": o.status,
         }
 
     @default.register
     def _(self, o: Issue) -> Any:
-        return {
+        result = {
             "type": Type.ISSUE,
             "message": o.message,
             "severity": o.severity,
@@ -96,6 +142,13 @@ class IssueJSONEncoder(json.JSONEncoder):
             "suggestion": o.suggestion,
             "suggestions": list(o.suggestions),
         }
+        if o.requirement is not None:
+            result["requirement"] = o.requirement
+        return result
+
+    @default.register(_Requirement)
+    def _(self, o: _Requirement) -> Any:
+        return {"code": o.code, "version": o.version}
 
     @default.register
     def _(self, o: Suggestion) -> Any:
@@ -172,7 +225,19 @@ class IssueJSONEncoder(json.JSONEncoder):
 
 
 def export_json_file(
-    json_output_path: str | pathlib.Path, entry: Results | ResultsList | IssuesList | Issue | Suggestion
+    json_output_path: str | pathlib.Path,
+    entry: Results | ResultsList | IssuesList | Issue | Suggestion,
+    metadata: ValidationContext | None = None,
 ) -> None:
+    """
+    Export validation results to a JSON file.
+
+    Args:
+        json_output_path: Path to write the JSON file.
+        entry: Validation results to serialize.
+        metadata: Optional :class:`ValidationContext` to include as a structured
+            profile/feature/requirement tree in the top-level JSON output.
+    """
+    encoder = IssueJSONEncoder(metadata=metadata)
     with open(json_output_path, "w") as f:
-        json.dump(entry, f, cls=IssueJSONEncoder)
+        f.write(encoder.encode(entry))

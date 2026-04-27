@@ -4,6 +4,14 @@
 from ._version import __version__, get_version
 
 
+from ._asset_format import (
+    AssetFormat,
+    AssetFormatRegistry,
+    FormatDependency,
+    add_registry_asset_format_callback,
+    register_format,
+    unregister_format,
+)
 from ._assets import AssetLocatedCallback, AssetProgress, AssetProgressCallback, AssetType, AssetValidatedCallback
 from ._atomic_asset_checker import AnchoredAssetPathsChecker, SupportedFileTypesChecker, UsdzUdimLimitationChecker
 from ._base_rule_checker import BaseRuleChecker
@@ -53,7 +61,7 @@ from ._context_managers import (
     DelegateContextManager,
     PeriodicCallback,
 )
-from ._csv_reports import IssueCSVData
+from ._csv_reports import IssueCSVData, export_csv_file
 from ._default_categories import DefaultCategoryRules
 from ._default_plugin import DefaultPlugin
 from ._engine import ValidationEngine
@@ -69,6 +77,7 @@ from ._features import (
     unregister_features,
 )
 from ._fix import AuthoringLayers, FixResult, FixResultList, FixStatus, IssueFixer
+from ._gaussian_splat_checker import GaussianSplatSchemaChecker
 from ._geometry_checker import (
     IndexedPrimvarChecker,
     ManifoldChecker,
@@ -175,7 +184,7 @@ from ._semver import SemVer
 from ._singleton import singleton
 from ._stats import ValidationStats
 from ._units_rules import _UnitsInMetersChecker, _UpAxisZChecker
-from ._url_utils import make_relative_url_if_possible, normalize_url
+from ._url_utils import LocalUriResolver, UriResolver, make_relative_url_if_possible, normalize_url
 from ._usd_utils import get_sdf_type_for_shader_property
 from ._usd_validator_adapter import (
     UsdValidatorAdapter,
@@ -184,12 +193,15 @@ from ._usd_validator_adapter import (
     ValidatorProtocol,
 )
 from ._utf8_checker import UnicodeNameChecker
+from ._validation_context import FeatureStatus, ProfileStatus, RequirementStatus, ValidationContext, ValidationStatus
 
 __all__ = [
     "AlmostExtremeExtentChecker",
     "AnchoredAssetPathsChecker",
     "ArticulationChecker",
     "AssetFix",
+    "AssetFormat",
+    "AssetFormatRegistry",
     "AssetLocatedCallback",
     "AssetProgress",
     "AssetProgressCallback",
@@ -223,9 +235,12 @@ __all__ = [
     "ExtentsChecker",
     "Feature",
     "FeatureRegistry",
+    "FeatureStatus",
     "FixResult",
     "FixResultList",
     "FixStatus",
+    "FormatDependency",
+    "GaussianSplatSchemaChecker",
     "IdVersion",
     "Identifier",
     "IndexedPrimvarChecker",
@@ -243,6 +258,7 @@ __all__ = [
     "LayerId",
     "LayerSpecChecker",
     "LoadedPlugin",
+    "LocalUriResolver",
     "ManifoldChecker",
     "MassChecker",
     "MaterialOldMdlSchemaChecker",
@@ -270,9 +286,11 @@ __all__ = [
     "PrimvarId",
     "Profile",
     "ProfileRegistry",
+    "ProfileStatus",
     "PropertyId",
     "RepeatedValuesSet",
     "Requirement",
+    "RequirementStatus",
     "RequirementsRegistry",
     "Results",
     "ResultsList",
@@ -293,6 +311,7 @@ __all__ = [
     "UnicodeNameChecker",
     "UnusedMeshTopologyChecker",
     "UnusedPrimvarChecker",
+    "UriResolver",
     "UsdAsciiPerformanceChecker",
     "UsdDanglingMaterialBinding",
     "UsdGeomSubsetChecker",
@@ -304,9 +323,11 @@ __all__ = [
     "UserParameter",
     "ValidateTopologyChecker",
     "ValidationArgsExec",
+    "ValidationContext",
     "ValidationEngine",
     "ValidationNamespaceExec",
     "ValidationStats",
+    "ValidationStatus",
     "ValidatorErrorProtocol",
     "ValidatorErrorSiteProtocol",
     "ValidatorProtocol",
@@ -322,6 +343,7 @@ __all__ = [
     "_UpAxisZChecker",
     "__version__",
     "_common_pattern",
+    "add_registry_asset_format_callback",
     "add_registry_capability_callback",
     "add_registry_feature_callback",
     "add_registry_profile_callback",
@@ -333,6 +355,7 @@ __all__ = [
     "create_validation_parser",
     "default_implementation",
     "default_implementation_method",
+    "export_csv_file",
     "export_json_file",
     "get_category_rules_registry",
     "get_sdf_type_for_shader_property",
@@ -350,6 +373,7 @@ __all__ = [
     "register_capabilities",
     "register_capability",
     "register_feature",
+    "register_format",
     "register_features",
     "register_profile",
     "register_profiles",
@@ -362,6 +386,7 @@ __all__ = [
     "to_issues_list",
     "unregister_capabilities",
     "unregister_capability",
+    "unregister_format",
     "unregister_feature",
     "unregister_features",
     "unregister_profile",

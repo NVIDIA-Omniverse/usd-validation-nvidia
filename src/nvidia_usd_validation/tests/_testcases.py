@@ -86,7 +86,7 @@ class ValidationTestCaseMixin:
         """Assert issues from validating one asset using either a rule, requirement or capability.
 
         Derived classes may use this to simplify testing of new rules with less consideration for
-        the structure of `omni.asset_validator.Results`.
+        the structure of `nvidia_usd_validation.Results`.
 
         Note there will be only one enabled rule for the validation run, so all results will have necessarily
         been produced by the provided rule or by the engine itself (eg non-existent file).
@@ -186,7 +186,7 @@ class ValidationTestCaseMixin:
         """Assert expected failures from validating one asset using one rule will be fixed using auto fix framework.
 
         Derived classes may use this to simplify testing of new rules with less consideration for
-        the structure of `omni.asset_validator.IssueFixer`.
+        the structure of `nvidia_usd_validation.IssueFixer`.
 
         Note there will be only one enabled rule for the validation run, so all results will have necessarily
         been produced by the provided rule or by the engine itself (eg non-existent file).

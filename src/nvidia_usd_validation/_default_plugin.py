@@ -34,6 +34,7 @@ from ._base_rules import (
 from ._capabilities import register_capabilities, unregister_capabilities
 from ._categories import CategoryRuleRegistry, register_rule
 from ._features import register_features, unregister_features
+from ._gaussian_splat_checker import GaussianSplatSchemaChecker
 from ._geometry_checker import (
     IndexedPrimvarChecker,
     ManifoldChecker,
@@ -116,6 +117,7 @@ class DefaultPlugin:
         _register("Geometry", NormalsExistChecker)
         _register("Geometry", NormalsValidChecker)
         _register("Geometry", NormalsWindingsChecker)
+        _register("Geometry", GaussianSplatSchemaChecker, skip=True)
         _register("Geometry", SubdivisionSchemeChecker)
         _register("Geometry", UnusedMeshTopologyChecker)
         _register("Geometry", UnusedPrimvarChecker)

@@ -5,7 +5,6 @@
 Tests for the plugin management system.
 """
 
-import os
 import unittest
 from unittest.mock import Mock, patch
 
@@ -42,11 +41,6 @@ def _mock_entry_points(eps):
 def _mock_no_deps():
     """Patch importlib.metadata.requires to return no dependencies."""
     return patch("importlib.metadata.requires", return_value=None)
-
-
-def _allow_plugins(*ep_values):
-    """Set the isolation env var to allow the given entrypoint values."""
-    return patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: ",".join(ep_values)})
 
 
 class MockPluginWithRule:
@@ -128,13 +122,6 @@ class TestPluginManager(unittest.TestCase):
 
     # -- Initialize / loaded_plugins --
 
-    def test_initialize_no_plugins(self):
-        """initialize() with no matching plugins results in empty loaded_plugins."""
-        with _allow_plugins("nonexistent:P"), _mock_entry_points([]), _mock_no_deps():
-            manager = PluginManager()
-            manager.initialize()
-            self.assertEqual(len(manager.loaded_plugins), 0)
-
     def test_initialize_default_plugin(self):
         """Default plugin loads via fallback when not discovered via entrypoints."""
         with _mock_entry_points([]), _mock_no_deps():
@@ -148,13 +135,13 @@ class TestPluginManager(unittest.TestCase):
         plugin = Mock(spec=PluginProtocol)
         ep = _make_ep("my_plugin", "my_pkg:plugin", "my-package", plugin)
 
-        with _allow_plugins("my_pkg:plugin"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
 
-            self.assertEqual(len(manager.loaded_plugins), 1)
-            self.assertEqual(manager.loaded_plugins[0].name, "my_plugin")
-            self.assertEqual(manager.loaded_plugins[0].distribution_name, "my-package")
+            loaded = manager.get_loaded_plugin("my_pkg:plugin")
+            self.assertIsNotNone(loaded)
+            self.assertEqual(loaded.distribution_name, "my-package")
             plugin.on_startup.assert_called_once()
 
     def test_initialize_loads_plugin_class(self):
@@ -168,12 +155,11 @@ class TestPluginManager(unittest.TestCase):
             def on_shutdown(self) -> None: ...
 
         ep = _make_ep("cls_plugin", "my_pkg:PluginClass", "my-package", PluginClass)
-        with _allow_plugins("my_pkg:PluginClass"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
 
-            self.assertEqual(len(manager.loaded_plugins), 1)
-            self.assertEqual(manager.loaded_plugins[0].name, "cls_plugin")
+            self.assertTrue(manager.is_plugin_loaded("my_pkg:PluginClass"))
             started.assert_called_once()
 
     def test_initialize_idempotent(self):
@@ -181,7 +167,7 @@ class TestPluginManager(unittest.TestCase):
         plugin = Mock(spec=PluginProtocol)
         ep = _make_ep("p1", "mod1:P", "pkg1", plugin)
 
-        with _allow_plugins("mod1:P"), _mock_entry_points([ep]) as mock_ep, _mock_no_deps():
+        with _mock_entry_points([ep]) as mock_ep, _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
             manager.initialize()
@@ -195,14 +181,13 @@ class TestPluginManager(unittest.TestCase):
         good_plugin = Mock(spec=PluginProtocol)
         good_ep = _make_ep("good", "good_pkg:plugin", "good-pkg", good_plugin)
 
-        with _allow_plugins("broken_pkg:plugin", "good_pkg:plugin"):
-            with _mock_entry_points([broken_ep, good_ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
+        with _mock_entry_points([broken_ep, good_ep]), _mock_no_deps():
+            manager = PluginManager()
+            manager.initialize()
 
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "good")
-                good_plugin.on_startup.assert_called_once()
+            self.assertTrue(manager.is_plugin_loaded("good_pkg:plugin"))
+            self.assertFalse(manager.is_plugin_loaded("broken_pkg:plugin"))
+            good_plugin.on_startup.assert_called_once()
 
     def test_initialize_skips_import_error(self):
         """Plugins that fail to import are skipped."""
@@ -216,23 +201,22 @@ class TestPluginManager(unittest.TestCase):
         good_plugin = Mock(spec=PluginProtocol)
         good_ep = _make_ep("good", "good_pkg:plugin", "good-pkg", good_plugin)
 
-        with _allow_plugins("bad_pkg:plugin", "good_pkg:plugin"):
-            with _mock_entry_points([bad_ep, good_ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
+        with _mock_entry_points([bad_ep, good_ep]), _mock_no_deps():
+            manager = PluginManager()
+            manager.initialize()
 
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "good")
+            self.assertTrue(manager.is_plugin_loaded("good_pkg:plugin"))
+            self.assertFalse(manager.is_plugin_loaded("bad_pkg:plugin"))
 
     def test_initialize_skips_incomplete_plugin(self):
         """Plugins missing on_shutdown() are skipped."""
         ep = _make_ep("incomplete", "inc_pkg:plugin", "inc-pkg", IncompletePlugin())
 
-        with _allow_plugins("inc_pkg:plugin"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
 
-            self.assertEqual(len(manager.loaded_plugins), 0)
+            self.assertFalse(manager.is_plugin_loaded("inc_pkg:plugin"))
 
     def test_initialize_skips_missing_on_startup(self):
         """Plugins missing on_startup() are skipped."""
@@ -243,142 +227,45 @@ class TestPluginManager(unittest.TestCase):
 
         ep = _make_ep("no_startup", "ns_pkg:plugin", "ns-pkg", NoStartupPlugin())
 
-        with _allow_plugins("ns_pkg:plugin"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
 
-            self.assertEqual(len(manager.loaded_plugins), 0)
+            self.assertFalse(manager.is_plugin_loaded("ns_pkg:plugin"))
 
     def test_initialize_discovery_error(self):
         """If entry_points() raises, initialize() succeeds with no plugins."""
-        with _allow_plugins("any:value"):
-            with patch("importlib.metadata.entry_points", side_effect=ImportError("fail")):
-                manager = PluginManager()
-                manager.initialize()
-                self.assertEqual(len(manager.loaded_plugins), 0)
+        with patch("importlib.metadata.entry_points", side_effect=ImportError("fail")):
+            manager = PluginManager()
+            manager.initialize()
+            self.assertEqual(len(manager.loaded_plugins), 0)
 
-    # -- Isolation (allow-list) --
+    # -- module accessible before on_startup --
 
-    def test_isolation_only_loads_listed_plugin(self):
-        """ISOLATION_ENV_VAR only loads plugins matching the entrypoint value."""
-        isolated_plugin = Mock(spec=PluginProtocol)
-        other_plugin = Mock(spec=PluginProtocol)
-        ep1 = _make_ep("p1", "isolated_mod:Plugin", "isolated-pkg", isolated_plugin)
-        ep2 = _make_ep("p2", "other_mod:Plugin", "other-pkg", other_plugin)
+    def test_nvidia_usd_validation_accessible_before_on_startup(self):
+        """nvidia_usd_validation is accessible before on_startup() runs."""
+        import nvidia_usd_validation
 
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: "isolated_mod:Plugin"}):
-            with _mock_entry_points([ep1, ep2]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
+        observed = []
 
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "p1")
-                isolated_plugin.on_startup.assert_called_once()
-                other_plugin.on_startup.assert_not_called()
+        class NvidiaAccessPlugin:
+            def on_startup(self) -> None:
+                try:
+                    _ = nvidia_usd_validation
+                    observed.append(True)
+                except AttributeError:
+                    observed.append(False)
 
-    def test_isolation_loads_multiple_listed_plugins(self):
-        """Comma-separated values allow multiple plugins."""
-        p1 = Mock(spec=PluginProtocol)
-        p2 = Mock(spec=PluginProtocol)
-        p3 = Mock(spec=PluginProtocol)
-        ep1 = _make_ep("p1", "mod1:P", "pkg1", p1)
-        ep2 = _make_ep("p2", "mod2:P", "pkg2", p2)
-        ep3 = _make_ep("p3", "mod3:P", "pkg3", p3)
+            def on_shutdown(self) -> None:
+                pass
 
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: "mod1:P,mod3:P"}):
-            with _mock_entry_points([ep1, ep2, ep3]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
+        ep = _make_ep("p1", "mod1:P", "pkg1", NvidiaAccessPlugin())
 
-                self.assertEqual(len(manager.loaded_plugins), 2)
-                names = {p.name for p in manager.loaded_plugins}
-                self.assertEqual(names, {"p1", "p3"})
+        with _mock_entry_points([ep]), _mock_no_deps():
+            manager = PluginManager()
+            manager.initialize()
 
-    def test_isolation_handles_whitespace(self):
-        """Whitespace around isolation values is stripped."""
-        p1 = Mock(spec=PluginProtocol)
-        p2 = Mock(spec=PluginProtocol)
-        ep1 = _make_ep("p1", "mod1:P", "pkg1", p1)
-        ep2 = _make_ep("p2", "mod2:P", "pkg2", p2)
-
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: " mod1:P "}):
-            with _mock_entry_points([ep1, ep2]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
-
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "p1")
-
-    def test_isolation_nonexistent_value_loads_nothing(self):
-        """Isolation list with no matching plugins loads nothing."""
-        plugin = Mock(spec=PluginProtocol)
-        ep = _make_ep("p1", "mod1:P", "pkg1", plugin)
-
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: "nonexistent:X"}):
-            with _mock_entry_points([ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
-
-                self.assertEqual(len(manager.loaded_plugins), 0)
-
-    def test_isolation_empty_env_defaults_to_default(self):
-        """Empty isolation env var defaults to loading the default plugin."""
-        other_plugin = Mock(spec=PluginProtocol)
-        other_ep = _make_ep("other", "other_mod:P", "other-pkg", other_plugin)
-
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: ""}):
-            with _mock_entry_points([other_ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
-
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "default")
-                other_plugin.on_startup.assert_not_called()
-
-    def test_isolation_unset_env_defaults_to_default(self):
-        """Unset isolation env var defaults to loading the default plugin via entrypoint."""
-        default_plugin = Mock(spec=PluginProtocol)
-        default_ep = _make_ep("default", DEFAULT_PLUGIN_ENTRYPOINT, "omniverse-asset-validator", default_plugin)
-
-        env = {k: v for k, v in os.environ.items() if k != PluginManager.ISOLATION_ENV_VAR}
-        with patch.dict(os.environ, env, clear=True):
-            with _mock_entry_points([default_ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
-
-                self.assertEqual(len(manager.loaded_plugins), 1)
-                self.assertEqual(manager.loaded_plugins[0].name, "default")
-                default_plugin.on_startup.assert_called_once()
-
-    def test_isolation_malformed_env_defaults_to_default(self):
-        """Malformed env var (commas/whitespace only) falls back to default plugin."""
-        for malformed in [",", " , , ", "  ", ",,"]:
-            with self.subTest(value=malformed):
-                PluginManager().shutdown()
-                with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: malformed}):
-                    with _mock_entry_points([]), _mock_no_deps():
-                        manager = PluginManager()
-                        manager.initialize()
-
-                        self.assertEqual(len(manager.loaded_plugins), 1)
-                        self.assertEqual(manager.loaded_plugins[0].name, "default")
-
-    def test_isolation_logs_warning_for_skipped_plugins(self):
-        """Plugins not in the isolation list log a warning with the module name."""
-        kept_ep = _make_ep("kept", "kept_module:plugin", "kept-pkg", Mock(spec=PluginProtocol))
-        skipped_ep = _make_ep("skipped", "skipped_module:plugin", "skipped-pkg", Mock(spec=PluginProtocol))
-
-        with patch.dict(os.environ, {PluginManager.ISOLATION_ENV_VAR: "kept_module:plugin"}):
-            with _mock_entry_points([kept_ep, skipped_ep]), _mock_no_deps():
-                with self.assertLogs("nvidia_usd_validation._plugins", level="WARNING") as log:
-                    manager = PluginManager()
-                    manager.initialize()
-
-                    self.assertTrue(
-                        any(
-                            "Skipping nvidia_usd_validation entrypoint module: 'skipped_module'" in m for m in log.output
-                        )
-                    )
+        self.assertEqual(observed, [True])
 
     # -- Topological sort (via initialize) --
 
@@ -394,15 +281,15 @@ class TestPluginManager(unittest.TestCase):
                 return ["base-pkg>=1.0"]
             return None
 
-        with _allow_plugins("base_mod:P", "child_mod:P"):
-            with _mock_entry_points([ep2, ep1]):  # Out of order
-                with patch("importlib.metadata.requires", side_effect=mock_requires):
-                    manager = PluginManager()
-                    manager.initialize()
+        with _mock_entry_points([ep2, ep1]):  # Out of order
+            with patch("importlib.metadata.requires", side_effect=mock_requires):
+                manager = PluginManager()
+                manager.initialize()
 
-                    self.assertEqual(len(manager.loaded_plugins), 2)
-                    names = [p.name for p in manager.loaded_plugins]
-                    self.assertLess(names.index("base"), names.index("child"))
+                self.assertTrue(manager.is_plugin_loaded("base_mod:P"))
+                self.assertTrue(manager.is_plugin_loaded("child_mod:P"))
+                names = [p.name for p in manager.loaded_plugins]
+                self.assertLess(names.index("base"), names.index("child"))
 
     def test_diamond_dependency_order(self):
         """Diamond dependency pattern loads in correct order: A -> B,C -> D."""
@@ -420,19 +307,19 @@ class TestPluginManager(unittest.TestCase):
             }
             return deps.get(dist_name)
 
-        with _allow_plugins("a_mod:P", "b_mod:P", "c_mod:P", "d_mod:P"):
-            with _mock_entry_points([ep_d, ep_b, ep_c, ep_a]):  # Scrambled
-                with patch("importlib.metadata.requires", side_effect=mock_requires):
-                    manager = PluginManager()
-                    manager.initialize()
+        with _mock_entry_points([ep_d, ep_b, ep_c, ep_a]):  # Scrambled
+            with patch("importlib.metadata.requires", side_effect=mock_requires):
+                manager = PluginManager()
+                manager.initialize()
 
-                    self.assertEqual(len(manager.loaded_plugins), 4)
-                    indices = {p.name: i for i, p in enumerate(manager.loaded_plugins)}
+                for ep_val in ("a_mod:P", "b_mod:P", "c_mod:P", "d_mod:P"):
+                    self.assertTrue(manager.is_plugin_loaded(ep_val))
+                indices = {p.name: i for i, p in enumerate(manager.loaded_plugins)}
 
-                    self.assertLess(indices["a"], indices["b"])
-                    self.assertLess(indices["a"], indices["c"])
-                    self.assertLess(indices["b"], indices["d"])
-                    self.assertLess(indices["c"], indices["d"])
+                self.assertLess(indices["a"], indices["b"])
+                self.assertLess(indices["a"], indices["c"])
+                self.assertLess(indices["b"], indices["d"])
+                self.assertLess(indices["c"], indices["d"])
 
     def test_circular_dependency_logs_warning(self):
         """Circular dependencies are handled gracefully with a warning."""
@@ -445,15 +332,15 @@ class TestPluginManager(unittest.TestCase):
             # Circular: pkg1 -> pkg2 -> pkg1
             return {"pkg1": ["pkg2>=1.0"], "pkg2": ["pkg1>=1.0"]}.get(dist_name)
 
-        with _allow_plugins("mod1:P", "mod2:P"):
-            with _mock_entry_points([ep1, ep2]):
-                with patch("importlib.metadata.requires", side_effect=mock_requires):
-                    with self.assertLogs("nvidia_usd_validation._plugins", level="WARNING") as log:
-                        manager = PluginManager()
-                        manager.initialize()
+        with _mock_entry_points([ep1, ep2]):
+            with patch("importlib.metadata.requires", side_effect=mock_requires):
+                with self.assertLogs("nvidia_usd_validation._plugins", level="WARNING") as log:
+                    manager = PluginManager()
+                    manager.initialize()
 
-                        self.assertEqual(len(manager.loaded_plugins), 2)
-                        self.assertTrue(any("Circular dependency" in m for m in log.output))
+                    self.assertTrue(manager.is_plugin_loaded("mod1:P"))
+                    self.assertTrue(manager.is_plugin_loaded("mod2:P"))
+                    self.assertTrue(any("Circular dependency" in m for m in log.output))
 
     # -- Shutdown --
 
@@ -464,7 +351,7 @@ class TestPluginManager(unittest.TestCase):
         ep1 = _make_ep("p1", "mod1:P", "pkg1", p1)
         ep2 = _make_ep("p2", "mod2:P", "pkg2", p2)
 
-        with _allow_plugins("mod1:P", "mod2:P"), _mock_entry_points([ep1, ep2]), _mock_no_deps():
+        with _mock_entry_points([ep1, ep2]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
             manager.shutdown()
@@ -481,7 +368,7 @@ class TestPluginManager(unittest.TestCase):
         ep1 = _make_ep("error", "err_mod:P", "err-pkg", error_plugin)
         ep2 = _make_ep("good", "good_mod:P", "good-pkg", good_plugin)
 
-        with _allow_plugins("err_mod:P", "good_mod:P"), _mock_entry_points([ep1, ep2]), _mock_no_deps():
+        with _mock_entry_points([ep1, ep2]), _mock_no_deps():
             manager = PluginManager()
             manager.initialize()
             manager.shutdown()
@@ -501,9 +388,9 @@ class TestPluginManager(unittest.TestCase):
         plugin = Mock(spec=PluginProtocol)
         ep = _make_ep("p1", "mod1:P", "pkg1", plugin)
 
-        with _allow_plugins("mod1:P"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             with PluginManager() as manager:
-                self.assertEqual(len(manager.loaded_plugins), 1)
+                self.assertTrue(manager.is_plugin_loaded("mod1:P"))
                 plugin.on_startup.assert_called_once()
 
             plugin.on_shutdown.assert_called_once()
@@ -514,7 +401,7 @@ class TestPluginManager(unittest.TestCase):
         plugin = Mock(spec=PluginProtocol)
         ep = _make_ep("p1", "mod1:P", "pkg1", plugin)
 
-        with _allow_plugins("mod1:P"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             with self.assertRaises(ValueError):
                 with PluginManager():
                     raise ValueError("test error")
@@ -528,7 +415,7 @@ class TestPluginManager(unittest.TestCase):
         plugin = Mock(spec=PluginProtocol)
         ep = _make_ep("p1", "mod1:P", "pkg1", plugin)
 
-        with _allow_plugins("mod1:P"), _mock_entry_points([ep]), _mock_no_deps():
+        with _mock_entry_points([ep]), _mock_no_deps():
             manager = PluginManager()
             self.assertFalse(manager.is_plugin_loaded("mod1:P"))
 

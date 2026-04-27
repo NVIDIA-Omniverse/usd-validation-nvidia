@@ -28,8 +28,10 @@ from nvidia_usd_validation import (
     DefaultPrimChecker,
     ExtentsChecker,
     IndexedPrimvarChecker,
+    Issue,
     IssueGroupsBy,
     IssuePredicates,
+    IssueSeverity,
     IssuesList,
     KindChecker,
     LayerSpecChecker,
@@ -47,6 +49,7 @@ from nvidia_usd_validation import (
     ParameterType,
     PhysicsJointChecker,
     PrimEncapsulationChecker,
+    Results,
     ResultsList,
     RigidBodyChecker,
     ShaderImplementationSourceChecker,
@@ -66,6 +69,7 @@ from nvidia_usd_validation import (
     UsdzPackageValidator,
     UserParameter,
     ValidateTopologyChecker,
+    ValidationArgsExec,
     ValidationEngine,
     WeldChecker,
     ZeroAreaFaceChecker,
@@ -243,7 +247,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             asset=get_url(pathlib.Path("Materials", "Fieldstone.mdl")),
             rule=StageMetadataChecker,
             asserts=[
-                IsAnError(message=".*Validation requires a readable USD file.*"),
+                IsAnError(message=".*is not a readable USD file and has no registered format handler.*"),
             ],
         )
 
@@ -363,6 +367,130 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         engine.disable_requirement(Requirements.VG_025_V1_0_0)
         self.assertTrue(engine.requirements)
         self.assertNotIn(Requirements.VG_025_V1_0_0, engine.requirements)
+
+    def _create_mock_profile(self, capabilities=None):
+        mock_profile = Mock()
+        mock_profile.capabilities = capabilities or [Capabilities.GEOMETRY]
+        return mock_profile
+
+    async def test_enable_profile(self):
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(self._create_mock_profile())
+        self.assertEqual(len(engine.enabled_profiles), 1)
+        self.assertTrue(engine.requirements)
+
+    async def test_enable_disable_profile(self):
+        engine = ValidationEngine(init_rules=False)
+        mock_profile = self._create_mock_profile()
+        engine.enable_profile(mock_profile)
+        engine.disable_profile(mock_profile)
+        self.assertEqual(len(engine.requirements), 0)
+
+    async def test_enable_disable_profile_requirement(self):
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(self._create_mock_profile())
+        engine.disable_requirement(Requirements.VG_025_V1_0_0)
+        self.assertTrue(engine.requirements)
+        self.assertNotIn(Requirements.VG_025_V1_0_0, engine.requirements)
+
+    async def test_stamp_writes_metadata(self):
+        stage = Usd.Stage.CreateInMemory()
+        stage.DefinePrim("/Root", "Xform")
+        stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
+        mock_profile = Mock()
+        mock_profile.id = "Test-Profile"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = []
+        mock_profile.features = None
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        engine.enable_rule(EmptyRule)
+        results = engine.validate(stage)
+        engine.stamp_asset(stage, results)
+        metadata = stage.GetRootLayer().customLayerData
+        self.assertIn("asset_validator", metadata)
+        validation = metadata["asset_validator"]["validation"]
+        self.assertEqual(validation["profiles"], {"Test-Profile": {"profile_version": "1.0.0"}})
+        self.assertIn("timestamp", validation)
+        self.assertIn("validator_version", validation)
+
+    async def test_stamp_skipped_on_failure(self):
+        stage = Usd.Stage.CreateInMemory()
+        mock_profile = Mock()
+        mock_profile.id = "Test-Profile"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = [Capabilities.GEOMETRY]
+        mock_profile.features = None
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        engine.enable_rule(StageMetadataChecker)
+        results = engine.validate(stage)
+        engine.stamp_asset(stage, results)
+        metadata = stage.GetRootLayer().customLayerData
+        self.assertNotIn("asset_validator", metadata)
+
+    async def test_stamp_skipped_without_profile(self):
+        stage = Usd.Stage.CreateInMemory()
+        UsdGeom.Mesh.Define(stage, "/Robot/body")
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_rule(StageMetadataChecker)
+        results = engine.validate(stage)
+        engine.stamp_asset(stage, results)
+        metadata = stage.GetRootLayer().customLayerData
+        self.assertNotIn("asset_validator", metadata)
+
+    async def test_stamp_custom_key(self):
+        stage = Usd.Stage.CreateInMemory()
+        stage.DefinePrim("/Root", "Xform")
+        stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
+        mock_profile = Mock()
+        mock_profile.id = "Test-Profile"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = []
+        mock_profile.features = None
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        engine.enable_rule(EmptyRule)
+        results = engine.validate(stage)
+        engine.stamp_asset(stage, results, key="SimReady_Metadata")
+        metadata = stage.GetRootLayer().customLayerData
+        self.assertNotIn("asset_validator", metadata)
+        self.assertIn("SimReady_Metadata", metadata)
+        self.assertEqual(
+            metadata["SimReady_Metadata"]["validation"]["profiles"],
+            {"Test-Profile": {"profile_version": "1.0.0"}},
+        )
+
+    async def test_stamp_save_on_file(self):
+        with tempfile.NamedTemporaryFile(suffix=".usda", delete=False) as f:
+            tmp_path = f.name
+        try:
+            stage = Usd.Stage.CreateNew(tmp_path)
+            stage.DefinePrim("/Root", "Xform")
+            stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
+            stage.Save()
+            del stage
+            mock_profile = Mock()
+            mock_profile.id = "Test-Profile"
+            mock_profile.version = "1.0.0"
+            mock_profile.capabilities = []
+            mock_profile.features = None
+            engine = ValidationEngine(init_rules=False)
+            engine.enable_profile(mock_profile)
+            engine.enable_rule(EmptyRule)
+            results = engine.validate(tmp_path)
+            layer = engine.stamp_asset(tmp_path, results)
+            self.assertIsNotNone(layer)
+            layer.Save()
+            reopened = Usd.Stage.Open(tmp_path)
+            metadata = reopened.GetRootLayer().customLayerData
+            self.assertIn("asset_validator", metadata)
+            self.assertEqual(
+                metadata["asset_validator"]["validation"]["profiles"],
+                {"Test-Profile": {"profile_version": "1.0.0"}},
+            )
+        finally:
+            os.unlink(tmp_path)
 
     async def test_unregistered_requirement(self):
         @register_requirements(Requirement.R7)
@@ -1110,3 +1238,203 @@ class AsyncRuleSyncValidationTest(unittest.TestCase, ValidationTestCaseMixin):
                 IsAnInfo(message="Test info"),
             ],
         )
+
+
+class ValidationContextTest(unittest.TestCase):
+    """Tests for the tree-structured validation context (OMPE-88048)."""
+
+    def test_validation_context_empty_without_profiles_or_features(self):
+        engine = ValidationEngine(init_rules=False)
+        results = ResultsList([Results(asset="test.usd", issues=[])])
+        context = engine.build_context(results)
+        self.assertIsNone(context)
+
+    def test_validation_context_feature_pass(self):
+        mock_req = Mock()
+        mock_req.code = "VG.001"
+        mock_req.version = "1.0.0"
+        mock_feature = Mock()
+        mock_feature.id = "FET001"
+        mock_feature.version = "1.0.0"
+        mock_feature.requirements = [mock_req]
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_feature(mock_feature)
+        results = ResultsList([Results(asset="test.usd", issues=[])])
+        context = engine.build_context(results)
+
+        self.assertIsNotNone(context)
+        self.assertEqual(len(context.features), 1)
+        self.assertEqual(context.features[0].feature.id, "FET001")
+        self.assertEqual(context.features[0].status, "PASS")
+        self.assertEqual(context.features[0].requirements[0].status, "PASS")
+
+    def test_validation_context_feature_fail(self):
+        mock_req = Mock()
+        mock_req.code = "RB.001"
+        mock_req.version = "1.0.0"
+        mock_feature = Mock()
+        mock_feature.id = "FET003"
+        mock_feature.version = "0.1.0"
+        mock_feature.requirements = [mock_req]
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_feature(mock_feature)
+        results = ResultsList(
+            [
+                Results(
+                    asset="test.usd",
+                    issues=[Issue(severity=IssueSeverity.FAILURE, message="rigid body fail", requirement=mock_req)],
+                )
+            ]
+        )
+        context = engine.build_context(results)
+
+        self.assertEqual(context.features[0].status, "FAIL")
+        self.assertEqual(context.features[0].requirements[0].status, "FAIL")
+
+    def test_validation_context_profile_with_mixed_features(self):
+        req_pass = Mock()
+        req_pass.code = "VG.001"
+        req_pass.version = "1.0.0"
+        cap_pass = Mock()
+        cap_pass.id = "geometry"
+        cap_pass.version = "1.0.0"
+        cap_pass.requirements = [req_pass]
+
+        req_fail = Mock()
+        req_fail.code = "RB.MB.001"
+        req_fail.version = "1.0.0"
+        cap_fail = Mock()
+        cap_fail.id = "physics"
+        cap_fail.version = "1.0.0"
+        cap_fail.requirements = [req_fail]
+
+        mock_profile = Mock()
+        mock_profile.id = "Robot-Body-Isaac"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = [cap_pass, cap_fail]
+        mock_profile.features = None
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        results = ResultsList(
+            [
+                Results(
+                    asset="test.usd",
+                    issues=[Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=req_fail)],
+                )
+            ]
+        )
+        context = engine.build_context(results)
+
+        self.assertIsNotNone(context)
+        self.assertEqual(len(context.profiles), 1)
+        profile = context.profiles[0]
+        self.assertEqual(profile.profile.id, "Robot-Body-Isaac")
+        self.assertEqual(profile.status, "FAIL")
+        self.assertEqual(profile.features[0].feature.id, "geometry")
+        self.assertEqual(profile.features[0].status, "PASS")
+        self.assertEqual(profile.features[1].feature.id, "physics")
+        self.assertEqual(profile.features[1].status, "FAIL")
+
+    def test_log_validation_context_simready_format(self):
+        req_pass = Mock()
+        req_pass.code = "VG.001"
+        req_pass.version = "1.0.0"
+        cap_pass = Mock()
+        cap_pass.id = "FET001_BASE_NEUTRAL"
+        cap_pass.version = "1.0.0"
+        cap_pass.requirements = [req_pass]
+
+        req_fail = Mock()
+        req_fail.code = "RB.MB.001"
+        req_fail.version = "1.0.0"
+        cap_fail = Mock()
+        cap_fail.id = "FET004_BASE_NEUTRAL"
+        cap_fail.version = "0.1.0"
+        cap_fail.requirements = [req_fail]
+
+        mock_profile = Mock()
+        mock_profile.id = "Prop-Robotics-Neutral"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = [cap_pass, cap_fail]
+        mock_profile.features = None
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        results = ResultsList(
+            [
+                Results(
+                    asset="test.usd",
+                    issues=[Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=req_fail)],
+                )
+            ]
+        )
+
+        context = engine.build_context(results)
+        with self.assertLogs(level="INFO") as cm:
+            ValidationArgsExec._log_validation_context(context)
+
+        log_output = os.linesep.join(cm.output)
+        self.assertIn("Failed requirements ['RB.MB.001'] preclude feature FET004_BASE_NEUTRAL", log_output)
+        self.assertIn("Profile: Prop-Robotics-Neutral (1.0.0)", log_output)
+        self.assertIn("FET001_BASE_NEUTRAL (1.0.0)", log_output)
+        self.assertIn("Features:", log_output)
+        self.assertNotIn("FET004_BASE_NEUTRAL", log_output.split("Features:")[1])
+
+    def test_validation_context_failed_requirements(self):
+        req_a = Mock()
+        req_a.code = "VG.001"
+        req_a.version = "1.0.0"
+        req_b = Mock()
+        req_b.code = "RB.001"
+        req_b.version = "1.0.0"
+        cap = Mock()
+        cap.id = "cap"
+        cap.version = "1.0.0"
+        cap.requirements = [req_a, req_b]
+        mock_profile = Mock()
+        mock_profile.id = "Test-Profile"
+        mock_profile.version = "1.0.0"
+        mock_profile.capabilities = [cap]
+        mock_profile.features = None
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_profile(mock_profile)
+        results = ResultsList(
+            [
+                Results(
+                    asset="test.usd",
+                    issues=[
+                        Issue(severity=IssueSeverity.FAILURE, message="a", requirement=req_a),
+                        Issue(severity=IssueSeverity.FAILURE, message="b", requirement=req_b),
+                    ],
+                )
+            ]
+        )
+        context = engine.build_context(results)
+
+        failed = context.failed_requirements
+        self.assertIn(req_a, failed)
+        self.assertIn(req_b, failed)
+        self.assertEqual(len(failed), 2)
+
+    def test_validation_context_single_result(self):
+        """build_context accepts a single Results directly via dispatch."""
+        mock_req = Mock()
+        mock_req.code = "RB.001"
+        mock_req.version = "1.0.0"
+        mock_feature = Mock()
+        mock_feature.id = "FET003"
+        mock_feature.version = "0.1.0"
+        mock_feature.requirements = [mock_req]
+
+        engine = ValidationEngine(init_rules=False)
+        engine.enable_feature(mock_feature)
+        result = Results(
+            asset="test.usd",
+            issues=[Issue(severity=IssueSeverity.FAILURE, message="fail", requirement=mock_req)],
+        )
+        context = engine.build_context(result)
+        self.assertEqual(context.features[0].status, "FAIL")

@@ -63,6 +63,13 @@ class BaseRuleCheckerMetadata:
         """
         return self.rule_type.CheckZipFile is not BaseRuleChecker.CheckZipFile
 
+    def is_format_dependency_implemented(self) -> bool:
+        """
+        Returns
+            True if the rule has implemented CheckFormatDependency.
+        """
+        return self.rule_type.CheckFormatDependency is not BaseRuleChecker.CheckFormatDependency
+
     def is_prim_implemented(self) -> bool:
         """
         Returns
@@ -97,6 +104,7 @@ class BaseRuleCheckerMetadata:
             and not self.is_layer_implemented()
             and not self.is_zip_implemented()
             and not self.is_prim_implemented()
+            and not self.is_format_dependency_implemented()
         )
 
     @cache
@@ -113,6 +121,7 @@ class BaseRuleCheckerMetadata:
             and not self.is_dependencies_implemented()
             and not self.is_zip_implemented()
             and not self.is_prim_implemented()
+            and not self.is_format_dependency_implemented()
         )
 
     @cache
@@ -128,6 +137,24 @@ class BaseRuleCheckerMetadata:
             and not self.is_unresolved_implemented()
             and not self.is_dependencies_implemented()
             and not self.is_layer_implemented()
+            and not self.is_prim_implemented()
+            and not self.is_format_dependency_implemented()
+        )
+
+    @cache
+    def is_only_format_dependency_implemented(self) -> bool:
+        """
+        Returns
+            True if the rule has implemented CheckFormatDependency and no other methods.
+        """
+        return (
+            self.is_format_dependency_implemented()
+            and not self.is_stage_implemented()
+            and not self.is_diagnostics_implemented()
+            and not self.is_unresolved_implemented()
+            and not self.is_dependencies_implemented()
+            and not self.is_layer_implemented()
+            and not self.is_zip_implemented()
             and not self.is_prim_implemented()
         )
 
@@ -145,4 +172,5 @@ class BaseRuleCheckerMetadata:
             or (self.is_diagnostics_implemented() and iscoroutinefunction(self.rule_type.CheckDiagnostics))
             or (self.is_unresolved_implemented() and iscoroutinefunction(self.rule_type.CheckUnresolvedPaths))
             or (self.is_dependencies_implemented() and iscoroutinefunction(self.rule_type.CheckDependencies))
+            or (self.is_format_dependency_implemented() and iscoroutinefunction(self.rule_type.CheckFormatDependency))
         )
