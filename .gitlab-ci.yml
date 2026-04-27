@@ -128,6 +128,24 @@ test-pip:
 # ==============================================================================================================
 
 
+publish-cloudfront:
+  stage: deploy
+  extends:
+    - .ipp_lnx_x86_64_cpu_micro
+    - .osec:vault:v3:prod_token_job
+  needs:
+    - job: build-pip
+      artifacts: true
+    - job: test-pip
+      artifacts: false
+  before_script:
+    - !reference [.osec:vault:v3:linux, packman_s3:perform_vault_requests]
+  script:
+    - ./repo.sh package -m nvidia-usd-validation -c release
+    - ./repo.sh publish
+  rules:
+    - if: $CI_COMMIT_TAG
+
 publish-pip-artifactory:
   stage: deploy
   extends:
