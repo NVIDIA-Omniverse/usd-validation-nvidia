@@ -10,6 +10,7 @@ from typing import Any, Generic, TypeVar
 
 from pxr import Sdf, Usd, UsdGeom
 
+from ._asset_format import FormatDependency
 from ._deprecate import deprecated
 from ._url_utils import normalize_url
 
@@ -19,6 +20,7 @@ __all__ = [
     "AttributeId",
     "EditTargetId",
     "EditTargetIdList",
+    "FormatDependencyId",
     "Identifier",
     "LayerId",
     "PrimId",
@@ -45,6 +47,7 @@ AtType = TypeVar(
     UsdGeom.Primvar,
     Sdf.PrimSpec,
     Sdf.PropertySpec,
+    FormatDependency,
 )
 """
 Location of an issue or a fix.
@@ -60,6 +63,7 @@ Can be any of:
   - :py:class:`pxr.UsdGeom.Primvar`
   - :py:class:`pxr.Sdf.PrimSpec`
   - :py:class:`pxr.Sdf.PropertySpec`
+  - :py:class:`~nvidia_usd_validation.FormatDependency`
 """
 
 ANON_VALIDATOR_LAYER_NAME = "AssetValidator"
@@ -571,6 +575,24 @@ Deprecated. Use EditTargetIdList instead.
 """
 
 
+@dataclass(frozen=True)
+class FormatDependencyId(Identifier[FormatDependency]):
+    """
+    A unique identifier for a :py:class:`~nvidia_usd_validation.FormatDependency`.
+
+    Attributes:
+        path (str): The specific dependency path.
+        root_asset_path (str): The top-level asset that initiated this dependency chain.
+    """
+
+    path: str
+    root_asset_path: str
+
+    @classmethod
+    def from_(cls, dep: FormatDependency) -> FormatDependencyId:
+        return FormatDependencyId(path=dep.path, root_asset_path=dep.root_asset_path)
+
+
 @singledispatch
 def to_identifier(value: AtType | None) -> Identifier[AtType] | None:
     """
@@ -636,6 +658,11 @@ def _(value: Sdf.Spec) -> SpecId:
 @to_identifier.register(Usd.SchemaBase)
 def _(value: Usd.SchemaBase) -> SchemaBaseId:
     return SchemaBaseId.from_(value)
+
+
+@to_identifier.register(FormatDependency)
+def _(value: FormatDependency) -> FormatDependencyId:
+    return FormatDependencyId.from_(value)
 
 
 @to_identifier.register(list)

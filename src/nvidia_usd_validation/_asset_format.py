@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Protocol, runtime_checkable
 
@@ -33,7 +33,7 @@ class FormatDependency:
     """
 
     path: str
-    uri_resolver: UriResolver
+    uri_resolver: UriResolver = field(repr=False)
     root_asset_path: str
 
 

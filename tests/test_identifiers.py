@@ -10,7 +10,10 @@ from nvidia_usd_validation import (
     AttributeId,
     EditTargetId,
     EditTargetIdList,
+    FormatDependency,
+    FormatDependencyId,
     LayerId,
+    LocalUriResolver,
     PrimId,
     PrimvarId,
     SchemaBaseId,
@@ -521,6 +524,32 @@ class SchemaBaseIdTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(restored.IsMultipleApplyAPISchema())
         self.assertEqual(restored.GetName(), "instance")
         self.assertEqual(schema_base_id.variant_selection_path, Sdf.Path("/Root{Main=variant1}World/quad"))
+
+
+class FormatDependencyIdTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self) -> None:
+        self.dependency = FormatDependency(
+            path="/a/dep.stubfmt",
+            uri_resolver=LocalUriResolver(),
+            root_asset_path="/a/root.stubfmt",
+        )
+
+    async def test_from_ok(self):
+        # When
+        dep_id = FormatDependencyId.from_(self.dependency)
+
+        # Then
+        self.assertIsInstance(dep_id, FormatDependencyId)
+        self.assertEqual(dep_id.path, "/a/dep.stubfmt")
+        self.assertEqual(dep_id.root_asset_path, "/a/root.stubfmt")
+
+    async def test_to_identifier_ok(self):
+        # When/Then
+        self.assertEqual(to_identifier(self.dependency), FormatDependencyId.from_(self.dependency))
+
+    async def test_get_spec_ids_returns_empty(self):
+        dep_id = FormatDependencyId.from_(self.dependency)
+        self.assertEqual(dep_id.get_spec_ids(), [])
 
 
 class ToIdentifierListDispatchTests(unittest.IsolatedAsyncioTestCase):

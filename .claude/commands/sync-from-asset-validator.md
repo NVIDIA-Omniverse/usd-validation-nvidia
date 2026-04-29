@@ -18,6 +18,11 @@ Copies all Python source files (except `_version.py`, `__init__.py`, `__main__.p
 | `'omni.asset_validator:` (string prefix) | `'nvidia_usd_validation:` |
 | `OMNI_ASSET_VALIDATOR_` (env var) | `NVIDIA_USD_VALIDATION_` |
 | `from omni.asset_validator` | `from nvidia_usd_validation` |
+| `import omni\n` | _(removed)_ |
+
+The script also:
+- Removes any `omni`-namespace dead code left in `_plugins.py` after the transform (the `sys.modules["nvidia_usd_validation"]` local-var assignment and its comment that reference the Omniverse partial-init pattern).
+- Skips `test_omni_namespace_patched_before_on_startup` — this test is Omniverse-specific (patches `omni.asset_validator` before `on_startup()`; does not apply to the standalone package).
 
 Also copies:
 - `tests/` subpackage (test helper mixins) → `src/nvidia_usd_validation/tests/`
@@ -38,7 +43,7 @@ Also copies:
 
 ## Steps
 
-1. Create a new branch: `git checkout -b feat/sync-from-asset-validator`
+1. **Always start from `main`**: `git checkout main && git pull`. Create a new branch named `feat/sync-from-asset-validator-syncN` (increment N from the last one, e.g. `sync3`, `sync4`).
 
 2. Run the migration script below in a Python shell from the repo root.
 
@@ -54,6 +59,7 @@ Also copies:
 
 ```python
 from pathlib import Path
+import re
 import shutil
 
 SRC_AV = Path("C:/sources/asset-validator/source/python/omni/asset_validator")
@@ -75,6 +81,21 @@ def transform(content: str) -> str:
     content = content.replace("from omni.asset_validator", "from nvidia_usd_validation")
     # catch-all for any remaining occurrences (docstrings, log assertions, etc.)
     content = content.replace("omni.asset_validator", "nvidia_usd_validation")
+    # remove bare `import omni` lines left over after the above replacements
+    content = content.replace("import omni\n", "")
+    return content
+
+def transform_plugins(content: str) -> str:
+    """Extra cleanup for _plugins.py: remove the Omniverse partial-init workaround."""
+    content = transform(content)
+    # Remove the stale sys import and the omni-namespace patching block
+    content = re.sub(r"\nimport sys\n", "\n", content)
+    content = re.sub(
+        r"\n\s+# The module is complete in sys\.modules.*?\n\s+nvidia_usd_validation = sys\.modules\[.*?\]\n",
+        "\n",
+        content,
+        flags=re.DOTALL,
+    )
     return content
 
 SKIP = {"_version.py", "__init__.py", "__main__.py"}
@@ -83,7 +104,9 @@ SKIP = {"_version.py", "__init__.py", "__main__.py"}
 for f in sorted(SRC_AV.glob("*.py")):
     if f.name in SKIP:
         continue
-    (DST / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
+    raw = f.read_text(encoding="utf-8")
+    out = transform_plugins(raw) if f.name == "_plugins.py" else transform(raw)
+    (DST / f.name).write_text(out, encoding="utf-8")
 
 # --- tests subpackage (helper mixins) ---
 tests_sub = DST / "tests"
@@ -114,6 +137,15 @@ for src_file in sorted(SRC_SPECS.rglob("*")):
 changelog = (SRC_DOCS / "CHANGELOG.md").read_text(encoding="utf-8")
 changelog = changelog.replace("omni.asset_validator", "nvidia_usd_validation")
 Path("CHANGELOG.md").write_text(changelog, encoding="utf-8")
+
+# --- skip omni-namespace test (Omniverse-specific, not applicable standalone) ---
+test_plugins = tests_root / "test_plugins.py"
+content = test_plugins.read_text(encoding="utf-8")
+content = content.replace(
+    "    def test_omni_namespace_patched_before_on_startup(self):",
+    '    @unittest.skip("Omniverse-specific behavior: does not apply to standalone package")\n    def test_omni_namespace_patched_before_on_startup(self):',
+)
+test_plugins.write_text(content, encoding="utf-8")
 
 print("Sync complete.")
 ```

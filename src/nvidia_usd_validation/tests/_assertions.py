@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
+import pathlib
 import re
 from dataclasses import dataclass
 from functools import singledispatchmethod
@@ -39,7 +40,7 @@ class IsAnIssue:
     """
 
     message: str | re.Pattern | None = None
-    at: str | Sdf.Path | None = None
+    at: str | Sdf.Path | pathlib.Path | None = None
     code: str | None = None
     rule: type[BaseRuleChecker] | None = None
     requirement: Requirement | None = None
@@ -80,6 +81,13 @@ class IsAnIssue:
             return lh == rh.path
         else:
             return False
+
+    @at_cmp.register
+    @classmethod
+    def _(cls, lh: pathlib.Path, rh: Identifier) -> bool:
+        if hasattr(rh, "path") and isinstance(rh.path, str):
+            return lh == pathlib.Path(rh.path)
+        return False
 
     @classmethod
     def requirement_cmp(cls, lh: Requirement | None, rh: Requirement | None) -> bool:
