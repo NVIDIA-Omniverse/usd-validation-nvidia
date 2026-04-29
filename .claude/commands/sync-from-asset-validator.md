@@ -18,6 +18,11 @@ Copies all Python source files (except `_version.py`, `__init__.py`, `__main__.p
 | `'omni.asset_validator:` (string prefix) | `'nvidia_usd_validation:` |
 | `OMNI_ASSET_VALIDATOR_` (env var) | `NVIDIA_USD_VALIDATION_` |
 | `from omni.asset_validator` | `from nvidia_usd_validation` |
+| `import omni\n` | _(removed)_ |
+
+The script also:
+- Removes any `omni`-namespace dead code left in `_plugins.py` after the transform (the `sys.modules["nvidia_usd_validation"]` local-var assignment and its comment that reference the Omniverse partial-init pattern).
+- Skips `test_omni_namespace_patched_before_on_startup` — this test is Omniverse-specific (patches `omni.asset_validator` before `on_startup()`; does not apply to the standalone package).
 
 Also copies:
 - `tests/` subpackage (test helper mixins) → `src/nvidia_usd_validation/tests/`
@@ -33,12 +38,13 @@ Also copies:
 - `src/nvidia_usd_validation/_version.py` — uses `importlib.metadata.version("nvidia-usd-validation")`
 - `src/nvidia_usd_validation/__init__.py` — imports version from `_version`, all other exports from copied modules
 - `src/nvidia_usd_validation/__main__.py` — keep as-is
+- `tests/test_plugins.py` — adapted for standalone package; upstream version is Omniverse-specific (e.g. `test_omni_namespace_patched_before_on_startup` replaced by `test_nvidia_usd_validation_accessible_before_on_startup`)
 - `pyproject.toml` — entry points and scripts already set up
 - `repo.toml` — `destination_dir` already set to `${root}/src`
 
 ## Steps
 
-1. Create a new branch: `git checkout -b feat/sync-from-asset-validator`
+1. **Always start from `main`**: `git checkout main && git pull`. Create a new branch named `feat/sync-from-asset-validator-syncN` (increment N from the last one, e.g. `sync3`, `sync4`).
 
 2. Run the migration script below in a Python shell from the repo root.
 
@@ -54,6 +60,7 @@ Also copies:
 
 ```python
 from pathlib import Path
+import re
 import shutil
 
 SRC_AV = Path("C:/sources/asset-validator/source/python/omni/asset_validator")
@@ -75,6 +82,21 @@ def transform(content: str) -> str:
     content = content.replace("from omni.asset_validator", "from nvidia_usd_validation")
     # catch-all for any remaining occurrences (docstrings, log assertions, etc.)
     content = content.replace("omni.asset_validator", "nvidia_usd_validation")
+    # remove bare `import omni` lines left over after the above replacements
+    content = content.replace("import omni\n", "")
+    return content
+
+def transform_plugins(content: str) -> str:
+    """Extra cleanup for _plugins.py: remove the Omniverse partial-init workaround."""
+    content = transform(content)
+    # Remove the stale sys import and the omni-namespace patching block
+    content = re.sub(r"\nimport sys\n", "\n", content)
+    content = re.sub(
+        r"\n\s+# The module is complete in sys\.modules.*?\n\s+nvidia_usd_validation = sys\.modules\[.*?\]\n",
+        "\n",
+        content,
+        flags=re.DOTALL,
+    )
     return content
 
 SKIP = {"_version.py", "__init__.py", "__main__.py"}
@@ -83,7 +105,9 @@ SKIP = {"_version.py", "__init__.py", "__main__.py"}
 for f in sorted(SRC_AV.glob("*.py")):
     if f.name in SKIP:
         continue
-    (DST / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
+    raw = f.read_text(encoding="utf-8")
+    out = transform_plugins(raw) if f.name == "_plugins.py" else transform(raw)
+    (DST / f.name).write_text(out, encoding="utf-8")
 
 # --- tests subpackage (helper mixins) ---
 tests_sub = DST / "tests"
@@ -92,8 +116,13 @@ for f in sorted((SRC_AV / "tests").glob("*.py")):
     (tests_sub / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
 
 # --- top-level tests and data ---
+# test_plugins.py is manually maintained (adapted for standalone package) — do not overwrite
+SKIP_TESTS = {"test_plugins.py"}
+
 tests_root = Path("tests")
 for f in sorted(SRC_TESTS.glob("*.py")):
+    if f.name in SKIP_TESTS:
+        continue
     (tests_root / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
 data_dst = tests_root / "data"
 if data_dst.exists():

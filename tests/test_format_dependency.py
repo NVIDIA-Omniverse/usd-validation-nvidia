@@ -5,6 +5,7 @@
 
 import json
 import os
+import pathlib
 import unittest
 
 from nvidia_usd_validation import (
@@ -15,7 +16,7 @@ from nvidia_usd_validation import (
     register_format,
     unregister_format,
 )
-from nvidia_usd_validation.tests import ValidationTestCaseMixin
+from nvidia_usd_validation.tests import IsAFailure, ValidationTestCaseMixin
 from pxr import Ar, Usd
 
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "asset_format")
@@ -95,10 +96,26 @@ class TestEngineValidateRawAsset(unittest.TestCase, ValidationTestCaseMixin):
 
     def test_validate_rule_can_report_failure(self):
         class AlwaysFail(BaseRuleChecker):
-            def CheckFormatDependency(self, dependency: FormatDependency) -> None:
+            def CheckFormatDependency(self, _: FormatDependency) -> None:
                 self._AddFailedCheck("deliberate failure")
 
         self.assertFailure(asset=self._STUB_ASSET, rule=AlwaysFail)
+
+    def test_validate_rule_can_report_failure_at_dependency(self):
+        class AlwaysFail(BaseRuleChecker):
+            def CheckFormatDependency(self, dependency: FormatDependency) -> None:
+                self._AddFailedCheck("deliberate failure", at=dependency)
+
+        self.assertRule(
+            asset=self._STUB_ASSET,
+            rule=AlwaysFail,
+            asserts=[
+                IsAFailure("deliberate failure", at=pathlib.Path(self._STUB_ASSET)),
+                IsAFailure("deliberate failure", at=pathlib.Path("/a/dep1.stubfmt")),
+                IsAFailure("deliberate failure", at=pathlib.Path("/a/dep2.stubfmt")),
+                IsAFailure("deliberate failure", at=pathlib.Path("/a/dep3.stubfmt")),
+            ],
+        )
 
     def test_validate_returns_error_for_unregistered_extension(self):
         self.assertFailure(asset=os.path.join(_DATA_DIR, "diffuse.png"), rule=BaseRuleChecker)
