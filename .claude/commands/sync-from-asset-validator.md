@@ -38,6 +38,7 @@ Also copies:
 - `src/nvidia_usd_validation/_version.py` — uses `importlib.metadata.version("nvidia-usd-validation")`
 - `src/nvidia_usd_validation/__init__.py` — imports version from `_version`, all other exports from copied modules
 - `src/nvidia_usd_validation/__main__.py` — keep as-is
+- `tests/test_plugins.py` — adapted for standalone package; upstream version is Omniverse-specific (e.g. `test_omni_namespace_patched_before_on_startup` replaced by `test_nvidia_usd_validation_accessible_before_on_startup`)
 - `pyproject.toml` — entry points and scripts already set up
 - `repo.toml` — `destination_dir` already set to `${root}/src`
 
@@ -115,8 +116,13 @@ for f in sorted((SRC_AV / "tests").glob("*.py")):
     (tests_sub / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
 
 # --- top-level tests and data ---
+# test_plugins.py is manually maintained (adapted for standalone package) — do not overwrite
+SKIP_TESTS = {"test_plugins.py"}
+
 tests_root = Path("tests")
 for f in sorted(SRC_TESTS.glob("*.py")):
+    if f.name in SKIP_TESTS:
+        continue
     (tests_root / f.name).write_text(transform(f.read_text(encoding="utf-8")), encoding="utf-8")
 data_dst = tests_root / "data"
 if data_dst.exists():
@@ -137,15 +143,6 @@ for src_file in sorted(SRC_SPECS.rglob("*")):
 changelog = (SRC_DOCS / "CHANGELOG.md").read_text(encoding="utf-8")
 changelog = changelog.replace("omni.asset_validator", "nvidia_usd_validation")
 Path("CHANGELOG.md").write_text(changelog, encoding="utf-8")
-
-# --- skip omni-namespace test (Omniverse-specific, not applicable standalone) ---
-test_plugins = tests_root / "test_plugins.py"
-content = test_plugins.read_text(encoding="utf-8")
-content = content.replace(
-    "    def test_omni_namespace_patched_before_on_startup(self):",
-    '    @unittest.skip("Omniverse-specific behavior: does not apply to standalone package")\n    def test_omni_namespace_patched_before_on_startup(self):',
-)
-test_plugins.write_text(content, encoding="utf-8")
 
 print("Sync complete.")
 ```

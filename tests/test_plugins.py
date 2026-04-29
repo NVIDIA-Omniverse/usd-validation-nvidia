@@ -240,15 +240,15 @@ class TestPluginManager(unittest.TestCase):
             manager.initialize()
             self.assertEqual(len(manager.loaded_plugins), 0)
 
-    # -- omni namespace patch --
+    # -- module accessible before on_startup --
 
-    @unittest.skip("Omniverse-specific behavior: does not apply to standalone package")
-    def test_omni_namespace_patched_before_on_startup(self):
-        """nvidia_usd_validation is set on the omni namespace before on_startup() runs."""
-        
+    def test_nvidia_usd_validation_accessible_before_on_startup(self):
+        """nvidia_usd_validation is accessible before on_startup() runs."""
+        import nvidia_usd_validation
+
         observed = []
 
-        class OmniAccessPlugin:
+        class NvidiaAccessPlugin:
             def on_startup(self) -> None:
                 try:
                     _ = nvidia_usd_validation
@@ -259,20 +259,11 @@ class TestPluginManager(unittest.TestCase):
             def on_shutdown(self) -> None:
                 pass
 
-        ep = _make_ep("p1", "mod1:P", "pkg1", OmniAccessPlugin())
+        ep = _make_ep("p1", "mod1:P", "pkg1", NvidiaAccessPlugin())
 
-        # Simulate the partial-init state where nvidia_usd_validation is not yet
-        # set as an attribute on the omni namespace package.
-        original = getattr(omni, "asset_validator", None)
-        try:
-            if hasattr(omni, "asset_validator"):
-                delattr(omni, "asset_validator")
-            with _mock_entry_points([ep]), _mock_no_deps():
-                manager = PluginManager()
-                manager.initialize()
-        finally:
-            if original is not None:
-                nvidia_usd_validation = original
+        with _mock_entry_points([ep]), _mock_no_deps():
+            manager = PluginManager()
+            manager.initialize()
 
         self.assertEqual(observed, [True])
 
