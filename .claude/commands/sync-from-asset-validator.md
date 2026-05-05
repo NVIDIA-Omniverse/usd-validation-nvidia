@@ -52,9 +52,11 @@ Also copies:
 
 4. Re-generate capabilities: `.\repo.bat usd_profiles_codegen` (Windows) or `./repo.sh usd_profiles_codegen` (Linux).
 
-5. Run `/test` to verify the wheel builds and tests pass.
+5. Run the formatter: `.\repo.bat format` (Windows) or `./repo.sh format` (Linux). The namespace rename (`omni.asset_validator` → `nvidia_usd_validation`) changes import sort order, so the formatter will reorder some imports. Stage all changes after: `git add -u`.
 
-6. Commit and push, then open an MR to `main`.
+6. Run `/test` to verify the wheel builds and tests pass.
+
+7. Commit and push, then open an MR to `main`.
 
 ## Migration script
 
@@ -143,6 +145,16 @@ for src_file in sorted(SRC_SPECS.rglob("*")):
 changelog = (SRC_DOCS / "CHANGELOG.md").read_text(encoding="utf-8")
 changelog = changelog.replace("omni.asset_validator", "nvidia_usd_validation")
 Path("CHANGELOG.md").write_text(changelog, encoding="utf-8")
+
+# --- version ---
+version_match = re.search(r"^## \[(\d+\.\d+\.\d+)\]", changelog, re.MULTILINE)
+if version_match:
+    new_version = version_match.group(1)
+    Path("VERSION.md").write_text(new_version + "\n", encoding="utf-8")
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    pyproject = re.sub(r'^version = ".*?"', f'version = "{new_version}"', pyproject, count=1, flags=re.MULTILINE)
+    Path("pyproject.toml").write_text(pyproject, encoding="utf-8")
+    print(f"  version → {new_version}")
 
 print("Sync complete.")
 ```
