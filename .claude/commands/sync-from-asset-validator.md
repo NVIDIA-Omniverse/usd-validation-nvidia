@@ -146,5 +146,15 @@ changelog = (SRC_DOCS / "CHANGELOG.md").read_text(encoding="utf-8")
 changelog = changelog.replace("omni.asset_validator", "nvidia_usd_validation")
 Path("CHANGELOG.md").write_text(changelog, encoding="utf-8")
 
+# --- version ---
+version_match = re.search(r"^## \[(\d+\.\d+\.\d+)\]", changelog, re.MULTILINE)
+if version_match:
+    new_version = version_match.group(1)
+    Path("VERSION.md").write_text(new_version + "\n", encoding="utf-8")
+    pyproject = Path("pyproject.toml").read_text(encoding="utf-8")
+    pyproject = re.sub(r'^version = ".*?"', f'version = "{new_version}"', pyproject, count=1, flags=re.MULTILINE)
+    Path("pyproject.toml").write_text(pyproject, encoding="utf-8")
+    print(f"  version → {new_version}")
+
 print("Sync complete.")
 ```
