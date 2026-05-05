@@ -7,6 +7,8 @@ from enum import Enum
 from unittest.mock import Mock
 
 from common import get_url
+from pxr import Sdf, Usd
+
 from nvidia_usd_validation import (
     AnchoredAssetPathsChecker,
     EditTargetId,
@@ -22,7 +24,6 @@ from nvidia_usd_validation import (
     Suggestion,
 )
 from nvidia_usd_validation.capabilities import Requirements
-from pxr import Sdf, Usd
 
 
 class MyRuleChecker:

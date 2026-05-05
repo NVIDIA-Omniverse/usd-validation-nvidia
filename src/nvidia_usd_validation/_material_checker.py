@@ -8,8 +8,9 @@ from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Ar, Gf, Sdf, Sdr, Tf, Usd, UsdShade, UsdUtils
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule

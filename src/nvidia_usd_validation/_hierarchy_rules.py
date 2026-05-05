@@ -9,8 +9,9 @@ This module provides validators for checking hierarchy requirements in SimReady 
 ensuring proper organization and structure of the prim hierarchy.
 """
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Usd, UsdGeom
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._issues import Suggestion

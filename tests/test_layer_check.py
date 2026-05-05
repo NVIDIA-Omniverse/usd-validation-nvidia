@@ -7,9 +7,15 @@ import tempfile
 import unittest
 
 from common import AsyncioValidationTestCase, get_url
-from nvidia_usd_validation import LayerId, LayerSpecChecker, UsdAsciiPerformanceChecker, ValidationEngine
-from nvidia_usd_validation.tests import IsAFailure
 from pxr import Sdf, Usd
+
+from nvidia_usd_validation import (
+    LayerId,
+    LayerSpecChecker,
+    UsdAsciiPerformanceChecker,
+    ValidationEngine,
+)
+from nvidia_usd_validation.tests import IsAFailure
 
 
 class LayerSpecCheckerTest(AsyncioValidationTestCase):

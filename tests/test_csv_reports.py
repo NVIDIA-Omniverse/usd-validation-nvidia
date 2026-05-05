@@ -7,6 +7,7 @@ import unittest
 from tempfile import TemporaryDirectory
 
 from common import get_url
+
 from nvidia_usd_validation import (
     BaseRuleChecker,
     Issue,

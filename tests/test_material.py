@@ -10,8 +10,10 @@ from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
 
-import nvidia_usd_validation.capabilities as cap
 from common import AsyncioValidationTestCase, get_url, is_package_installed
+from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
+
+import nvidia_usd_validation.capabilities as cap
 from nvidia_usd_validation import (
     FixStatus,
     IssueFixer,
@@ -27,7 +29,6 @@ from nvidia_usd_validation import (
     register_requirements,
 )
 from nvidia_usd_validation.tests import IsAFailure, IsAWarning
-from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
 
 
 class MaterialOutOfScopeCheckerTest(AsyncioValidationTestCase):

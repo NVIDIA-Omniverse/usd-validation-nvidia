@@ -4,8 +4,9 @@
 import math
 from collections.abc import Iterator
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule

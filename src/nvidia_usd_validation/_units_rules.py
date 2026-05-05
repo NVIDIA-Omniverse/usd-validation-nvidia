@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Usd, UsdGeom
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._requirements import register_requirements

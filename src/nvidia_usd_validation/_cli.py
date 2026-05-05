@@ -21,7 +21,15 @@ from ._csv_reports import export_csv_file
 from ._engine import ValidationEngine
 from ._features import Feature, FeatureRegistry
 from ._fix import IssueFixer
-from ._issues import Issue, IssueGroupBy, IssueGroupsBy, IssuePredicate, IssuePredicates, IssueSeverity, IssuesList
+from ._issues import (
+    Issue,
+    IssueGroupBy,
+    IssueGroupsBy,
+    IssuePredicate,
+    IssuePredicates,
+    IssueSeverity,
+    IssuesList,
+)
 from ._json_reports import export_json_file
 from ._parameters import ParameterMapping, UserParameter
 from ._profiles import Profile, ProfileRegistry

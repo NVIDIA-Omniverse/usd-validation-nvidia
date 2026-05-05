@@ -6,8 +6,16 @@ from dataclasses import dataclass
 from unittest.mock import Mock
 
 from common import get_url
-from nvidia_usd_validation import BaseRuleChecker, Issue, IssueSeverity, ParameterMapping, ParameterType, Suggestion
 from pxr import Sdf, Usd
+
+from nvidia_usd_validation import (
+    BaseRuleChecker,
+    Issue,
+    IssueSeverity,
+    ParameterMapping,
+    ParameterType,
+    Suggestion,
+)
 
 
 @dataclass

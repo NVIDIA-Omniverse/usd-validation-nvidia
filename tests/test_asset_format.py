@@ -8,6 +8,8 @@ import os
 import unittest
 from unittest.mock import MagicMock
 
+from pxr import Ar, Usd
+
 from nvidia_usd_validation import (
     AssetFormat,
     AssetFormatRegistry,
@@ -17,7 +19,6 @@ from nvidia_usd_validation import (
     register_format,
     unregister_format,
 )
-from pxr import Ar, Usd
 
 _SIMREADY_FILENAME = "com.nvidia.simready.packaging.json"
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "asset_format")

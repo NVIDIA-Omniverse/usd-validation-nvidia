@@ -5,7 +5,12 @@
 import unittest
 from dataclasses import dataclass
 
-from nvidia_usd_validation import Parameter, ParameterMapping, ParameterType, UserParameter
+from nvidia_usd_validation import (
+    Parameter,
+    ParameterMapping,
+    ParameterType,
+    UserParameter,
+)
 
 
 @dataclass(frozen=True)

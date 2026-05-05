@@ -7,7 +7,10 @@ import importlib.metadata
 import pathlib
 from unittest import IsolatedAsyncioTestCase, TestCase
 
-from nvidia_usd_validation.tests import AsyncioValidationTestCaseMixin, ValidationTestCaseMixin
+from nvidia_usd_validation.tests import (
+    AsyncioValidationTestCaseMixin,
+    ValidationTestCaseMixin,
+)
 
 
 def get_url(relative_path: str | pathlib.Path = "") -> str:

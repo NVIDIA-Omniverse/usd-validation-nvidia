@@ -4,9 +4,10 @@
 import unittest
 
 from common import AsyncioValidationTestCase, get_url
+from pxr import Sdf, Usd
+
 from nvidia_usd_validation import LayerId, UnicodeNameChecker
 from nvidia_usd_validation.tests import IsAWarning
-from pxr import Sdf, Usd
 
 
 @unittest.skipIf(Usd.GetVersion() < (0, 24, 3), "Skipping test because USD version is less than 24.3")

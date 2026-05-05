@@ -14,8 +14,9 @@ from functools import partial
 from itertools import groupby
 from typing import Any
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Ar, Gf, Kind, Plug, Sdf, Tf, Usd, UsdGeom, UsdLux, UsdSkel, Vt
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker, Suggestion
 from ._categories import register_rule

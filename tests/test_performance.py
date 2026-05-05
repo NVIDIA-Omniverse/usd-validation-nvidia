@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from common import AsyncioValidationTestCase, get_url
+from pxr import Gf, Sdf, UsdGeom
+
 from nvidia_usd_validation import (
     AlmostExtremeExtentChecker,
     BaseBoundsChecker,
@@ -10,7 +12,6 @@ from nvidia_usd_validation import (
     PointsPrecisionWarningChecker,
 )
 from nvidia_usd_validation.tests import IsAnError, IsAWarning
-from pxr import Gf, Sdf, UsdGeom
 
 INF = float("inf")
 

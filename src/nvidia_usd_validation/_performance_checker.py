@@ -3,8 +3,9 @@
 #
 from dataclasses import dataclass
 
-import nvidia_usd_validation.capabilities
 from pxr import Gf, Usd, UsdGeom, Vt
+
+import nvidia_usd_validation.capabilities
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule
