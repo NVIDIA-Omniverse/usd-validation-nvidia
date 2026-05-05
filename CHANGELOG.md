@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.2] - 2026-05-05
+### Added
+- `omni.asset_validator` compatibility shims
+
+### Fixed
+- Use the package version constant for version reporting
+
 ## [1.18.1] - 2026-04-29
 ### Added
 - `FormatDependencyId` identifier and `FormatDependency` added to `AtType`, allowing rules to pass `at=dependency` in `_AddFailedCheck` and related methods from `CheckFormatDependency`
