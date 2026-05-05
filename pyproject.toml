@@ -16,7 +16,7 @@ numpy = ["numpy>=1"]
 [project.scripts]
 nvidia_usd_validate = "nvidia_usd_validation:cli_main"
 
-[project.entry-points."nvidia_usd_validation"]
+[project.entry-points."omni.asset_validator"]
 default = "nvidia_usd_validation:DefaultPlugin"
 
 [tool.hatch.build.targets.sdist]

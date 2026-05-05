@@ -112,7 +112,8 @@ class PluginManager:
     topologically sorted order based on package dependencies, and manages their
     startup and shutdown lifecycle.
 
-    Plugins are discovered from the 'nvidia_usd_validation' entrypoint group.
+    Plugins are discovered from the 'nvidia_usd_validation' and 'omni.asset_validator'
+    entrypoint groups, so downstream packages registered under either name are found.
     This is a singleton class - calling PluginManager() always returns the same instance.
 
     Use as a context manager for automatic startup and shutdown::
@@ -123,7 +124,7 @@ class PluginManager:
         # plugins are shut down
     """
 
-    ENTRYPOINT_GROUP = "nvidia_usd_validation"
+    ENTRYPOINT_GROUPS = ["nvidia_usd_validation", "omni.asset_validator"]
 
     def __init__(self):
         """Initialize the plugin manager."""
@@ -153,7 +154,7 @@ class PluginManager:
 
     def _discover_entrypoints(self) -> list[importlib.metadata.EntryPoint]:
         """
-        Discover all entrypoints in the 'nvidia_usd_validation' group.
+        Discover all entrypoints in the 'nvidia_usd_validation' and 'omni.asset_validator' groups.
 
         Returns all discovered entrypoints in topologically sorted order. If
         the default plugin is not discovered (e.g. dev mode without pip
@@ -164,7 +165,11 @@ class PluginManager:
         """
         try:
             eps = importlib.metadata.entry_points()
-            discovered = list(eps.select(group=self.ENTRYPOINT_GROUP))
+            by_value: dict[str, importlib.metadata.EntryPoint] = {}
+            for group in self.ENTRYPOINT_GROUPS:
+                for ep in eps.select(group=group):
+                    by_value.setdefault(ep.value, ep)
+            discovered = list(by_value.values())
 
             discovered_values = {ep.value for ep in discovered}
             logger.info(f"Discovered plugins: {discovered_values}")
@@ -176,7 +181,7 @@ class PluginManager:
                 default_ep = importlib.metadata.EntryPoint(
                     name="default",
                     value=DEFAULT_PLUGIN_ENTRYPOINT,
-                    group=self.ENTRYPOINT_GROUP,
+                    group=self.ENTRYPOINT_GROUPS[0],
                 )
                 discovered.append(default_ep)
 
@@ -261,7 +266,7 @@ class PluginManager:
         dist_name = entrypoint.dist.name if entrypoint.dist else entrypoint.value
 
         try:
-            logger.info(f"Loading {self.ENTRYPOINT_GROUP} entrypoint: '{entrypoint.value}'")
+            logger.info(f"Loading {self.ENTRYPOINT_GROUPS[0]} entrypoint: '{entrypoint.value}'")
             plugin_instance = entrypoint.load()
         except Exception:
             logger.exception(f"Failed to load plugin '{entrypoint.name}' from '{dist_name}'")
