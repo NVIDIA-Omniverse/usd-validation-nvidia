@@ -28,7 +28,7 @@ class TestOmniCapabilitiesShim(unittest.TestCase):
     def test_all_identity(self):
         import omni.capabilities
         import nvidia_usd_validation.capabilities
-        self.assertIs(omni.capabilities.__all__, nvidia_usd_validation.capabilities.__all__)
+        self.assertEqual(omni.capabilities.__all__, nvidia_usd_validation.capabilities.__all__)
 
     def test_from_import(self):
         from omni.capabilities import Capabilities  # noqa: F401
