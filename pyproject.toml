@@ -25,7 +25,7 @@ artifacts = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/nvidia_usd_validation"]
+packages = ["src/nvidia_usd_validation", "src/omni"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "src/nvidia_usd_validation/capabilities" = "nvidia_usd_validation/capabilities"

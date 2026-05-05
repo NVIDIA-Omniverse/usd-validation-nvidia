@@ -38,6 +38,9 @@ Also copies:
 - `src/nvidia_usd_validation/_version.py` — uses `importlib.metadata.version("nvidia-usd-validation")`
 - `src/nvidia_usd_validation/__init__.py` — imports version from `_version`, all other exports from copied modules
 - `src/nvidia_usd_validation/__main__.py` — keep as-is
+- `src/omni/asset_validator/__init__.py` — `omni.asset_validator` compatibility shim (re-exports from `nvidia_usd_validation`; `extend_path` keeps `omni.asset_validator.*` submodules from other packages discoverable)
+- `src/omni/capabilities/__init__.py` — `omni.capabilities` compatibility shim (re-exports from `nvidia_usd_validation.capabilities`)
+- `tests/test_omni_compat.py` — tests for the omni compatibility shims
 - `tests/test_plugins.py` — adapted for standalone package; upstream version is Omniverse-specific (e.g. `test_omni_namespace_patched_before_on_startup` replaced by `test_nvidia_usd_validation_accessible_before_on_startup`)
 - `pyproject.toml` — entry points and scripts already set up
 - `repo.toml` — `destination_dir` already set to `${root}/src`
