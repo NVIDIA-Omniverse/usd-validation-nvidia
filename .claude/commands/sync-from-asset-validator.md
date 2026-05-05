@@ -99,6 +99,27 @@ def transform_plugins(content: str) -> str:
         content,
         flags=re.DOTALL,
     )
+    # Support both entry point groups for backward compat with omni.asset_validator plugins
+    content = content.replace(
+        '    ENTRYPOINT_GROUP = "nvidia_usd_validation"',
+        '    ENTRYPOINT_GROUPS = ["nvidia_usd_validation", "omni.asset_validator"]',
+    )
+    content = re.sub(
+        r"eps = importlib\.metadata\.entry_points\(\)\n            discovered = list\(eps\.select\(group=self\.ENTRYPOINT_GROUP\)\)",
+        (
+            "eps = importlib.metadata.entry_points()\n"
+            "            by_value: dict[str, importlib.metadata.EntryPoint] = {}\n"
+            "            for group in self.ENTRYPOINT_GROUPS:\n"
+            "                for ep in eps.select(group=group):\n"
+            "                    by_value.setdefault(ep.value, ep)\n"
+            "            discovered = list(by_value.values())"
+        ),
+        content,
+    )
+    content = content.replace(
+        "group=self.ENTRYPOINT_GROUP,",
+        "group=self.ENTRYPOINT_GROUPS[0],",
+    )
     return content
 
 SKIP = {"_version.py", "__init__.py", "__main__.py"}

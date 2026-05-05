@@ -171,7 +171,7 @@ class TestPluginManager(unittest.TestCase):
             manager = PluginManager()
             manager.initialize()
             manager.initialize()
-            self.assertEqual(mock_ep.return_value.select.call_count, 1)
+            self.assertEqual(mock_ep.return_value.select.call_count, len(PluginManager.ENTRYPOINT_GROUPS))
 
     def test_initialize_skips_broken_plugin(self):
         """Plugins that raise during startup are skipped."""
