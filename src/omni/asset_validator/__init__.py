@@ -6,6 +6,6 @@ from pkgutil import extend_path
 __path__ = extend_path(__path__, __name__)
 
 import nvidia_usd_validation
-from nvidia_usd_validation import *  # noqa: F401, F403
+from nvidia_usd_validation import *  # noqa: F403
 
 __all__ = nvidia_usd_validation.__all__
