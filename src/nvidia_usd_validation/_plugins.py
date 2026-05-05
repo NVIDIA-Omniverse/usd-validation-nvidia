@@ -266,7 +266,7 @@ class PluginManager:
         dist_name = entrypoint.dist.name if entrypoint.dist else entrypoint.value
 
         try:
-            logger.info(f"Loading {self.ENTRYPOINT_GROUPS[0]} entrypoint: '{entrypoint.value}'")
+            logger.info(f"Loading {entrypoint.group} entrypoint: '{entrypoint.value}'")
             plugin_instance = entrypoint.load()
         except Exception:
             logger.exception(f"Failed to load plugin '{entrypoint.name}' from '{dist_name}'")

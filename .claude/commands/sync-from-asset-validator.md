@@ -120,10 +120,6 @@ def transform_plugins(content: str) -> str:
         "group=self.ENTRYPOINT_GROUP,",
         "group=self.ENTRYPOINT_GROUPS[0],",
     )
-    content = content.replace(
-        f"Loading {{self.ENTRYPOINT_GROUP}} entrypoint:",
-        f"Loading {{self.ENTRYPOINT_GROUPS[0]}} entrypoint:",
-    )
     return content
 
 SKIP = {"_version.py", "__init__.py", "__main__.py"}
