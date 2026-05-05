@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.18.1] - 2026-04-29
+### Added
+- `FormatDependencyId` identifier and `FormatDependency` added to `AtType`, allowing rules to pass `at=dependency` in `_AddFailedCheck` and related methods from `CheckFormatDependency`
+- `pathlib.Path` support in `IsAnIssue.at_cmp` for asserting `FormatDependencyId` locations in tests
+
 ## [1.18.0] - 2026-04-27
 ### Added
 - `AssetFormat` protocol and registry for non-USD asset formats

@@ -52,9 +52,11 @@ Also copies:
 
 4. Re-generate capabilities: `.\repo.bat usd_profiles_codegen` (Windows) or `./repo.sh usd_profiles_codegen` (Linux).
 
-5. Run `/test` to verify the wheel builds and tests pass.
+5. Run the formatter: `.\repo.bat format` (Windows) or `./repo.sh format` (Linux). The namespace rename (`omni.asset_validator` → `nvidia_usd_validation`) changes import sort order, so the formatter will reorder some imports. Stage all changes after: `git add -u`.
 
-6. Commit and push, then open an MR to `main`.
+6. Run `/test` to verify the wheel builds and tests pass.
+
+7. Commit and push, then open an MR to `main`.
 
 ## Migration script
 
