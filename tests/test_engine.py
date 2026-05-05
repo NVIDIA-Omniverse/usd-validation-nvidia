@@ -14,6 +14,8 @@ from threading import current_thread, main_thread
 from unittest.mock import ANY, Mock
 
 from common import get_url
+from pxr import Sdf, Usd, UsdGeom
+
 from nvidia_usd_validation import (
     ArticulationChecker,
     AssetLocatedCallback,
@@ -75,6 +77,7 @@ from nvidia_usd_validation import (
     ZeroAreaFaceChecker,
     register_requirements,
 )
+from nvidia_usd_validation.capabilities import Capabilities, Features, Requirements
 from nvidia_usd_validation.tests import (
     AsyncioValidationTestCaseMixin,
     IsAFailure,
@@ -83,8 +86,6 @@ from nvidia_usd_validation.tests import (
     IsAWarning,
     ValidationTestCaseMixin,
 )
-from nvidia_usd_validation.capabilities import Capabilities, Features, Requirements
-from pxr import Sdf, Usd, UsdGeom
 
 
 class EmptyRule(BaseRuleChecker):

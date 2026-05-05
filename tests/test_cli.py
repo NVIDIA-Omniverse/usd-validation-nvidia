@@ -11,8 +11,10 @@ from contextlib import redirect_stderr, redirect_stdout
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import skipIf
 
-import nvidia_usd_validation.capabilities as cap
 from common import get_url
+from pxr import Ar
+
+import nvidia_usd_validation.capabilities as cap
 from nvidia_usd_validation import (
     ByteAlignmentChecker,
     CategoryRuleRegistry,
@@ -30,7 +32,6 @@ from nvidia_usd_validation import (
     unregister_profile,
 )
 from nvidia_usd_validation.capabilities import Capability, Profile
-from pxr import Ar
 
 
 class DummyChecker:

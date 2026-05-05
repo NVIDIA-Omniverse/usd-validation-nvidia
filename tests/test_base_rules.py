@@ -3,8 +3,10 @@
 #
 from unittest.mock import ANY
 
-import nvidia_usd_validation.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
+from pxr import Sdf, Usd, UsdGeom
+
+import nvidia_usd_validation.capabilities as cap
 from nvidia_usd_validation import (
     BaseRuleChecker,
     ExtentsChecker,
@@ -19,7 +21,6 @@ from nvidia_usd_validation import (
     ValidationEngine,
 )
 from nvidia_usd_validation.tests import IsAFailure, IsAnError
-from pxr import Sdf, Usd, UsdGeom
 
 
 class ExtentsCheckerTest(AsyncioValidationTestCase):

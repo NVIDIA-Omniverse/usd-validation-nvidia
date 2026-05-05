@@ -4,9 +4,10 @@
 import random
 import unittest
 
+from pxr import Gf
+
 from nvidia_usd_validation import RepeatedValuesSet
 from nvidia_usd_validation._mesh_tools import remove_unused_values_and_remap_indices
-from pxr import Gf
 
 
 class MeshToolsTest(unittest.TestCase):

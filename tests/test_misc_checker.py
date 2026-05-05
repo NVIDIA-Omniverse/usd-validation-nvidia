@@ -3,6 +3,8 @@
 #
 
 from common import AsyncioValidationTestCase, get_url
+from pxr import Sdf
+
 from nvidia_usd_validation import (
     IssuePredicates,
     SkelBindingAPIAppliedChecker,
@@ -11,7 +13,6 @@ from nvidia_usd_validation import (
     UsdLuxSchemaChecker,
 )
 from nvidia_usd_validation.tests import IsAFailure
-from pxr import Sdf
 
 
 class UsdDanglingMaterialBindingChecker(AsyncioValidationTestCase):

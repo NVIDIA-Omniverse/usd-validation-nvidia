@@ -5,6 +5,8 @@ import asyncio
 import unittest
 
 from common import get_url
+from pxr import Usd
+
 from nvidia_usd_validation import (
     MAXIMUM_BATCH_SIZE,
     MAXIMUM_COUNT_SIZE,
@@ -13,7 +15,6 @@ from nvidia_usd_validation import (
     DelegateContextManager,
     PeriodicCallback,
 )
-from pxr import Usd
 
 
 class TestPeriodicCallback(unittest.IsolatedAsyncioTestCase):

@@ -15,7 +15,13 @@ from urllib.parse import ParseResult, urlparse
 from pxr import Sdf, Usd
 
 from ._asset_format import AssetFormatRegistry
-from ._assets import AssetLocatedCallback, AssetProgress, AssetProgressCallback, AssetType, AssetValidatedCallback
+from ._assets import (
+    AssetLocatedCallback,
+    AssetProgress,
+    AssetProgressCallback,
+    AssetType,
+    AssetValidatedCallback,
+)
 from ._base_rule_checker import BaseRuleChecker
 from ._capabilities import Capability
 from ._categories import CategoryRuleRegistry

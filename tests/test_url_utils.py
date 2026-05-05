@@ -5,7 +5,12 @@ import os
 import tempfile
 import unittest
 
-from nvidia_usd_validation import LocalUriResolver, UriResolver, make_relative_url_if_possible, normalize_url
+from nvidia_usd_validation import (
+    LocalUriResolver,
+    UriResolver,
+    make_relative_url_if_possible,
+    normalize_url,
+)
 
 
 class LocalUriResolverTests(unittest.TestCase):

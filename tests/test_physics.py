@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 from common import AsyncioValidationTestCase
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
+
 from nvidia_usd_validation import (
     ArticulationChecker,
     ColliderChecker,
@@ -10,7 +12,6 @@ from nvidia_usd_validation import (
     RigidBodyChecker,
 )
 from nvidia_usd_validation.tests import IsAFailure
-from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
 
 class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):

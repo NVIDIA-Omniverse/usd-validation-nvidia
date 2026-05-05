@@ -7,8 +7,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import nvidia_usd_validation.capabilities as cap
 from pxr import Ar, Sdf, Usd, UsdShade, UsdUtils
+
+import nvidia_usd_validation.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule

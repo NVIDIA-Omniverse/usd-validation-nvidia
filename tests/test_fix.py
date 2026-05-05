@@ -8,6 +8,8 @@ from tempfile import TemporaryDirectory
 from unittest.mock import Mock, patch
 
 from common import get_url
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdShade, Vt
+
 from nvidia_usd_validation import (
     AuthoringLayers,
     BaseRuleChecker,
@@ -30,7 +32,6 @@ from nvidia_usd_validation import (
     UsdMaterialBindingApi,
     ValidationEngine,
 )
-from pxr import Gf, Sdf, Usd, UsdGeom, UsdShade, Vt
 
 
 class MyRuleChecker(BaseRuleChecker):

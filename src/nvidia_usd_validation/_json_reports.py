@@ -7,14 +7,28 @@ import pathlib
 from functools import singledispatchmethod
 from typing import Any
 
-from nvidia_usd_validation.capabilities import Requirement as _Requirement
 from pxr import Sdf
 
+from nvidia_usd_validation.capabilities import Requirement as _Requirement
+
 from ._base_rule_checker import BaseRuleChecker
-from ._identifiers import EditTargetId, LayerId, PrimId, PropertyId, SchemaBaseId, SpecId, StageId
+from ._identifiers import (
+    EditTargetId,
+    LayerId,
+    PrimId,
+    PropertyId,
+    SchemaBaseId,
+    SpecId,
+    StageId,
+)
 from ._issues import Issue, IssueGroupsBy, IssueSeverity, IssuesList, Suggestion
 from ._results import Results, ResultsList, to_issues_list
-from ._validation_context import FeatureStatus, ProfileStatus, RequirementStatus, ValidationContext
+from ._validation_context import (
+    FeatureStatus,
+    ProfileStatus,
+    RequirementStatus,
+    ValidationContext,
+)
 
 __all__ = [
     "IssueJSONEncoder",

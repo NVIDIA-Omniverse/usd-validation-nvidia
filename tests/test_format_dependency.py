@@ -8,6 +8,8 @@ import os
 import pathlib
 import unittest
 
+from pxr import Ar, Usd
+
 from nvidia_usd_validation import (
     BaseRuleChecker,
     FormatDependency,
@@ -17,7 +19,6 @@ from nvidia_usd_validation import (
     unregister_format,
 )
 from nvidia_usd_validation.tests import IsAFailure, ValidationTestCaseMixin
-from pxr import Ar, Usd
 
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "asset_format")
 

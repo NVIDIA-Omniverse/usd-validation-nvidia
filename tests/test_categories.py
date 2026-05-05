@@ -4,7 +4,12 @@
 
 import unittest
 
-from nvidia_usd_validation import BaseRuleChecker, CategoryRuleRegistry, add_registry_rule_callback, register_rule
+from nvidia_usd_validation import (
+    BaseRuleChecker,
+    CategoryRuleRegistry,
+    add_registry_rule_callback,
+    register_rule,
+)
 
 
 class TestCategories(unittest.TestCase):

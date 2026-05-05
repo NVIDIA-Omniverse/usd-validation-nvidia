@@ -14,8 +14,9 @@ __all__ = [
 
 import logging
 
-from nvidia_usd_validation.capabilities import Capabilities, Features, Profiles
 from pxr import Usd
+
+from nvidia_usd_validation.capabilities import Capabilities, Features, Profiles
 
 from ._base_rule_checker import BaseRuleChecker
 from ._base_rules import (
@@ -59,8 +60,18 @@ from ._material_checker import (
     UsdDanglingMaterialBinding,
     UsdMaterialBindingApi,
 )
-from ._misc_checker import SkelBindingAPIAppliedChecker, UsdGeomSubsetChecker, UsdLuxSchemaChecker
-from ._physics_checker import ArticulationChecker, ColliderChecker, MassChecker, PhysicsJointChecker, RigidBodyChecker
+from ._misc_checker import (
+    SkelBindingAPIAppliedChecker,
+    UsdGeomSubsetChecker,
+    UsdLuxSchemaChecker,
+)
+from ._physics_checker import (
+    ArticulationChecker,
+    ColliderChecker,
+    MassChecker,
+    PhysicsJointChecker,
+    RigidBodyChecker,
+)
 from ._profiles import register_profiles, unregister_profiles
 from ._utf8_checker import UnicodeNameChecker
 
