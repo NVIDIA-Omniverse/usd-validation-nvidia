@@ -11,11 +11,11 @@ from unittest.mock import Mock, patch
 from usd_validation_nvidia import (
     BaseRuleChecker,
     CategoryRuleRegistry,
+    DefaultPlugin,
     PluginManager,
     PluginProtocol,
     register_rule,
 )
-from usd_validation_nvidia._default_plugin import DefaultPlugin
 
 DEFAULT_PLUGIN_ENTRYPOINT = "usd_validation_nvidia:DefaultPlugin"
 

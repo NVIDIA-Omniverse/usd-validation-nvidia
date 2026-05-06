@@ -22,6 +22,7 @@ from ._atomic_asset_checker import (
     UsdzUdimLimitationChecker,
 )
 from ._base_rule_checker import BaseRuleChecker
+from ._base_rule_metadata import BaseRuleCheckerMetadata
 from ._base_rules import (
     ByteAlignmentChecker,
     CompressionChecker,
@@ -66,8 +67,6 @@ from ._compliance_runners import (
     ComplianceCheckerEventType,
 )
 from ._context_managers import (
-    MAXIMUM_BATCH_SIZE,
-    MAXIMUM_COUNT_SIZE,
     AsyncBatchRunner,
     AsyncCounter,
     DelegateContextManager,
@@ -76,6 +75,7 @@ from ._context_managers import (
 from ._csv_reports import IssueCSVData, export_csv_file
 from ._default_categories import DefaultCategoryRules
 from ._default_plugin import DefaultPlugin
+from ._deprecate import deprecated
 from ._engine import ValidationEngine
 from ._events import EventListener, EventStream, create_event_stream
 from ._expression import _common_pattern, _PatternTree
@@ -194,7 +194,7 @@ from ._profiles import (
     unregister_profile,
     unregister_profiles,
 )
-from ._registry import IdVersion
+from ._registry import IdVersion, Registry, VersionedRegistry
 from ._requirements import (
     Requirement,
     RequirementsRegistry,
@@ -243,12 +243,15 @@ __all__ = [
     "AssetProgressCallback",
     "AssetType",
     "AssetValidatedCallback",
+    "AsyncBatchRunner",
     "AsyncComplianceCheckerRunner",
+    "AsyncCounter",
     "AtType",
     "AttributeId",
     "AuthoringLayers",
     "BaseBoundsChecker",
     "BaseRuleChecker",
+    "BaseRuleCheckerMetadata",
     "BoundsLimit",
     "ByteAlignmentChecker",
     "Capability",
@@ -265,6 +268,7 @@ __all__ = [
     "DefaultCategoryRules",
     "DefaultPlugin",
     "DefaultPrimChecker",
+    "DelegateContextManager",
     "EditTargetId",
     "EditTargetIdList",
     "EventListener",
@@ -312,6 +316,7 @@ __all__ = [
     "Parameter",
     "ParameterMapping",
     "ParameterType",
+    "PeriodicCallback",
     "PhysicsJointChecker",
     "PluginManager",
     "PluginProtocol",
@@ -327,6 +332,7 @@ __all__ = [
     "ProfileRegistry",
     "ProfileStatus",
     "PropertyId",
+    "Registry",
     "RepeatedValuesSet",
     "Requirement",
     "RequirementStatus",
@@ -374,6 +380,7 @@ __all__ = [
     "ValidatorErrorSiteProtocol",
     "ValidatorProtocol",
     "VariantIdMixin",
+    "VersionedRegistry",
     "WeldChecker",
     "ZeroAreaFaceChecker",
     "_PatternTree",
@@ -391,6 +398,7 @@ __all__ = [
     "create_validation_parser",
     "default_implementation",
     "default_implementation_method",
+    "deprecated",
     "export_csv_file",
     "export_json_file",
     "get_category_rules_registry",

@@ -6,8 +6,10 @@ import unittest
 
 from pxr import Gf
 
-from usd_validation_nvidia import RepeatedValuesSet
-from usd_validation_nvidia._mesh_tools import remove_unused_values_and_remap_indices
+from usd_validation_nvidia import (
+    RepeatedValuesSet,
+    remove_unused_values_and_remap_indices,
+)
 
 
 class MeshToolsTest(unittest.TestCase):
