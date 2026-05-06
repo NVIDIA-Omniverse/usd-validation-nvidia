@@ -9,6 +9,10 @@ logging = "warn"
 name = "usd-validation-nvidia"
 repo_url = "https://gitlab-master.nvidia.com/omniverse/usd-rels/usd-validation-nvidia"
 
+[repo.tokens]
+# Sets the Linux glibc/ABI target to 2.35 (Ubuntu 22).
+abi = "2.35"
+
 [repo.folders]
 version_file = "${root}/VERSION.md"
 
@@ -38,6 +42,7 @@ destination_dir = "${root}/src"
 omniverse_flow_version_scheme = true
 configs = ["release"]
 package_per_config = true
+manylinux_platform = "2_35"
 remove_pycache = true
 
 ########################################################################################################################
