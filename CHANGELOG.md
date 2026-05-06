@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.18.4] - 2026-05-06
+### Added
+- `omni.asset_validator.tests` compatibility shim.
+
 ## [1.18.3] - 2026-05-06
 ### Fixed
 - Update project name.
