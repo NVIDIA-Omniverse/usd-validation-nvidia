@@ -1,6 +1,6 @@
 [project]
 name = "usd-validation-nvidia"
-version = "1.18.3"
+version = "1.18.4"
 description = "NVIDIA Asset Validator"
 authors = [
     {name = "NVIDIA"},

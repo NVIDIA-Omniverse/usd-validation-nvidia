@@ -19,6 +19,21 @@ class TestOmniAssetValidatorShim(unittest.TestCase):
         from omni.asset_validator import ValidationEngine  # noqa: F401
 
 
+class TestOmniAssetValidatorTestsShim(unittest.TestCase):
+    def test_class_identity(self):
+        from omni.asset_validator.tests import ValidationTestCaseMixin
+        from usd_validation_nvidia.tests import ValidationTestCaseMixin as NvValidationTestCaseMixin
+        self.assertIs(ValidationTestCaseMixin, NvValidationTestCaseMixin)
+
+    def test_all_identity(self):
+        import omni.asset_validator.tests
+        import usd_validation_nvidia.tests
+        self.assertEqual(omni.asset_validator.tests.__all__, usd_validation_nvidia.tests.__all__)
+
+    def test_from_import(self):
+        from omni.asset_validator.tests import ValidationTestCaseMixin  # noqa: F401
+
+
 class TestOmniCapabilitiesShim(unittest.TestCase):
     def test_class_identity(self):
         from omni.capabilities import Capabilities
