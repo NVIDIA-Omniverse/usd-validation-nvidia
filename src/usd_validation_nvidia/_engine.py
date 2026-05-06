@@ -62,9 +62,9 @@ class ValidationEngine:
 
         .. code-block:: python
 
-            import nvidia_usd_validation
+            import usd_validation_nvidia
 
-            engine = nvidia_usd_validation.ValidationEngine()
+            engine = usd_validation_nvidia.ValidationEngine()
             engine.enable_rule(MyRule)
 
             # Validate a single OpenUSD file

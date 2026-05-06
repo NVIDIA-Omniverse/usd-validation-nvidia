@@ -5,7 +5,7 @@
 import unittest
 from dataclasses import dataclass
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     Parameter,
     ParameterMapping,
     ParameterType,

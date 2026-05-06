@@ -152,7 +152,7 @@ def create_validation_parser() -> argparse.ArgumentParser:
     - fix/no-fix: Optional. Whether to apply IssueFixer after ValidationEngine.
 
     Other options:
-    - version: Print the version of nvidia_usd_validation.
+    - version: Print the version of usd_validation_nvidia.
     """
     parser = _ArgParser(allow_abbrev=False)
     parser.prog = "validate"

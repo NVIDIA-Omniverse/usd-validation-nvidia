@@ -21,7 +21,7 @@ def _generate_rules_documentation(fptr: TextIO, capabilities_uri: str) -> None:
                 Rules
                 #####
 
-                .. automodule:: nvidia_usd_validation
+                .. automodule:: usd_validation_nvidia
                     :noindex:
                     :platform: Windows-x86_64, Linux-x86_64
             """
@@ -75,7 +75,7 @@ def _generate_categories_documentation(fptr: TextIO) -> None:
                 Categories
                 ##########
 
-                .. automodule:: nvidia_usd_validation
+                .. automodule:: usd_validation_nvidia
                     :noindex:
                     :platform: Windows-x86_64, Linux-x86_64
             """
@@ -119,7 +119,7 @@ def _generate_requirements_documentation(fptr: TextIO, capabilities_uri: str) ->
                 Requirements
                 ############
 
-                .. automodule:: nvidia_usd_validation
+                .. automodule:: usd_validation_nvidia
                     :noindex:
                     :platform: Windows-x86_64, Linux-x86_64
             """

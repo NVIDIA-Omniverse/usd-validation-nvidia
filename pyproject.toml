@@ -1,6 +1,6 @@
 [project]
-name = "nvidia-usd-validation"
-version = "1.18.2"
+name = "usd-validation-nvidia"
+version = "1.18.3"
 description = "NVIDIA Asset Validator"
 authors = [
     {name = "NVIDIA"},
@@ -14,21 +14,21 @@ usd = ["usd-core>=22.11"]
 numpy = ["numpy>=1"]
 
 [project.scripts]
-nvidia_usd_validate = "nvidia_usd_validation:cli_main"
+nvidia_usd_validate = "usd_validation_nvidia:cli_main"
 
 [project.entry-points."omni.asset_validator"]
-default = "nvidia_usd_validation:DefaultPlugin"
+default = "usd_validation_nvidia:DefaultPlugin"
 
 [tool.hatch.build.targets.sdist]
 artifacts = [
-    "src/nvidia_usd_validation/capabilities",
+    "src/usd_validation_nvidia/capabilities",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/nvidia_usd_validation", "src/omni"]
+packages = ["src/usd_validation_nvidia", "src/omni"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"src/nvidia_usd_validation/capabilities" = "nvidia_usd_validation/capabilities"
+"src/usd_validation_nvidia/capabilities" = "usd_validation_nvidia/capabilities"
 
 [build-system]
 requires = ["hatchling"] # SWIPAT filed under: http://nvbugs/5866335

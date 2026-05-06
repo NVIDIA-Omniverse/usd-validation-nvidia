@@ -7,7 +7,7 @@ import unittest
 from common import get_url
 from pxr import Usd
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     MAXIMUM_BATCH_SIZE,
     MAXIMUM_COUNT_SIZE,
     AsyncBatchRunner,

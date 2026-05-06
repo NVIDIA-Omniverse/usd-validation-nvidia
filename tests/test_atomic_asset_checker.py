@@ -8,14 +8,14 @@ from pathlib import Path
 from common import AsyncioValidationTestCase, get_url
 from pxr import Usd
 
-import nvidia_usd_validation.capabilities as cap
-from nvidia_usd_validation import (
+import usd_validation_nvidia.capabilities as cap
+from usd_validation_nvidia import (
     AnchoredAssetPathsChecker,
     SupportedFileTypesChecker,
     UsdzUdimLimitationChecker,
     normalize_url,
 )
-from nvidia_usd_validation.tests import IsAFailure, IsAWarning
+from usd_validation_nvidia.tests import IsAFailure, IsAWarning
 
 data_path = Path(os.path.abspath(__file__)).parent / "data"
 

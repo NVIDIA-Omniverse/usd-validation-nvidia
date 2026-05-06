@@ -9,7 +9,7 @@ from unittest.mock import Mock
 from common import get_url
 from pxr import Sdf, Usd
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     AnchoredAssetPathsChecker,
     EditTargetId,
     EditTargetIdList,
@@ -23,7 +23,7 @@ from nvidia_usd_validation import (
     StageId,
     Suggestion,
 )
-from nvidia_usd_validation.capabilities import Requirements
+from usd_validation_nvidia.capabilities import Requirements
 
 
 class MyRuleChecker:

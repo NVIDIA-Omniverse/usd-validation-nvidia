@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import Mock
 
-from nvidia_usd_validation import SemVer
+from usd_validation_nvidia import SemVer
 
 
 class SemVerTest(unittest.TestCase):

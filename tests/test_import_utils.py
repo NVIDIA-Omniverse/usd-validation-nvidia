@@ -4,7 +4,7 @@
 import unittest
 from unittest import mock
 
-from nvidia_usd_validation import default_implementation, default_implementation_method
+from usd_validation_nvidia import default_implementation, default_implementation_method
 
 
 class DefaultImplementationTest(unittest.IsolatedAsyncioTestCase):

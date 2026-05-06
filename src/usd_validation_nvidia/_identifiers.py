@@ -63,7 +63,7 @@ Can be any of:
   - :py:class:`pxr.UsdGeom.Primvar`
   - :py:class:`pxr.Sdf.PrimSpec`
   - :py:class:`pxr.Sdf.PropertySpec`
-  - :py:class:`~nvidia_usd_validation.FormatDependency`
+  - :py:class:`~usd_validation_nvidia.FormatDependency`
 """
 
 ANON_VALIDATOR_LAYER_NAME = "AssetValidator"
@@ -578,7 +578,7 @@ Deprecated. Use EditTargetIdList instead.
 @dataclass(frozen=True)
 class FormatDependencyId(Identifier[FormatDependency]):
     """
-    A unique identifier for a :py:class:`~nvidia_usd_validation.FormatDependency`.
+    A unique identifier for a :py:class:`~usd_validation_nvidia.FormatDependency`.
 
     Attributes:
         path (str): The specific dependency path.

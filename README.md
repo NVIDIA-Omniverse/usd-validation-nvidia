@@ -1,4 +1,4 @@
-# NVIDIA USD Validation
+# USD Validation NVIDIA
 
 An extensible framework to validate [OpenUSD](https://openusd.org) assets.
 Inspired by Pixar's [usdchecker](https://graphics.pixar.com/usd/release/toolset.html#usdchecker),
@@ -17,7 +17,7 @@ this library extends validation capabilities with additional rules and provides 
 Install from PyPI:
 
 ```bash
-pip install nvidia-usd-validation
+pip install usd-validation-nvidia
 ```
 
 ## Optional Dependencies
@@ -26,19 +26,19 @@ For full functionality, install with optional dependencies:
 
 ```bash
 # Include usd-core
-pip install nvidia-usd-validation[usd]
+pip install usd-validation-nvidia[usd]
 
 # Include NumPy (for optimizations)
-pip install nvidia-usd-validation[numpy]
+pip install usd-validation-nvidia[numpy]
 
 # Install all optional dependencies
-pip install nvidia-usd-validation[usd,numpy]
+pip install usd-validation-nvidia[usd,numpy]
 ```
 
 ## Basic usage
 
 ```python
-from nvidia_usd_validation import ValidationEngine, IssueFixer
+from usd_validation_nvidia import ValidationEngine, IssueFixer
 
 engine = ValidationEngine()
 results = engine.validate("path/to/asset.usda")

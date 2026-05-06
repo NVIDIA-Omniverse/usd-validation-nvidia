@@ -6,7 +6,7 @@ import unittest
 from common import get_url
 from pxr import Sdf, Usd, UsdGeom
 
-from nvidia_usd_validation import ComplianceChecker
+from usd_validation_nvidia import ComplianceChecker
 
 
 class ComplianceCheckerTest(unittest.IsolatedAsyncioTestCase):

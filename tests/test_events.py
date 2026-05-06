@@ -4,7 +4,7 @@
 
 import unittest
 
-from nvidia_usd_validation import create_event_stream
+from usd_validation_nvidia import create_event_stream
 
 
 class TestEvents(unittest.TestCase):

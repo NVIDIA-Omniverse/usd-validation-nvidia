@@ -11,13 +11,13 @@ A simple use case is as follows:
 
 .. code-block:: python
 
-    import nvidia_usd_validation
+    import usd_validation_nvidia
 
-    engine = nvidia_usd_validation.ValidationEngine()
+    engine = usd_validation_nvidia.ValidationEngine()
     results = engine.validate('foo.usd')
     issues = results.issues()
 
-    fixer = nvidia_usd_validation.IssueFixer('foo.usd')
+    fixer = usd_validation_nvidia.IssueFixer('foo.usd')
     fixer.fix(issues)
     fixer.save()
 
@@ -286,26 +286,26 @@ class IssueFixer:
 
     .. code-block:: python
 
-        import nvidia_usd_validation
+        import usd_validation_nvidia
 
         # validate a layer file
-        engine = nvidia_usd_validation.ValidationEngine()
+        engine = usd_validation_nvidia.ValidationEngine()
         results = engine.validate('foo.usd')
         issues = results.issues()
 
         # fix that layer file
-        fixer = nvidia_usd_validation.IssueFixer('foo.usd')
+        fixer = usd_validation_nvidia.IssueFixer('foo.usd')
         fixer.fix(issues)
         fixer.save()
 
         # fix a live stage directly
         stage = Usd.Stage.Open('foo.usd')
-        engine = nvidia_usd_validation.ValidationEngine()
+        engine = usd_validation_nvidia.ValidationEngine()
         results = engine.validate(stage)
         issues = results.issues()
 
         # fix that same stage in-memory
-        fixer = nvidia_usd_validation.IssueFixer(stage)
+        fixer = usd_validation_nvidia.IssueFixer(stage)
         fixer.fix(issues)
         fixer.save()
 

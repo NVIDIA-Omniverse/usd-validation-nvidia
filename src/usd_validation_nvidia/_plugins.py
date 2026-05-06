@@ -9,12 +9,12 @@ enabling external packages to register validation rules, requirements, features,
 profiles through Python entrypoints.
 
 The built-in validation rules are registered via ``DefaultPlugin``, which is loaded
-by default. External plugins are discovered via the ``nvidia_usd_validation`` entrypoint
+by default. External plugins are discovered via the ``usd_validation_nvidia`` entrypoint
 group and are expected to provide an object with ``on_startup()`` and ``on_shutdown()`` methods.
 
 Example plugin entrypoint in ``pyproject.toml``::
 
-    [project.entry-points."nvidia_usd_validation"]
+    [project.entry-points."usd_validation_nvidia"]
     registrant = "my_package.validator_plugin:plugin_instance"
 
 Example plugin implementation::
@@ -43,7 +43,7 @@ from typing import Protocol, runtime_checkable
 
 from ._singleton import singleton
 
-DEFAULT_PLUGIN_ENTRYPOINT = "nvidia_usd_validation:DefaultPlugin"
+DEFAULT_PLUGIN_ENTRYPOINT = "usd_validation_nvidia:DefaultPlugin"
 
 __all__ = [
     "LoadedPlugin",
@@ -112,7 +112,7 @@ class PluginManager:
     topologically sorted order based on package dependencies, and manages their
     startup and shutdown lifecycle.
 
-    Plugins are discovered from the 'nvidia_usd_validation' and 'omni.asset_validator'
+    Plugins are discovered from the 'usd_validation_nvidia' and 'omni.asset_validator'
     entrypoint groups, so downstream packages registered under either name are found.
     This is a singleton class - calling PluginManager() always returns the same instance.
 
@@ -124,7 +124,7 @@ class PluginManager:
         # plugins are shut down
     """
 
-    ENTRYPOINT_GROUPS = ["nvidia_usd_validation", "omni.asset_validator"]
+    ENTRYPOINT_GROUPS = ["usd_validation_nvidia", "omni.asset_validator"]
 
     def __init__(self):
         """Initialize the plugin manager."""
@@ -154,7 +154,7 @@ class PluginManager:
 
     def _discover_entrypoints(self) -> list[importlib.metadata.EntryPoint]:
         """
-        Discover all entrypoints in the 'nvidia_usd_validation' and 'omni.asset_validator' groups.
+        Discover all entrypoints in the 'usd_validation_nvidia' and 'omni.asset_validator' groups.
 
         Returns all discovered entrypoints in topologically sorted order. If
         the default plugin is not discovered (e.g. dev mode without pip
@@ -334,7 +334,7 @@ class PluginManager:
         Return the loaded plugin for the given entrypoint value, or ``None`` if not loaded.
 
         Args:
-            entrypoint_value: The entrypoint value string (e.g. ``"nvidia_usd_validation:DefaultPlugin"``).
+            entrypoint_value: The entrypoint value string (e.g. ``"usd_validation_nvidia:DefaultPlugin"``).
 
         Returns:
             The :class:`LoadedPlugin` instance, or ``None`` if not found.
@@ -346,7 +346,7 @@ class PluginManager:
         Check if a plugin is currently loaded.
 
         Args:
-            entrypoint_value: The entrypoint value string (e.g. ``"nvidia_usd_validation:DefaultPlugin"``).
+            entrypoint_value: The entrypoint value string (e.g. ``"usd_validation_nvidia:DefaultPlugin"``).
 
         Returns:
             ``True`` if the plugin is loaded, ``False`` otherwise.

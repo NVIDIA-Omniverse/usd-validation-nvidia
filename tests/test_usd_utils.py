@@ -5,7 +5,7 @@ import unittest
 
 from pxr import Sdf, Sdr, Usd
 
-from nvidia_usd_validation import get_sdf_type_for_shader_property
+from usd_validation_nvidia import get_sdf_type_for_shader_property
 
 
 @unittest.skipIf(Usd.GetVersion() < (0, 24, 11), "SdfTypeIndicator not available before USD 24.11")

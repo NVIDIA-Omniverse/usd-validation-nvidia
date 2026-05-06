@@ -4,14 +4,14 @@
 from common import AsyncioValidationTestCase
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     ArticulationChecker,
     ColliderChecker,
     MassChecker,
     PhysicsJointChecker,
     RigidBodyChecker,
 )
-from nvidia_usd_validation.tests import IsAFailure
+from usd_validation_nvidia.tests import IsAFailure
 
 
 class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):

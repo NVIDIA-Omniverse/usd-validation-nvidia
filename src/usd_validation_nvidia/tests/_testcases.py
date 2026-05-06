@@ -31,7 +31,7 @@ class ValidationTestCaseMixin:
         .. code-block:: python
 
             from unittest import TestCase
-            from nvidia_usd_validation.tests import ValidationTestCaseMixin
+            from usd_validation_nvidia.tests import ValidationTestCaseMixin
 
             class ValidationTestCase(TestCase, ValidationTestCaseMixin):
                 ...
@@ -86,7 +86,7 @@ class ValidationTestCaseMixin:
         """Assert issues from validating one asset using either a rule, requirement or capability.
 
         Derived classes may use this to simplify testing of new rules with less consideration for
-        the structure of `nvidia_usd_validation.Results`.
+        the structure of `usd_validation_nvidia.Results`.
 
         Note there will be only one enabled rule for the validation run, so all results will have necessarily
         been produced by the provided rule or by the engine itself (eg non-existent file).
@@ -186,7 +186,7 @@ class ValidationTestCaseMixin:
         """Assert expected failures from validating one asset using one rule will be fixed using auto fix framework.
 
         Derived classes may use this to simplify testing of new rules with less consideration for
-        the structure of `nvidia_usd_validation.IssueFixer`.
+        the structure of `usd_validation_nvidia.IssueFixer`.
 
         Note there will be only one enabled rule for the validation run, so all results will have necessarily
         been produced by the provided rule or by the engine itself (eg non-existent file).
@@ -253,7 +253,7 @@ class AsyncioValidationTestCaseMixin:
         .. code-block:: python
 
             from unittest import IsolatedAsyncioTestCase
-            from nvidia_usd_validation.tests import AsyncioValidationTestCaseMixin
+            from usd_validation_nvidia.tests import AsyncioValidationTestCaseMixin
 
             class AsyncioValidationTestCase(IsolatedAsyncioTestCase, AsyncioValidationTestCaseMixin):
                 ...

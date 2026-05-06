@@ -3,4 +3,4 @@
 **/__pycache__/
 _*/
 dist
-src/nvidia_usd_validation/capabilities/
+src/usd_validation_nvidia/capabilities/

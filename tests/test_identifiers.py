@@ -8,7 +8,7 @@ from unittest.mock import ANY
 from common import get_url
 from pxr import Sdf, Usd, UsdGeom, UsdPhysics
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     AttributeId,
     EditTargetId,
     EditTargetIdList,

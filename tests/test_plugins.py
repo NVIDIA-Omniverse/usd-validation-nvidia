@@ -8,16 +8,16 @@ Tests for the plugin management system.
 import unittest
 from unittest.mock import Mock, patch
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     CategoryRuleRegistry,
     PluginManager,
     PluginProtocol,
     register_rule,
 )
-from nvidia_usd_validation._default_plugin import DefaultPlugin
+from usd_validation_nvidia._default_plugin import DefaultPlugin
 
-DEFAULT_PLUGIN_ENTRYPOINT = "nvidia_usd_validation:DefaultPlugin"
+DEFAULT_PLUGIN_ENTRYPOINT = "usd_validation_nvidia:DefaultPlugin"
 
 
 def _make_ep(name, value, dist_name, plugin_instance):
@@ -242,16 +242,16 @@ class TestPluginManager(unittest.TestCase):
 
     # -- module accessible before on_startup --
 
-    def test_nvidia_usd_validation_accessible_before_on_startup(self):
-        """nvidia_usd_validation is accessible before on_startup() runs."""
-        import nvidia_usd_validation
+    def test_usd_validation_nvidia_accessible_before_on_startup(self):
+        """usd_validation_nvidia is accessible before on_startup() runs."""
+        import usd_validation_nvidia
 
         observed = []
 
         class NvidiaAccessPlugin:
             def on_startup(self) -> None:
                 try:
-                    _ = nvidia_usd_validation
+                    _ = usd_validation_nvidia
                     observed.append(True)
                 except AttributeError:
                     observed.append(False)
@@ -334,7 +334,7 @@ class TestPluginManager(unittest.TestCase):
 
         with _mock_entry_points([ep1, ep2]):
             with patch("importlib.metadata.requires", side_effect=mock_requires):
-                with self.assertLogs("nvidia_usd_validation._plugins", level="WARNING") as log:
+                with self.assertLogs("usd_validation_nvidia._plugins", level="WARNING") as log:
                     manager = PluginManager()
                     manager.initialize()
 
@@ -472,7 +472,7 @@ class TestDefaultPlugin(unittest.TestCase):
 
     def test_default_plugin_entrypoint_value(self):
         """DEFAULT_PLUGIN_ENTRYPOINT matches the expected format."""
-        self.assertEqual(DEFAULT_PLUGIN_ENTRYPOINT, "nvidia_usd_validation:DefaultPlugin")
+        self.assertEqual(DEFAULT_PLUGIN_ENTRYPOINT, "usd_validation_nvidia:DefaultPlugin")
 
     def test_default_plugin_shutdown_unregisters_rules(self):
         """on_shutdown() removes all rules registered by on_startup()."""

@@ -14,8 +14,8 @@ from unittest import skipIf
 from common import get_url
 from pxr import Ar
 
-import nvidia_usd_validation.capabilities as cap
-from nvidia_usd_validation import (
+import usd_validation_nvidia.capabilities as cap
+from usd_validation_nvidia import (
     ByteAlignmentChecker,
     CategoryRuleRegistry,
     CompressionChecker,
@@ -31,7 +31,7 @@ from nvidia_usd_validation import (
     register_profile,
     unregister_profile,
 )
-from nvidia_usd_validation.capabilities import Capability, Profile
+from usd_validation_nvidia.capabilities import Capability, Profile
 
 
 class DummyChecker:
@@ -713,7 +713,7 @@ class ValidationArgsTest(unittest.TestCase):
 
     def test_cli(self):
         result = subprocess.run(
-            [sys.executable, "-m", "nvidia_usd_validation", "--help"],
+            [sys.executable, "-m", "usd_validation_nvidia", "--help"],
             capture_output=True,
             text=True,
             timeout=30,

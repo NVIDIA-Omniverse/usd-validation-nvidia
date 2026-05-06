@@ -3,7 +3,7 @@
 #
 import unittest
 
-from nvidia_usd_validation import Issue, IssueSeverity, Results, Suggestion
+from usd_validation_nvidia import Issue, IssueSeverity, Results, Suggestion
 
 
 class MyRuleChecker:

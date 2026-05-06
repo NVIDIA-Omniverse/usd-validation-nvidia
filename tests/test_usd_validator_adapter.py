@@ -6,8 +6,8 @@ import unittest
 
 from common import AsyncioValidationTestCase, get_url
 
-from nvidia_usd_validation import UsdValidatorAdapter
-from nvidia_usd_validation.tests import IsAFailure
+from usd_validation_nvidia import UsdValidatorAdapter
+from usd_validation_nvidia.tests import IsAFailure
 
 
 class _MissingReferenceValidator(UsdValidatorAdapter):

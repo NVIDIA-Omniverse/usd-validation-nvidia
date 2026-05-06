@@ -11,7 +11,7 @@ include:
     ref: v1_latest
 
 variables:
-  MIRROR_REPO_ID: "nvidia-usd-validation"
+  MIRROR_REPO_ID: "usd-validation-nvidia"
 
 .default-rules:
   rules:
@@ -96,7 +96,7 @@ build-package:
     - .ipp_lnx_x86_64_cpu_medium
   script:
     - ./repo.sh usd_profiles_codegen
-    - ./repo.sh package -m nvidia_usd_validation -c release
+    - ./repo.sh package -m usd_validation_nvidia -c release
   artifacts:
     paths:
       - _build/packages
@@ -130,7 +130,7 @@ test-pip:
       [ -n "$NUMPY_VERSION" ] && NUMPY_ARG="--with numpy==$NUMPY_VERSION"
       ./repo.sh uv -- run \
         --no-project \
-        --with ./dist/nvidia_usd_validation-*.whl \
+        --with ./dist/usd_validation_nvidia-*.whl \
         --with usd-core==$USD_VERSION \
         $NUMPY_ARG \
         python -m unittest discover -s tests
@@ -209,7 +209,7 @@ release_job:
   script:
     - echo "Creating release"
   release:
-    name: 'NVIDIA USD Validation ${VERSION}'
+    name: 'USD Validation NVIDIA ${VERSION}'
     description: CHANGELOG.md
     tag_name: '${VERSION}'
     ref: '$CI_COMMIT_SHA'

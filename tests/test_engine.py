@@ -16,7 +16,7 @@ from unittest.mock import ANY, Mock
 from common import get_url
 from pxr import Sdf, Usd, UsdGeom
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     ArticulationChecker,
     AssetLocatedCallback,
     AssetProgress,
@@ -77,8 +77,8 @@ from nvidia_usd_validation import (
     ZeroAreaFaceChecker,
     register_requirements,
 )
-from nvidia_usd_validation.capabilities import Capabilities, Features, Requirements
-from nvidia_usd_validation.tests import (
+from usd_validation_nvidia.capabilities import Capabilities, Features, Requirements
+from usd_validation_nvidia.tests import (
     AsyncioValidationTestCaseMixin,
     IsAFailure,
     IsAnError,

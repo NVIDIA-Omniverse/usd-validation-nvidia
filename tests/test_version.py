@@ -3,7 +3,7 @@
 #
 import unittest
 
-from nvidia_usd_validation import __version__, get_version
+from usd_validation_nvidia import __version__, get_version
 
 
 class TestVersion(unittest.TestCase):

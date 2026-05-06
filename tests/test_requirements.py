@@ -6,7 +6,7 @@ import unittest
 from dataclasses import dataclass, field
 from enum import Enum
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     Parameter,
     RequirementsRegistry,

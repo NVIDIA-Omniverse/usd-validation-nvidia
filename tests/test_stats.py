@@ -5,7 +5,7 @@ import enum
 import time
 import unittest
 
-from nvidia_usd_validation import ValidationStats
+from usd_validation_nvidia import ValidationStats
 
 
 class Rule:
