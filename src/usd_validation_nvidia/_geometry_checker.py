@@ -27,6 +27,8 @@ from ._mesh_tools import (
 from ._requirements import register_requirements
 
 __all__ = [
+    "AssetOriginPositioningChecker",
+    "ContainsMeshChecker",
     "IndexedPrimvarChecker",
     "ManifoldChecker",
     "NormalsExistChecker",
@@ -904,7 +906,7 @@ class NormalsWindingsChecker(BaseRuleChecker):
 
 
 @register_requirements(cap.Requirements.VG_MESH_001)
-class _ContainsMeshChecker(BaseRuleChecker):
+class ContainsMeshChecker(BaseRuleChecker):
     """
     Validates that the stage contains at least one mesh.
     Warns if other geometry is also present.
@@ -939,7 +941,7 @@ class _ContainsMeshChecker(BaseRuleChecker):
 
 
 @register_requirements(cap.Requirements.VG_025)
-class _AssetOriginPositioningChecker(BaseRuleChecker):
+class AssetOriginPositioningChecker(BaseRuleChecker):
     """
     Validates that assets are positioned at origin.
 

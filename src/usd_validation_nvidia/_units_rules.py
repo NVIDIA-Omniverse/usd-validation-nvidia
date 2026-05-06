@@ -11,7 +11,7 @@ from ._requirements import register_requirements
 
 
 @register_requirements(cap.Requirements.UN_006)
-class _UpAxisZChecker(BaseRuleChecker):
+class UpAxisZChecker(BaseRuleChecker):
     """
     Validates that stage upAxis is 'Z'.
 
@@ -34,7 +34,7 @@ class _UpAxisZChecker(BaseRuleChecker):
 
 
 @register_requirements(cap.Requirements.UN_007)
-class _UnitsInMetersChecker(BaseRuleChecker):
+class UnitsInMetersChecker(BaseRuleChecker):
     """
     Validates that stage metersPerUnit is exactly 1.0.
 

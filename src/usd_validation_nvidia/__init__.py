@@ -91,6 +91,8 @@ from ._features import (
 from ._fix import AuthoringLayers, FixResult, FixResultList, FixStatus, IssueFixer
 from ._gaussian_splat_checker import GaussianSplatSchemaChecker
 from ._geometry_checker import (
+    AssetOriginPositioningChecker,
+    ContainsMeshChecker,
     IndexedPrimvarChecker,
     ManifoldChecker,
     NormalsExistChecker,
@@ -102,10 +104,8 @@ from ._geometry_checker import (
     ValidateTopologyChecker,
     WeldChecker,
     ZeroAreaFaceChecker,
-    _AssetOriginPositioningChecker,
-    _ContainsMeshChecker,
 )
-from ._hierarchy_rules import _HierarchyHasRootChecker, _RootPrimXformableChecker
+from ._hierarchy_rules import HierarchyHasRootChecker, RootPrimXformableChecker
 from ._identifiers import (
     AttributeId,
     AtType,
@@ -206,7 +206,7 @@ from ._results import Results, ResultsList, to_issues_list
 from ._semver import SemVer
 from ._singleton import singleton
 from ._stats import ValidationStats
-from ._units_rules import _UnitsInMetersChecker, _UpAxisZChecker
+from ._units_rules import UnitsInMetersChecker, UpAxisZChecker
 from ._url_utils import (
     LocalUriResolver,
     UriResolver,
@@ -238,6 +238,7 @@ __all__ = [
     "AssetFormat",
     "AssetFormatRegistry",
     "AssetLocatedCallback",
+    "AssetOriginPositioningChecker",
     "AssetProgress",
     "AssetProgressCallback",
     "AssetType",
@@ -259,6 +260,7 @@ __all__ = [
     "ComplianceCheckerEventRule",
     "ComplianceCheckerEventType",
     "CompressionChecker",
+    "ContainsMeshChecker",
     "DanglingOverPrimChecker",
     "DefaultCategoryRules",
     "DefaultPlugin",
@@ -277,6 +279,7 @@ __all__ = [
     "FormatDependency",
     "FormatDependencyId",
     "GaussianSplatSchemaChecker",
+    "HierarchyHasRootChecker",
     "IdVersion",
     "Identifier",
     "IndexedPrimvarChecker",
@@ -331,6 +334,7 @@ __all__ = [
     "Results",
     "ResultsList",
     "RigidBodyChecker",
+    "RootPrimXformableChecker",
     "SchemaBaseId",
     "SemVer",
     "ShaderImplementationSourceChecker",
@@ -345,8 +349,10 @@ __all__ = [
     "TextureChecker",
     "TypeChecker",
     "UnicodeNameChecker",
+    "UnitsInMetersChecker",
     "UnusedMeshTopologyChecker",
     "UnusedPrimvarChecker",
+    "UpAxisZChecker",
     "UriResolver",
     "UsdAsciiPerformanceChecker",
     "UsdDanglingMaterialBinding",
@@ -370,13 +376,7 @@ __all__ = [
     "VariantIdMixin",
     "WeldChecker",
     "ZeroAreaFaceChecker",
-    "_AssetOriginPositioningChecker",
-    "_ContainsMeshChecker",
-    "_HierarchyHasRootChecker",
     "_PatternTree",
-    "_RootPrimXformableChecker",
-    "_UnitsInMetersChecker",
-    "_UpAxisZChecker",
     "__version__",
     "_common_pattern",
     "add_registry_asset_format_callback",

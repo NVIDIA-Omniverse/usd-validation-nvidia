@@ -18,6 +18,23 @@ class TestOmniAssetValidatorShim(unittest.TestCase):
     def test_from_import(self):
         from omni.asset_validator import ValidationEngine  # noqa: F401
 
+    def test_public_simready_checker_exports(self):
+        import omni.asset_validator
+
+        public_checker_names = {
+            "AssetOriginPositioningChecker",
+            "ContainsMeshChecker",
+            "HierarchyHasRootChecker",
+            "RootPrimXformableChecker",
+            "UnitsInMetersChecker",
+            "UpAxisZChecker",
+        }
+
+        self.assertTrue(public_checker_names.issubset(omni.asset_validator.__all__))
+        for checker_name in public_checker_names:
+            self.assertTrue(hasattr(omni.asset_validator, checker_name))
+            self.assertNotIn(f"_{checker_name}", omni.asset_validator.__all__)
+
 
 class TestOmniAssetValidatorTestsShim(unittest.TestCase):
     def test_class_identity(self):

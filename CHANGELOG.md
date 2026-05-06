@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.18.5] - 2026-05-06
+### Added
+- Public exports for SimReady checker classes used by downstream `omni.asset_validator.core` integration.
+
 ## [1.18.4] - 2026-05-06
 ### Added
 - `omni.asset_validator.tests` compatibility shim.

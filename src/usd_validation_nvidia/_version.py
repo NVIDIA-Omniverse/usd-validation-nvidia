@@ -6,7 +6,7 @@ __all__ = [
     "get_version",
 ]
 
-__version__ = "1.18.4"
+__version__ = "1.18.5"
 
 
 def get_version():
