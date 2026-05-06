@@ -4,5 +4,11 @@
 from ._cli import cli_main
 from ._plugins import PluginManager
 
-with PluginManager():
-    cli_main()
+
+def main():
+    with PluginManager():
+        cli_main()
+
+
+if __name__ == "__main__":
+    main()
