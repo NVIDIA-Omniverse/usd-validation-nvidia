@@ -6,14 +6,16 @@ from unittest.mock import AsyncMock, Mock
 
 from pxr import Usd
 
-from usd_validation_nvidia import BaseRuleChecker, FormatDependency, LocalUriResolver
-from usd_validation_nvidia._compliance_runners import (
+from usd_validation_nvidia import (
     AsyncComplianceCheckerRunner,
+    BaseRuleChecker,
     ComplianceCheckerEvent,
     ComplianceCheckerEventRule,
     ComplianceCheckerEventType,
+    FormatDependency,
+    LocalUriResolver,
+    ValidationStats,
 )
-from usd_validation_nvidia._stats import ValidationStats
 
 
 class ComplianceCheckerEventTypeTest(IsolatedAsyncioTestCase):

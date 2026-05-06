@@ -3,7 +3,7 @@
 #
 import unittest
 
-from usd_validation_nvidia._deprecate import deprecated
+from usd_validation_nvidia import deprecated
 
 
 class TestDeprecate(unittest.TestCase):

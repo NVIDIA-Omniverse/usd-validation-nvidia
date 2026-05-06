@@ -8,12 +8,14 @@ from common import get_url
 from pxr import Usd
 
 from usd_validation_nvidia import (
-    MAXIMUM_BATCH_SIZE,
-    MAXIMUM_COUNT_SIZE,
     AsyncBatchRunner,
     AsyncCounter,
     DelegateContextManager,
     PeriodicCallback,
+)
+from usd_validation_nvidia._context_managers import (
+    MAXIMUM_BATCH_SIZE,
+    MAXIMUM_COUNT_SIZE,
 )
 
 
