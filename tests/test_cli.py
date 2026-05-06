@@ -732,6 +732,27 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertIn("--feature", stdout)
         self.assertIn("--profile", stdout)
 
+    def test_omni_asset_validator_cli(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "omni.asset_validator", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        retcode = result.returncode
+        stdout = result.stdout
+
+        self.assertEqual(retcode, 0)
+        self.assertIn("usage:", stdout.lower())
+        self.assertIn("--rule", stdout)
+        self.assertIn("--fix", stdout)
+        self.assertIn("--predicate", stdout)
+        self.assertIn("--variants", stdout)
+        self.assertIn("--requirement", stdout)
+        self.assertIn("--capability", stdout)
+        self.assertIn("--feature", stdout)
+        self.assertIn("--profile", stdout)
+
     def test_cli_resolver_context(self):
         url = get_url("materialInScope.usda")
 
