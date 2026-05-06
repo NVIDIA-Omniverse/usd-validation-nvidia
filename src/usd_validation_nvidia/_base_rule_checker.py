@@ -202,9 +202,9 @@ class BaseRuleChecker:
         pass
 
     def CheckFormatDependency(self, dependency: FormatDependency):
-        """Check a single dependency returned by an :py:class:`~nvidia_usd_validation.AssetFormat` handler.
+        """Check a single dependency returned by an :py:class:`~usd_validation_nvidia.AssetFormat` handler.
 
-        Called once per path in the flat list produced by :py:meth:`~nvidia_usd_validation.AssetFormat.get_dependencies`.
+        Called once per path in the flat list produced by :py:meth:`~usd_validation_nvidia.AssetFormat.get_dependencies`.
         """
         pass
 

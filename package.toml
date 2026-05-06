@@ -1,5 +1,5 @@
-["nvidia_usd_validation"]
+["usd_validation_nvidia"]
 files = [
-    ["src/nvidia_usd_validation", "python/nvidia_usd_validation"],
-    ["LICENSE", "PACKAGE-LICENSES/nvidia_usd_validation-LICENSE.txt"],
+    ["src/usd_validation_nvidia", "python/usd_validation_nvidia"],
+    ["LICENSE", "PACKAGE-LICENSES/usd_validation_nvidia-LICENSE.txt"],
 ]

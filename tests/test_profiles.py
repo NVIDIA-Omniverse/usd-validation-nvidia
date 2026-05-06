@@ -4,7 +4,7 @@
 import unittest
 from unittest.mock import Mock
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     Profile,
     ProfileRegistry,
     add_registry_profile_callback,

@@ -13,8 +13,8 @@ from typing import Any
 from common import AsyncioValidationTestCase, get_url, is_package_installed
 from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
 
-import nvidia_usd_validation.capabilities as cap
-from nvidia_usd_validation import (
+import usd_validation_nvidia.capabilities as cap
+from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
     IssuePredicates,
@@ -28,7 +28,7 @@ from nvidia_usd_validation import (
     get_sdf_type_for_shader_property,
     register_requirements,
 )
-from nvidia_usd_validation.tests import IsAFailure, IsAWarning
+from usd_validation_nvidia.tests import IsAFailure, IsAWarning
 
 
 class MaterialOutOfScopeCheckerTest(AsyncioValidationTestCase):

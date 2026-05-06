@@ -5,14 +5,14 @@
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     IssuePredicates,
     SkelBindingAPIAppliedChecker,
     UsdDanglingMaterialBinding,
     UsdGeomSubsetChecker,
     UsdLuxSchemaChecker,
 )
-from nvidia_usd_validation.tests import IsAFailure
+from usd_validation_nvidia.tests import IsAFailure
 
 
 class UsdDanglingMaterialBindingChecker(AsyncioValidationTestCase):

@@ -7,13 +7,13 @@ import unittest
 class TestOmniAssetValidatorShim(unittest.TestCase):
     def test_class_identity(self):
         from omni.asset_validator import ValidationEngine
-        from nvidia_usd_validation import ValidationEngine as NvValidationEngine
+        from usd_validation_nvidia import ValidationEngine as NvValidationEngine
         self.assertIs(ValidationEngine, NvValidationEngine)
 
     def test_all_identity(self):
         import omni.asset_validator
-        import nvidia_usd_validation
-        self.assertEqual(omni.asset_validator.__all__, nvidia_usd_validation.__all__)
+        import usd_validation_nvidia
+        self.assertEqual(omni.asset_validator.__all__, usd_validation_nvidia.__all__)
 
     def test_from_import(self):
         from omni.asset_validator import ValidationEngine  # noqa: F401
@@ -22,13 +22,13 @@ class TestOmniAssetValidatorShim(unittest.TestCase):
 class TestOmniCapabilitiesShim(unittest.TestCase):
     def test_class_identity(self):
         from omni.capabilities import Capabilities
-        from nvidia_usd_validation.capabilities import Capabilities as NvCapabilities
+        from usd_validation_nvidia.capabilities import Capabilities as NvCapabilities
         self.assertIs(Capabilities, NvCapabilities)
 
     def test_all_identity(self):
         import omni.capabilities
-        import nvidia_usd_validation.capabilities
-        self.assertEqual(omni.capabilities.__all__, nvidia_usd_validation.capabilities.__all__)
+        import usd_validation_nvidia.capabilities
+        self.assertEqual(omni.capabilities.__all__, usd_validation_nvidia.capabilities.__all__)
 
     def test_from_import(self):
         from omni.capabilities import Capabilities  # noqa: F401

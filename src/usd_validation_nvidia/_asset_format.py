@@ -24,7 +24,7 @@ __all__ = [
 
 @dataclass(frozen=True)
 class FormatDependency:
-    """Context object passed to :py:meth:`~nvidia_usd_validation.BaseRuleChecker.CheckFormatDependency`.
+    """Context object passed to :py:meth:`~usd_validation_nvidia.BaseRuleChecker.CheckFormatDependency`.
 
     Attributes:
         path: The specific dependency path being checked.

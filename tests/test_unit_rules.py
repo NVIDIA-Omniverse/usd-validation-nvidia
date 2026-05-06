@@ -4,7 +4,7 @@
 
 from common import AsyncioValidationTestCase
 
-import nvidia_usd_validation.capabilities as cap
+import usd_validation_nvidia.capabilities as cap
 
 
 class UpAxisZCheckerTest(AsyncioValidationTestCase):

@@ -4,14 +4,14 @@
 from common import AsyncioValidationTestCase, get_url
 from pxr import Gf, Sdf, UsdGeom
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     AlmostExtremeExtentChecker,
     BaseBoundsChecker,
     BoundsLimit,
     PointsPrecisionErrorChecker,
     PointsPrecisionWarningChecker,
 )
-from nvidia_usd_validation.tests import IsAnError, IsAWarning
+from usd_validation_nvidia.tests import IsAnError, IsAWarning
 
 INF = float("inf")
 

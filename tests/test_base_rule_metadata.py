@@ -3,8 +3,8 @@
 #
 from unittest import TestCase
 
-from nvidia_usd_validation import BaseRuleChecker
-from nvidia_usd_validation._base_rule_metadata import BaseRuleCheckerMetadata
+from usd_validation_nvidia import BaseRuleChecker
+from usd_validation_nvidia._base_rule_metadata import BaseRuleCheckerMetadata
 
 
 class BaseRuleCheckerMetadataTest(TestCase):

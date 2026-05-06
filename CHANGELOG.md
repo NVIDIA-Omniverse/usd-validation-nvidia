@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.18.3] - 2026-05-06
+### Fixed
+- Update project name.
+
 ## [1.18.2] - 2026-05-05
 ### Added
 - `omni.asset_validator` compatibility shims
@@ -24,7 +28,7 @@
 
 ### Fixed
 - Handle deprecated `GetNdrType` on `SdfTypeIndicator`
-- Resolve plugin manager limitations: remove isolated environment variable, support `nvidia_usd_validation.X` import syntax
+- Resolve plugin manager limitations: remove isolated environment variable, support `usd_validation_nvidia.X` import syntax
 
 ## [1.17.0] - 2026-04-17
 ### Added

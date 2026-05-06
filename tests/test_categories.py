@@ -4,7 +4,7 @@
 
 import unittest
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     CategoryRuleRegistry,
     add_registry_rule_callback,

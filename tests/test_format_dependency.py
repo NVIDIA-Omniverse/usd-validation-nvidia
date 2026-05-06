@@ -10,7 +10,7 @@ import unittest
 
 from pxr import Ar, Usd
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     FormatDependency,
     UriResolver,
@@ -18,7 +18,7 @@ from nvidia_usd_validation import (
     register_format,
     unregister_format,
 )
-from nvidia_usd_validation.tests import IsAFailure, ValidationTestCaseMixin
+from usd_validation_nvidia.tests import IsAFailure, ValidationTestCaseMixin
 
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "asset_format")
 

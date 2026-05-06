@@ -119,20 +119,20 @@ class Suggestion:
 
         .. code-block:: python
 
-            import nvidia_usd_validation
+            import usd_validation_nvidia
 
-            suggestion = nvidia_usd_validation.Suggestion(
+            suggestion = usd_validation_nvidia.Suggestion(
                 callable=lambda stage, at: None,
                 message="A suggestion",
                 at=Sdf.Layer.FindOrOpen("helloworld.usda"),
             )
-            target_id = nvidia_usd_validation.EditTargetId(
+            target_id = usd_validation_nvidia.EditTargetId(
                 layer_id=LayerId(identifier="helloworld.usda"),
                 path=Sdf.Path("/World/Cube"),
             )
             print(target_id in suggestion) # Will print True
 
-            target_id = nvidia_usd_validation.EditTargetId(
+            target_id = usd_validation_nvidia.EditTargetId(
                 layer_id=LayerId(identifier="goodbye.usda"),
                 path=Sdf.Path("/World/Cube"),
             )
@@ -232,7 +232,7 @@ class Issue:
 
     .. code-block:: python
 
-        import nvidia_usd_validation
+        import usd_validation_nvidia
 
         class MyRule(BaseRuleChecker):
             pass
@@ -243,7 +243,7 @@ class Issue:
         def my_suggestion(stage: Usd.Stage, at: Usd.Prim):
             pass
 
-        issue = nvidia_usd_validation.Issue(
+        issue = usd_validation_nvidia.Issue(
             identifier=Requirements.SL_001.code,
             message=Requirements.SL_001.message,
             severity=IssueSeverity.ERROR,
@@ -447,18 +447,18 @@ class IssuePredicates:
 
     .. code-block:: python
 
-        import nvidia_usd_validation
+        import usd_validation_nvidia
 
         issues = [
-            nvidia_usd_validation.Issue(
-                severity=nvidia_usd_validation.IssueSeverity.ERROR, message="This is an error"),
-            nvidia_usd_validation.Issue(
-                severity=nvidia_usd_validation.IssueSeverity.WARNING, message="Important warning!"),
+            usd_validation_nvidia.Issue(
+                severity=usd_validation_nvidia.IssueSeverity.ERROR, message="This is an error"),
+            usd_validation_nvidia.Issue(
+                severity=usd_validation_nvidia.IssueSeverity.WARNING, message="Important warning!"),
         ]
         filtered = list(filter(
-            nvidia_usd_validation.IssuePredicates.And(
-                nvidia_usd_validation.IssuePredicates.IsError(),
-                nvidia_usd_validation.IssuePredicates.ContainsMessage("Important"),
+            usd_validation_nvidia.IssuePredicates.And(
+                usd_validation_nvidia.IssuePredicates.IsError(),
+                usd_validation_nvidia.IssuePredicates.ContainsMessage("Important"),
             ),
             issues
         ))
@@ -714,20 +714,20 @@ class IssueGroupsBy:
         .. code-block:: python
 
             import collections
-            import nvidia_usd_validation
+            import usd_validation_nvidia
 
             issues = [
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=nvidia_usd_validation.TypeChecker),
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                    rule=usd_validation_nvidia.TypeChecker),
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=nvidia_usd_validation.TypeChecker),
+                    rule=usd_validation_nvidia.TypeChecker),
             ]
             groups = set()
-            for group, issue in nvidia_usd_validation.IssueGroupsBy.message()(issues):
+            for group, issue in usd_validation_nvidia.IssueGroupsBy.message()(issues):
                 groups.add(group)
             print(groups)
 
@@ -742,20 +742,20 @@ class IssueGroupsBy:
         .. code-block:: python
 
             import collections
-            import nvidia_usd_validation
+            import usd_validation_nvidia
 
             issues = [
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=nvidia_usd_validation.TypeChecker),
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                    rule=usd_validation_nvidia.TypeChecker),
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=nvidia_usd_validation.TypeChecker),
+                    rule=usd_validation_nvidia.TypeChecker),
             ]
             groups = set()
-            for group, issue in nvidia_usd_validation.IssueGroupsBy.rule()(issues):
+            for group, issue in usd_validation_nvidia.IssueGroupsBy.rule()(issues):
                 groups.add(group)
             print(groups)
 
@@ -763,27 +763,27 @@ class IssueGroupsBy:
 
         .. code-block:: bash
 
-            {<class 'nvidia_usd_validation.TypeChecker'>}
+            {<class 'usd_validation_nvidia.TypeChecker'>}
 
         Groups by severity.
 
         .. code-block:: python
 
             import collections
-            import nvidia_usd_validation
+            import usd_validation_nvidia
 
             issues = [
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim1",
-                    rule=nvidia_usd_validation.TypeChecker),
-                nvidia_usd_validation.Issue(
-                    severity=nvidia_usd_validation.IssueSeverity.ERROR,
+                    rule=usd_validation_nvidia.TypeChecker),
+                usd_validation_nvidia.Issue(
+                    severity=usd_validation_nvidia.IssueSeverity.ERROR,
                     message="This is an error at Prim2",
-                    rule=nvidia_usd_validation.TypeChecker),
+                    rule=usd_validation_nvidia.TypeChecker),
             ]
             groups = set()
-            for group, issue in nvidia_usd_validation.IssueGroupsBy.severity()(issues):
+            for group, issue in usd_validation_nvidia.IssueGroupsBy.severity()(issues):
                 groups.add(group)
             print(groups)
 

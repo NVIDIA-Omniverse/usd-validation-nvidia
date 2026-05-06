@@ -5,8 +5,8 @@ import unittest
 import unittest.mock
 from dataclasses import dataclass
 
-from nvidia_usd_validation._registry import IdVersion, Registry, VersionedRegistry
-from nvidia_usd_validation._semver import SemVer
+from usd_validation_nvidia._registry import IdVersion, Registry, VersionedRegistry
+from usd_validation_nvidia._semver import SemVer
 
 
 @dataclass

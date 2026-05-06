@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pxr import Tf, Usd, UsdGeom
 
-import nvidia_usd_validation.capabilities as cap
+import usd_validation_nvidia.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._requirements import register_requirements

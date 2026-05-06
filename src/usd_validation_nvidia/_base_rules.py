@@ -16,7 +16,7 @@ from typing import Any
 
 from pxr import Ar, Gf, Kind, Plug, Sdf, Tf, Usd, UsdGeom, UsdLux, UsdSkel, Vt
 
-import nvidia_usd_validation.capabilities as cap
+import usd_validation_nvidia.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker, Suggestion
 from ._categories import register_rule

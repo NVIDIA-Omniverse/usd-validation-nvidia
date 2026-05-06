@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from pxr import Ar, Gf, Sdf, Sdr, Tf, Usd, UsdShade, UsdUtils
 
-import nvidia_usd_validation.capabilities as cap
+import usd_validation_nvidia.capabilities as cap
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule

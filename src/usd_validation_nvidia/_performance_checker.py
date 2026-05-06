@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from pxr import Gf, Usd, UsdGeom, Vt
 
-import nvidia_usd_validation.capabilities
+import usd_validation_nvidia.capabilities
 
 from ._base_rule_checker import BaseRuleChecker
 from ._categories import register_rule
@@ -183,7 +183,7 @@ class BaseBoundsChecker(BaseRuleChecker):
 
 
 @register_rule("Performance", skip=True)
-@register_requirements(nvidia_usd_validation.capabilities.Requirements.VG_RTX_001)
+@register_requirements(usd_validation_nvidia.capabilities.Requirements.VG_RTX_001)
 class AlmostExtremeExtentChecker(BaseBoundsChecker):
     """
     The world space extents of any Boundable should be within 2^40 units of the origin.
@@ -222,7 +222,7 @@ class PrecisionLimit:
 
 
 @register_rule("Other", skip=True)
-@register_requirements(nvidia_usd_validation.capabilities.Requirements.VG_020)
+@register_requirements(usd_validation_nvidia.capabilities.Requirements.VG_020)
 class PointsPrecisionChecker(BaseRuleChecker):
     """
     Points values must not exceed the range at which a given precision, represented as the smallest possible increment,

@@ -16,7 +16,7 @@ import logging
 
 from pxr import Usd
 
-from nvidia_usd_validation.capabilities import Capabilities, Features, Profiles
+from usd_validation_nvidia.capabilities import Capabilities, Features, Profiles
 
 from ._base_rule_checker import BaseRuleChecker
 from ._base_rules import (

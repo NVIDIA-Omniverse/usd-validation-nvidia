@@ -7,7 +7,7 @@ import importlib.metadata
 import pathlib
 from unittest import IsolatedAsyncioTestCase, TestCase
 
-from nvidia_usd_validation.tests import (
+from usd_validation_nvidia.tests import (
     AsyncioValidationTestCaseMixin,
     ValidationTestCaseMixin,
 )

@@ -6,7 +6,7 @@ import unittest
 from itertools import permutations
 from re import Pattern
 
-from nvidia_usd_validation import _common_pattern, _PatternTree
+from usd_validation_nvidia import _common_pattern, _PatternTree
 
 
 class ExpressionTests(unittest.TestCase):

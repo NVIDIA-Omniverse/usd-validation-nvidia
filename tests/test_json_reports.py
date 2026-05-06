@@ -10,7 +10,7 @@ from unittest.mock import Mock
 
 from common import get_url
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     FeatureStatus,
     Issue,
@@ -25,7 +25,7 @@ from nvidia_usd_validation import (
     ValidationContext,
     export_json_file,
 )
-from nvidia_usd_validation.capabilities import Requirement as CapRequirement
+from usd_validation_nvidia.capabilities import Requirement as CapRequirement
 
 
 class MyRuleChecker(BaseRuleChecker):

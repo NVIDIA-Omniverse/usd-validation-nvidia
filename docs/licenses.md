@@ -1,12 +1,12 @@
-# NVIDIA USD Validation Notices
+# USD Validation NVIDIA Notices
 
 ## Apache 2.0 License
 
-The NVIDIA USD Validation python module is provided under the [Apache License, Version 2.0](../LICENSE).
+The USD Validation NVIDIA python module is provided under the [Apache License, Version 2.0](../LICENSE).
 
 ## Runtime License Notices
 
-These licenses pertain to the NVIDIA USD Validation Python package.
+These licenses pertain to the USD Validation NVIDIA Python package.
 
 OpenUSD uses many 3rd Party OSS to build and at runtime. Most of these are isolated to individual modules
 (USD plugins). Many are only relevant to a rendering context (e.g. via Hydra) and do not apply to a 3D scene
@@ -15,7 +15,7 @@ description authoring context.
 This repository does not use or redistribute generated `usd-deps` license files. The individual license entries below
 therefore link to the upstream projects directly.
 
-- [NVIDIA USD Validation](#nvidia-usd-validation-license)
+- [USD Validation NVIDIA](#usd-validation-nvidia-license)
 - [OpenUSD / usd-core](#openusd--usd-core-license)
 - [NumPy](#numpy-license)
 - [Python](#python-license)
@@ -23,7 +23,7 @@ therefore link to the upstream projects directly.
 
 ## Individual Licenses
 
-### NVIDIA USD Validation License
+### USD Validation NVIDIA License
 
 - [Apache License, Version 2.0](../LICENSE)
 

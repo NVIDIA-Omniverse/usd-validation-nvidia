@@ -9,13 +9,13 @@ import unittest
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     LayerId,
     LayerSpecChecker,
     UsdAsciiPerformanceChecker,
     ValidationEngine,
 )
-from nvidia_usd_validation.tests import IsAFailure
+from usd_validation_nvidia.tests import IsAFailure
 
 
 class LayerSpecCheckerTest(AsyncioValidationTestCase):

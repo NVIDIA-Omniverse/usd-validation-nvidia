@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 from common import get_url
 
-from nvidia_usd_validation import (
+from usd_validation_nvidia import (
     BaseRuleChecker,
     Issue,
     IssueCSVData,

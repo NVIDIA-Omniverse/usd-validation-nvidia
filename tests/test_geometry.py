@@ -6,8 +6,8 @@ import unittest
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd
 
-import nvidia_usd_validation.capabilities as cap
-from nvidia_usd_validation import (
+import usd_validation_nvidia.capabilities as cap
+from usd_validation_nvidia import (
     GaussianSplatSchemaChecker,
     IndexedPrimvarChecker,
     ManifoldChecker,
@@ -21,7 +21,7 @@ from nvidia_usd_validation import (
     WeldChecker,
     ZeroAreaFaceChecker,
 )
-from nvidia_usd_validation.tests import IsAFailure, IsAnError, IsAWarning
+from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
 
 
 class SubdivisionSchemeCheckerTest(AsyncioValidationTestCase):
