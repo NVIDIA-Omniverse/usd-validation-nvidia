@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.18.7] - 2026-05-06
+### Fixed
+- Add `python -m omni.asset_validator` compatibility entry point.
+
 ## [1.18.6] - 2026-05-06
 ### Added
 - Public exports for compatibility helper classes and functions used by downstream tests.
