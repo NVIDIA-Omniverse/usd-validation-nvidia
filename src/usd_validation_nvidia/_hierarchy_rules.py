@@ -19,7 +19,7 @@ from ._requirements import register_requirements
 
 
 @register_requirements(cap.Requirements.HI_001)
-class _HierarchyHasRootChecker(BaseRuleChecker):
+class HierarchyHasRootChecker(BaseRuleChecker):
     """
     Validates that the prim hierarchy has a single root prim.
 
@@ -44,7 +44,7 @@ class _HierarchyHasRootChecker(BaseRuleChecker):
 
 
 @register_requirements(cap.Requirements.HI_003)
-class _RootPrimXformableChecker(BaseRuleChecker):
+class RootPrimXformableChecker(BaseRuleChecker):
     """
     Validates that the root prim of a placeable asset is strictly an Xformable prim.
 
