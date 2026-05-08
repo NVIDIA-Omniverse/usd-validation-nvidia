@@ -106,7 +106,7 @@ check-version:
 # ==============================================================================================================
 
 .build-capabilities-linux:
-  before_script:
+  script:
     - |
       ./repo.sh uv -- run \
         --no-project \
@@ -118,7 +118,7 @@ check-version:
           --package-name usd_validation_nvidia.capabilities
 
 .build-capabilities-windows:
-  before_script:
+  script:
     - >
       .\repo.bat uv -- run
       --no-project
@@ -135,11 +135,11 @@ build-package-linux-x86_64:
     - job: build-pip
       artifacts: true
   extends:
-    - .build-capabilities-linux
     - .ipp_lnx_x86_64_cpu_medium
   variables:
     OMNI_REPO_BUILD_NO_DOCKER: "1"
   script:
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -151,13 +151,13 @@ build-package-linux-aarch64:
     - job: build-pip
       artifacts: true
   extends:
-    - .build-capabilities-linux
     - .runner-build-linux-aarch64
   rules:
     - !reference [.long-queue-rules, rules]
   variables:
     OMNI_REPO_BUILD_NO_DOCKER: "1"
   script:
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -169,9 +169,9 @@ build-package-windows-x86_64:
     - job: build-pip
       artifacts: true
   extends:
-    - .build-capabilities-windows
     - .runner-build-windows-x86_64
   script:
+    - !reference [.build-capabilities-windows, script]
     - .\repo.bat package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -181,9 +181,9 @@ build-pip:
   stage: build
   needs: []
   extends:
-    - .build-capabilities-linux
     - .ipp_lnx_x86_64_cpu_medium
   script:
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh uv -- build -o dist
   artifacts:
     paths:
