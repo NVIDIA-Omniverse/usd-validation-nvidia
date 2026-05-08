@@ -119,14 +119,63 @@ class RequirementTests(unittest.TestCase):
         class MyRule4(MyRule1): ...
 
         try:
+            # ``get_requirements`` returns only requirements where the rule is the
+            # primary (last-registered) validator, so MyRule1 reports nothing here.
             self.assertEqual(registry.get_requirements(MyRule1), [])
             self.assertEqual(registry.get_requirements(MyRule4), [MyRequirement.REQ001])
             self.assertEqual(registry.get_validator(MyRequirement.REQ001), MyRule4)
-            self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
+            # ``is_registered`` reflects actual list membership (OMPE-64259): the
+            # original rule is still in the registration list, just not the primary.
+            self.assertTrue(registry.is_registered(MyRule1, MyRequirement.REQ001))
             self.assertTrue(registry.is_registered(MyRule4, MyRequirement.REQ001))
             self.assertTrue(registry.is_implemented(MyRequirement.REQ001))
         finally:
             unregister_requirements(MyRule4)
+
+    def test_overridden_rule_can_emit_issue(self):
+        # OMPE-64259: a rule that has been overridden (not the primary validator
+        # anymore) must still be allowed to emit Issues against the requirement —
+        # otherwise Issue.__post_init__ raises "Rule X is not registered to
+        # requirement Y" and the rule check fails uncaught.
+        from usd_validation_nvidia import Issue, IssueSeverity
+
+        @register_requirements(MyRequirement.REQ001, override=True)
+        class MyRule4(MyRule1): ...
+
+        try:
+            Issue(
+                message="should not raise",
+                severity=IssueSeverity.FAILURE,
+                rule=MyRule1,
+                requirement=MyRequirement.REQ001,
+            )
+        finally:
+            unregister_requirements(MyRule4)
+
+    def test_unregister_non_primary_rule_cleans_up(self):
+        # OMPE-64259: unregistering a rule that is not the primary validator (because
+        # another rule registered with override=True afterwards) must still remove it
+        # from the requirement's rule list. Previously the unregister path iterated
+        # ``get_requirements`` which only returns primary registrations, so the
+        # original rule's entry leaked.
+        registry = RequirementsRegistry()
+
+        @register_requirements(MyRequirement.REQ001, override=True)
+        class MyRule4(MyRule1): ...
+
+        try:
+            self.assertTrue(registry.is_registered(MyRule1, MyRequirement.REQ001))
+
+            unregister_requirements(MyRule1)
+
+            self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
+            self.assertTrue(registry.is_registered(MyRule4, MyRequirement.REQ001))
+            self.assertEqual(registry.get_validator(MyRequirement.REQ001), MyRule4)
+        finally:
+            unregister_requirements(MyRule4)
+            # setUp registered MyRule1; tearDown will try to unregister it again, so
+            # restore it here so tearDown's call is a no-op-safe symmetric operation.
+            register_requirements(MyRequirement.REQ001)(MyRule1)
 
     def test_unregister_requirements_ok(self):
         unregister_requirements(MyRule1)
