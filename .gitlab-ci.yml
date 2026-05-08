@@ -105,6 +105,30 @@ check-version:
 # Build Jobs
 # ==============================================================================================================
 
+.build-capabilities-linux:
+  script:
+    - |
+      ./repo.sh uv -- run \
+        --no-project \
+        --index https://urm.nvidia.com/artifactory/api/pypi/ct-omniverse-pypi-local/simple \
+        --with usd-profiles-nvidia==1.14.1 \
+        python -m usd_profiles_nvidia.codegen \
+          --docs-root specs \
+          --destination-dir src \
+          --package-name usd_validation_nvidia.capabilities
+
+.build-capabilities-windows:
+  script:
+    - >
+      .\repo.bat uv -- run
+      --no-project
+      --index https://urm.nvidia.com/artifactory/api/pypi/ct-omniverse-pypi-local/simple
+      --with usd-profiles-nvidia==1.14.1
+      python -m usd_profiles_nvidia.codegen
+      --docs-root specs
+      --destination-dir src
+      --package-name usd_validation_nvidia.capabilities
+
 build-package-linux-x86_64:
   stage: build
   needs:
@@ -115,6 +139,7 @@ build-package-linux-x86_64:
   variables:
     OMNI_REPO_BUILD_NO_DOCKER: "1"
   script:
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -132,6 +157,7 @@ build-package-linux-aarch64:
   variables:
     OMNI_REPO_BUILD_NO_DOCKER: "1"
   script:
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -145,6 +171,7 @@ build-package-windows-x86_64:
   extends:
     - .runner-build-windows-x86_64
   script:
+    - !reference [.build-capabilities-windows, script]
     - .\repo.bat package -m usd_validation_nvidia -c release
   artifacts:
     paths:
@@ -156,11 +183,15 @@ build-pip:
   extends:
     - .ipp_lnx_x86_64_cpu_medium
   script:
-    - ./repo.sh usd_profiles_codegen
+    - !reference [.build-capabilities-linux, script]
     - ./repo.sh uv -- build -o dist
   artifacts:
     paths:
       - dist
+
+# ==============================================================================================================
+# Test Jobs
+# ==============================================================================================================
 
 test-pip:
   stage: test
