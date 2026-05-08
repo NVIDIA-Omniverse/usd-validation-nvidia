@@ -357,6 +357,20 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
                 if sdr_node_name.startswith("Usd"):
                     MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.append(sdr_node_name)
 
+    def CheckStage(self, usdStage: Usd.Stage) -> None:
+        # Without UsdPreviewSurface shader definitions in the Sdr Registry the per-prim checks
+        # below cannot identify any UsdPreviewSurface shaders and the rule silently passes.
+        # This typically means the ``shaderDefs.usda`` shader resource is missing from the
+        # runtime (e.g., on the ``usd-exchange`` wheel). Surface a warning so users know the
+        # rule did not actually inspect their shaders.
+        if not MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders:
+            self._AddWarning(
+                "No UsdPreviewSurface shader definitions are registered with the Sdr Registry, "
+                "so this rule cannot validate any shaders. This typically means the "
+                "'shaderDefs.usda' shader resource is unavailable in the current USD runtime.",
+                at=usdStage,
+            )
+
     # Fixes
 
     @classmethod
