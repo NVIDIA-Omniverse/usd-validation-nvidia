@@ -69,6 +69,8 @@ uv run \
     --package-name example_requirements
 ```
 
+The example package force-includes `example_requirements`, so skipping this step fails during wheel build.
+
 ## Minimal main.py
 
 > **Source:** `examples/python/requirement/main.py` snippet `custom-requirement`
