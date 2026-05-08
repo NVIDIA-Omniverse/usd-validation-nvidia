@@ -1,6 +1,8 @@
-# USD Validation NVIDIA Skills Directory
+# usd-validation-nvidia Skills Directory
 
-This directory contains structured skill files for AI coding agents working with NVIDIA USD Validation. Each skill is a focused, self-contained task guide with enough commands, file shapes, and troubleshooting detail for an agent to act without guessing.
+This directory contains structured skill files for AI coding agents working on the usd-validation-nvidia codebase.
+Each skill is a self-contained reference for a specific validation task, with code snippets from live examples and
+tests where possible.
 
 ## Structure
 
@@ -9,23 +11,8 @@ Each subdirectory contains a single `SKILLS.md` file with YAML frontmatter:
 ```text
 skills/
   project-setup-python/SKILLS.md
-  validate-asset/SKILLS.md
-  reading-json-output/SKILLS.md
-  fixing-validation-failures/SKILLS.md
-  ci-validation/SKILLS.md
-  profile-codegen/SKILLS.md
-  extending-validation/SKILLS.md
+  validate-requirements/SKILLS.md
 ```
-
-## Available Skills
-
-- `project-setup-python` - Create an isolated Python project, install the validation engine and profile tooling/package, author a tiny USDA sample, and run the first profile validation.
-- `validate-asset` - Discover installed profiles/features/capabilities/requirements/rules and run scoped CLI validation with `nvidia_usd_validate`.
-- `reading-json-output` - Read `--json-output`, understand the profile/feature/requirement tree, and map rule issues back to compliance failures.
-- `fixing-validation-failures` - Triage common validation failures and decide when to use automatic fixes versus manual USD edits.
-- `ci-validation` - Add profile validation to CI, preserve JSON/CSV artifacts, and keep validation deterministic.
-- `profile-codegen` - Author profile/capability/feature/requirement specs and generate Python profile enums with `usd-profiles-nvidia`.
-- `extending-validation` - Create custom rule/profile packages and Python entry-point plugins.
 
 ## SKILLS.md Format
 
@@ -40,24 +27,59 @@ description: What this skill covers. Use when user asks to [trigger phrases].
 ## Overview
 Brief explanation of when and why to use this.
 
-## Workflow
-Step-by-step commands and files.
+## Python
+Step-by-step with code snippets.
 
-## Key Types / Commands
-Quick reference of the API or CLI surface involved.
+## Key Types / Functions
+Quick reference of the API surface involved.
 
 ## Common Pitfalls
 Gotchas and things to watch out for.
 ```
 
-## Writing Guidance
+## Code Snippet References
 
-- Keep each skill narrow enough that an agent can choose it from the frontmatter description.
-- Prefer concrete commands, file layouts, and small examples over broad prose.
-- Keep package names exact: `usd-validation-nvidia` for this validation package and `usd-profiles-nvidia` for the profile framework/codegen package.
-- Treat profile IDs, feature IDs, capability IDs, requirement codes, categories, and rule names as environment-specific. Tell agents to confirm them with `nvidia_usd_validate --help`.
-- When API examples duplicate behavior that already has test coverage, point agents to the relevant test file as a source reference.
+Skills reference live code in test and example files instead of duplicating snippets inline. This keeps code in
+skills accurate as the API evolves.
+
+### Marker format in source files
+
+```python
+# [snippet:custom-rule]
+class ExampleDefaultPrimChecker(BaseRuleChecker):
+    ...
+# [/snippet:custom-rule]
+```
+
+Names are kebab-case and unique within each file.
+
+### Reference format in SKILLS.md
+
+Replace inline code blocks with a blockquote directive:
+
+```markdown
+> **Source:** `examples/python/minimal/main.py` snippet `custom-rule`
+```
+
+Agents read the referenced file between the `# [snippet:name]` and `# [/snippet:name]` markers to get the current code.
+
+## Adding a New Skill
+
+1. Add or identify a focused test or example that demonstrates each code path the skill will reference.
+2. Wrap every illustrative section in `# [snippet:name]` / `# [/snippet:name]` markers.
+3. Create a new directory under `skills/` named after the skill, using kebab-case.
+4. Add a `SKILLS.md` file inside it following the format above.
+5. Prefer `> **Source:** ...` blockquotes for API usage so skills stay aligned with executable examples.
 
 ## Updating Skills
 
-When package names, CLI flags, output schema, profile behavior, JSON/CSV fields, or plugin APIs change, update the affected `SKILLS.md` file in the same change.
+When you make changes to package names, CLI flags, output schema, profile behavior, examples, or plugin APIs that
+affect an existing skill, update the corresponding `SKILLS.md` to keep it accurate.
+
+## Modifying Tests or Examples
+
+- Preserve snippet markers. If you move or restructure marked code, update the markers to stay around the illustrative
+  section.
+- Do not remove markers without also removing or updating every `> **Source:**` reference in `skills/`.
+- Add markers to new tests or examples that demonstrate API workflows. If the workflow maps to an existing skill, add a
+  reference there. If not, consider creating a new skill.
