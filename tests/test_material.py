@@ -6,6 +6,7 @@ import pathlib
 import shutil
 import typing
 import unittest
+import unittest.mock
 from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -438,6 +439,33 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             rule=MaterialUsdPreviewSurfaceChecker,
             asserts=[],
         )
+
+    async def test_warns_when_shader_defs_missing(self):
+        # Simulate a runtime where ``shaderDefs.usda`` is unavailable: the Sdr Registry
+        # returns no ``Usd*`` shader nodes, so the checker has no shaders to validate
+        # against and would otherwise silently pass.
+        original = list(MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders)
+        MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.clear()
+        # The checker uses ``GetShaderNodeNames`` on USD 25.08+ and ``GetNodeNames`` before
+        # that; patch whichever this runtime exposes so the cache stays empty.
+        registry_method = (
+            "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
+        )
+        try:
+            with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
+                await self.assertRuleAsync(
+                    asset=get_url("Materials/usdPreviewSurfacePass.usda"),
+                    rule=MaterialUsdPreviewSurfaceChecker,
+                    asserts=[
+                        IsAWarning(
+                            "No UsdPreviewSurface shader definitions are registered with the Sdr Registry, "
+                            "so this rule cannot validate any shaders. This typically means the "
+                            "'shaderDefs.usda' shader resource is unavailable in the current USD runtime.",
+                        ),
+                    ],
+                )
+        finally:
+            MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = original
 
     async def test_autofix_suggestions(self):
         await self.assertSuggestionAsync(
