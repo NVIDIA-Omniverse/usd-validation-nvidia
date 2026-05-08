@@ -27,6 +27,7 @@ class ExampleDefaultPrimRequirementChecker(BaseRuleChecker):
     def CheckStage(self, stage: Usd.Stage) -> None:
         if not stage.GetDefaultPrim():
             self._AddFailedCheck(
+                message="Stage must define a valid default prim.",
                 requirement=EXAMPLE_DEFAULT_PRIM,
             )
 
