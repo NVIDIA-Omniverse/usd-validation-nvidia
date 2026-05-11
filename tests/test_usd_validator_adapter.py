@@ -66,22 +66,17 @@ class UsdValidatorAdapterTest(AsyncioValidationTestCase):
 
 class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_check_prim_fallback_ok(self):
-        class _FallbackValidator(UsdValidatorAdapter):
-            @classmethod
-            def validator_name(cls) -> str:
-                return "test:FallbackValidator"
-
-            def _CheckPrim(self, prim):
-                self.checked_prim = prim
-
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
-        checker = _FallbackValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
-        with patch.object(_FallbackValidator, "is_implemented", return_value=False):
+        with (
+            patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
+            patch.object(_MissingReferenceValidator, "_CheckPrim") as check_prim,
+        ):
             checker.CheckPrim(prim)
 
-        self.assertEqual(checker.checked_prim, prim)
+        check_prim.assert_called_once_with(prim)
 
     def test_check_prim_no_fallback_nok(self):
         stage = Usd.Stage.CreateInMemory()
