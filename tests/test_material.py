@@ -320,22 +320,6 @@ class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
         )
 
 
-class _FakeSdrProperty:
-    def __init__(self, *, default_value=None, connectable=True, options=None):
-        self._default_value = default_value
-        self._connectable = connectable
-        self._options = options or []
-
-    def GetDefaultValue(self):
-        return self._default_value
-
-    def GetOptions(self):
-        return self._options
-
-    def IsConnectable(self):
-        return self._connectable
-
-
 class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
     def setUp(self):
         self.checker = MaterialOldMdlSchemaChecker(
@@ -525,8 +509,12 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
             "get_sdf_type_for_shader_property",
             return_value=Sdf.ValueTypeNames.Token,
         ):
-            property_with_options = _FakeSdrProperty(connectable=True, options=[("raw", ""), ("sRGB", "")])
-            non_connectable_property = _FakeSdrProperty(connectable=False)
+            property_with_options = unittest.mock.Mock()
+            property_with_options.GetOptions.return_value = [("raw", ""), ("sRGB", "")]
+            property_with_options.IsConnectable.return_value = True
+            non_connectable_property = unittest.mock.Mock()
+            non_connectable_property.GetOptions.return_value = []
+            non_connectable_property.IsConnectable.return_value = False
             input_value = SourceInputValue.create_from_input(token_input)
 
             self.assertIsNotNone(checker._validate_usd_shade_input_metadata(token_input, property_with_options))
@@ -556,9 +544,13 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
             "get_sdf_type_for_shader_property",
             return_value=Sdf.ValueTypeNames.Float,
         ):
+            sdr_property = unittest.mock.Mock()
+            sdr_property.GetDefaultValue.return_value = 0.5
+            sdr_property.GetOptions.return_value = []
+            sdr_property.IsConnectable.return_value = True
             checker.update_usd_shade_input(
                 shade_input,
-                _FakeSdrProperty(default_value=0.5, connectable=True),
+                sdr_property,
             )
 
         self.assertEqual(shade_input.GetTypeName(), Sdf.ValueTypeNames.Float)
