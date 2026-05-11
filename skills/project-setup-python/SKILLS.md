@@ -6,11 +6,12 @@ name: project-setup-python
 description: Setting up a Python plugin project that uses NVIDIA USD Validation. Use when creating a new validation project, wiring a usd_validation_nvidia entry point, registering a custom rule, installing the plugin with uv or pip, or running the first validation against a USD asset.
 ---
 
-# Project Setup (Python)
+# Project Setup and First Validation (Python)
 
 ## Overview
 
-`usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin project.
+`usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin
+project and run its first validation command.
 
 ## Project Structure
 
@@ -19,6 +20,8 @@ my-usd-validation-plugin/
   pyproject.toml
   main.py
 ```
+
+After `uv init`, create `main.py` and update `pyproject.toml` to match the structure below.
 
 ## Setup with uv (Recommended)
 
@@ -59,14 +62,13 @@ For NumPy acceleration:
 uv add "usd-validation-nvidia[numpy]"
 ```
 
-For profile code generation:
+For profile code generation, prefer the new package name once it is available:
 
 ```bash
 uv add usd-profiles-nvidia
 ```
 
-`usd-profiles-nvidia` is the intended package name. If it is not available in the package registry yet, use the legacy
-package:
+If `uv` reports that `usd-profiles-nvidia` is not available in the package registry yet, use the legacy package:
 
 ```bash
 uv add omniverse-usd-profiles
@@ -103,7 +105,7 @@ uv run \
     --package-name usd_validation_nvidia.capabilities
 ```
 
-If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+If `uv` reports that `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
 
 ```bash
 uv run \
@@ -139,6 +141,13 @@ uv run `
 ```
 
 Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
+
+## Key Types / Functions
+
+- `register_rule("Example")`: registers the rule in the `Example` category; the string argument is the rule category
+  shown by the CLI.
+- `BaseRuleChecker.CheckStage(...)`: validates the whole stage once.
+- `_AddFailedCheck(...)`: reports a validation failure.
 
 ## Key Dependencies
 

@@ -40,7 +40,7 @@ uv run \
     --package-name usd_validation_nvidia.capabilities
 ```
 
-If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+If `uv` reports that `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
 
 ```bash
 uv run \
@@ -102,7 +102,7 @@ uv run \
     --package-name example_requirements
 ```
 
-If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+If `uv` reports that `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
 
 ```bash
 uv run \
@@ -145,6 +145,15 @@ uv run \
   nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
 ```
 
+To see a requirement-mapped failure:
+
+```bash
+uv run \
+  --with . \
+  --with examples/python/requirement \
+  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset-missing-default-prim.usda
+```
+
 On Windows:
 
 ```powershell
@@ -152,6 +161,15 @@ uv run `
   --with . `
   --with examples\python\requirement `
   nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset.usda
+```
+
+To see a requirement-mapped failure on Windows:
+
+```powershell
+uv run `
+  --with . `
+  --with examples\python\requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset-missing-default-prim.usda
 ```
 
 ### CLI Example
@@ -215,7 +233,7 @@ uv run `
 When a request maps to a known validation workflow, go directly to the relevant skill in `skills/`:
 
 - Python setup and first sample validation: `skills/project-setup-python/SKILLS.md`
-- Generated requirement validation: `skills/validate-requirements/SKILLS.md`
+- Validate Requirements: `skills/validate-requirements/SKILLS.md`
 
 If multiple skills seem relevant, start with the narrowest skill that matches the user request, then layer in adjacent
 skills only when the workflow needs them.

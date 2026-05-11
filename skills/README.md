@@ -65,6 +65,8 @@ Replace inline code blocks with a blockquote directive:
 ```
 
 Agents read the referenced file between the `# [snippet:name]` and `# [/snippet:name]` markers to get the current code.
+For very small config files, such as an example `pyproject.toml`, a skill may omit the snippet name and reference the
+whole file.
 
 ## Adding a New Skill
 
