@@ -202,7 +202,7 @@ test-pip:
       artifacts: true
   parallel:
     matrix:
-      - USD_VERSION: ["23.11", "24.05", "25.05", "25.11"]
+      - USD_VERSION: ["23.11", "24.05", "25.05", "25.11", "26.03"]
         NUMPY_VERSION: ["", "1.24", "2.2"]
   script:
     - |
@@ -222,7 +222,7 @@ test-coverage-data:
   needs: []
   parallel:
     matrix:
-      - USD_VERSION: ["23.11", "24.05", "25.05", "25.11"]
+      - USD_VERSION: ["23.11", "24.05", "25.05", "25.11", "26.03"]
         NUMPY_VERSION: ["", "1.24", "2.2"]
   variables:
     COVERAGE_FILE: ".coverage-data/.coverage.usd-${USD_VERSION}.numpy-${NUMPY_VERSION}"
@@ -257,13 +257,14 @@ test-coverage:
   script:
     - |
       ./repo.sh uv -- run --no-project --with coverage coverage combine .coverage-data
-      ./repo.sh uv -- run --no-project --with coverage coverage report -m
+      ./repo.sh uv -- run --no-project --with coverage coverage report -m | tee coverage-report.txt
       ./repo.sh uv -- run --no-project --with coverage coverage xml -o coverage.xml
   coverage: '/^TOTAL\s+.*\s(\d+(?:\.\d+)?)%/'
   artifacts:
     when: always
     expire_in: 2 weeks
     paths:
+      - coverage-report.txt
       - coverage.xml
     reports:
       coverage_report:
