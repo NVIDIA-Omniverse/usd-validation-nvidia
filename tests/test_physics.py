@@ -21,13 +21,13 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
 
     maxDiff = None
 
-    def test_scale_uniformity_helper(self):
+    def test_scale_is_uniform_ok(self):
         self.assertTrue(_scale_is_uniform(Gf.Vec3d(1.0, 1.0, 1.0)))
         self.assertTrue(_scale_is_uniform(Gf.Vec3d(0.0, 0.0, 0.0)))
         self.assertFalse(_scale_is_uniform(Gf.Vec3d(1.0, 1.0001, 1.0)))
         self.assertFalse(_scale_is_uniform(Gf.Vec3d(-1.0, 1.0, 1.0)))
 
-    def test_rigid_body_fallback_checker_paths(self):
+    def test_rigid_body_fallback_ok(self):
         checker = RigidBodyChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         stage = Usd.Stage.CreateInMemory()
 
@@ -65,7 +65,7 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
             checker._CheckPrim(instance_body)
             add_failed.assert_not_called()
 
-    def test_collider_fallback_checker_paths(self):
+    def test_collider_fallback_ok(self):
         checker = ColliderChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         stage = Usd.Stage.CreateInMemory()
 
@@ -87,7 +87,7 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
             checker._CheckPrim(sphere.GetPrim())
             add_failed.assert_called_once()
 
-    def test_physics_joint_fallback_checker_paths(self):
+    def test_physics_joint_fallback_ok(self):
         checker = PhysicsJointChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         stage = Usd.Stage.CreateInMemory()
 
@@ -105,7 +105,7 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
             checker._CheckPrim(joint.GetPrim())
             self.assertEqual(add_failed.call_count, 4)
 
-    def test_articulation_fallback_checker_paths(self):
+    def test_articulation_fallback_ok(self):
         checker = ArticulationChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         stage = Usd.Stage.CreateInMemory()
 
