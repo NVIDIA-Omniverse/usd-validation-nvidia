@@ -387,7 +387,10 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
         return transformed, type_name, input_value, connections
 
 
-@unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
+@unittest.skipIf(
+    is_package_installed("usd-core") and Usd.GetVersion() < (0, 26, 3),
+    "Tests require usd-core with shader definitions, available in 26.03+",
+)
 class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
     async def test_api(self):
         await self.assertRuleAsync(
