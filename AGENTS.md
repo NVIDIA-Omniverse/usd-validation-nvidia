@@ -21,8 +21,38 @@ environment as the engine so their entry points are discovered.
 
 - Read `README.md` for package installation and basic CLI/API examples.
 - Read `skills/README.md` to understand the skill format and available task guides.
+- For Claude or agents that do not automatically load repo skills, explicitly read `AGENTS.md`, `skills/README.md`,
+  and then the relevant `skills/*/SKILLS.md` file before following a workflow.
 - Use `nvidia_usd_validate --help` inside the target Python environment to discover the profiles, features,
   capabilities, requirements, categories, and rules actually registered there.
+
+## Fresh Checkout Prerequisite
+
+When running this repository from source with `--with .`, generate the ignored capabilities package first:
+
+```bash
+uv run \
+  --no-project \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --package-name usd_validation_nvidia.capabilities
+```
+
+If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+
+```bash
+uv run \
+  --no-project \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --namespace usd_validation_nvidia.capabilities
+```
+
+Published wheels already include `src/usd_validation_nvidia/capabilities`; fresh source checkouts do not.
 
 ## Repo Layout (High Level)
 
@@ -42,7 +72,7 @@ Install the repo and minimal plugin example into the run environment, then run t
 asset:
 
 ```bash
-./repo.sh uv -- run \
+uv run \
   --with . \
   --with examples/python/minimal \
   nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
@@ -51,7 +81,7 @@ asset:
 On Windows:
 
 ```powershell
-.\repo.bat uv -- run `
+uv run `
   --with . `
   --with examples\python\minimal `
   nvidia_usd_validate --rule ExampleDefaultPrimChecker examples\assets\asset.usda
@@ -59,10 +89,57 @@ On Windows:
 
 ### Requirement-Backed Plugin Example
 
-Run the same style of plugin, but with one custom requirement registered for CLI filtering and JSON mapping:
+Generate the example requirement package, then run the plugin with one custom requirement registered for CLI filtering
+and JSON mapping:
 
 ```bash
-./repo.sh uv -- run \
+uv run \
+  --no-project \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
+    --docs-root examples/python/requirement/specs \
+    --destination-dir examples/python/requirement \
+    --package-name example_requirements
+```
+
+If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+
+```bash
+uv run \
+  --no-project \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
+    --docs-root examples/python/requirement/specs \
+    --destination-dir examples/python/requirement \
+    --namespace example_requirements
+```
+
+On Windows:
+
+```powershell
+uv run `
+  --no-project `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
+    --docs-root examples\python\requirement\specs `
+    --destination-dir examples\python\requirement `
+    --package-name example_requirements
+```
+
+Legacy fallback on Windows:
+
+```powershell
+uv run `
+  --no-project `
+  --with omniverse-usd-profiles `
+  python -m omni.usd_profiles.codegen `
+    --docs-root examples\python\requirement\specs `
+    --destination-dir examples\python\requirement `
+    --namespace example_requirements
+```
+
+```bash
+uv run \
   --with . \
   --with examples/python/requirement \
   nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
@@ -71,7 +148,7 @@ Run the same style of plugin, but with one custom requirement registered for CLI
 On Windows:
 
 ```powershell
-.\repo.bat uv -- run `
+uv run `
   --with . `
   --with examples\python\requirement `
   nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset.usda
@@ -82,14 +159,14 @@ On Windows:
 Discover registered validation scopes in the active environment:
 
 ```bash
-./repo.sh uv -- run nvidia_usd_validate --help
+uv run nvidia_usd_validate --help
 ```
 
 Run a smoke validation and write JSON:
 
 ```bash
 mkdir -p reports
-./repo.sh uv -- run nvidia_usd_validate \
+uv run nvidia_usd_validate \
   --json-output reports/asset.validation.json \
   examples/assets/asset.usda
 ```
@@ -97,13 +174,40 @@ mkdir -p reports
 ### Tests
 
 ```bash
-./repo.sh test
+uv run \
+  --no-project \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --package-name usd_validation_nvidia.capabilities
+uv build -o dist
+uv run \
+  --no-project \
+  --with ./dist/usd_validation_nvidia-*.whl \
+  --with usd-core==25.11 \
+  --with numpy==2.2 \
+  python -m unittest discover -s tests
 ```
 
 On Windows:
 
 ```powershell
-.\repo.bat test
+uv run `
+  --no-project `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
+    --docs-root specs `
+    --destination-dir src `
+    --package-name usd_validation_nvidia.capabilities
+uv build -o dist
+$wheel = (Get-ChildItem .\dist\usd_validation_nvidia-*.whl | Select-Object -First 1).FullName
+uv run `
+  --no-project `
+  --with $wheel `
+  --with usd-core==25.11 `
+  --with numpy==2.2 `
+  python -m unittest discover -s tests
 ```
 
 ## Use Skills for Task-Specific Work
@@ -131,4 +235,5 @@ skills only when the workflow needs them.
 ## Notes
 
 - The project is pre-release; behavior, APIs, and packaging details may evolve.
-- `usd-profiles-nvidia` is used for profile/capability code generation; keep documented commands aligned with CI.
+- `usd-profiles-nvidia` is the intended package for profile/capability code generation. If it is not available in the
+  package registry yet, use the legacy `omniverse-usd-profiles` package and `omni.usd_profiles.codegen` module.

@@ -65,6 +65,13 @@ For profile code generation:
 uv add usd-profiles-nvidia
 ```
 
+`usd-profiles-nvidia` is the intended package name. If it is not available in the package registry yet, use the legacy
+package:
+
+```bash
+uv add omniverse-usd-profiles
+```
+
 ## Setup with pip
 
 ```bash
@@ -88,9 +95,47 @@ From the repository root:
 
 ```bash
 uv run \
+  --no-project \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --package-name usd_validation_nvidia.capabilities
+```
+
+If `usd-profiles-nvidia` is not available in the package registry yet, use the legacy PyPI package:
+
+```bash
+uv run \
+  --no-project \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --namespace usd_validation_nvidia.capabilities
+```
+
+```bash
+uv run \
   --with . \
   --with examples/python/minimal \
   nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
+```
+
+On Windows:
+
+```powershell
+uv run `
+  --no-project `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
+    --docs-root specs `
+    --destination-dir src `
+    --package-name usd_validation_nvidia.capabilities
+uv run `
+  --with . `
+  --with examples\python\minimal `
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples\assets\asset.usda
 ```
 
 Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
@@ -102,12 +147,16 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `usd-validation-nvidia[usd]` | Engine, CLI, built-in validators, and `usd-core` runtime dependency |
 | `usd-validation-nvidia[numpy]` | Optional NumPy acceleration |
 | `usd-profiles-nvidia` | Optional profile/capability/feature/requirement modeling and code generation |
+| `omniverse-usd-profiles` | Legacy profile codegen package to use if `usd-profiles-nvidia` is not available yet |
 | `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
 ## Common Pitfalls
 
 - `usd-validation-nvidia` requires Python 3.10-3.12.
 - Install the plugin package into the same environment as `usd-validation-nvidia`.
+- In a fresh source checkout, generate `src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
+  usd-profiles-nvidia python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo with
+  `--with .`.
 - Point the entry point at `main:Plugin` when the package exposes a `Plugin` class.
 - Confirm the custom rule appears in `nvidia_usd_validate --help` before debugging validation output.
 - Project-specific profiles such as `Prop-Robotics-Neutral` must be installed and registered before use.
