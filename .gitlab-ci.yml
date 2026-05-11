@@ -215,6 +215,36 @@ test-pip:
         $NUMPY_ARG \
         python -m unittest discover -s tests
 
+test-coverage:
+  stage: test
+  extends:
+    - .ipp_lnx_x86_64_cpu_medium
+  needs: []
+  script:
+    - !reference [.build-capabilities-linux, script]
+    - |
+      set -o pipefail
+      ./repo.sh uv -- run \
+        --with coverage \
+        --with usd-core==25.11 \
+        --with numpy==2.2 \
+        --with-editable . \
+        coverage run \
+          --source=src \
+          --omit="src/usd_validation_nvidia/capabilities/*" \
+          -m unittest discover -s tests
+      ./repo.sh uv -- run --with coverage coverage report
+      ./repo.sh uv -- run --with coverage coverage xml -o coverage.xml
+  coverage: '/^TOTAL.*\s+(\d+(?:\.\d+)?%)$/'
+  artifacts:
+    when: always
+    paths:
+      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
 # ==============================================================================================================
 # Publish Jobs
 # ==============================================================================================================
@@ -233,6 +263,8 @@ publish-cloudfront:
       artifacts: true
     - job: test-pip
       artifacts: false
+    - job: test-coverage
+      artifacts: false
   before_script:
     - !reference [.osec:vault:v3:linux, packman_s3:perform_vault_requests]
   script:
@@ -249,6 +281,8 @@ publish-pip-artifactory:
     - job: build-pip
       artifacts: true
     - job: test-pip
+      artifacts: false
+    - job: test-coverage
       artifacts: false
   before_script:
     - !reference [.osec:vault:v3:linux, artifactory:perform_vault_requests]
@@ -289,6 +323,8 @@ release_job:
     - job: check-version
       artifacts: true
     - job: test-pip
+      artifacts: false
+    - job: test-coverage
       artifacts: false
   script:
     - echo "Creating release"
