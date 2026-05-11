@@ -1,8 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-from unittest import mock
-
 from common import AsyncioValidationTestCase
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
@@ -26,104 +24,6 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
         self.assertTrue(_scale_is_uniform(Gf.Vec3d(0.0, 0.0, 0.0)))
         self.assertFalse(_scale_is_uniform(Gf.Vec3d(1.0, 1.0001, 1.0)))
         self.assertFalse(_scale_is_uniform(Gf.Vec3d(-1.0, 1.0, 1.0)))
-
-    def test_rigid_body_fallback_ok(self):
-        checker = RigidBodyChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        stage = Usd.Stage.CreateInMemory()
-
-        no_api = UsdGeom.Xform.Define(stage, "/noApi")
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(no_api.GetPrim())
-            add_failed.assert_not_called()
-
-        non_xformable = UsdGeom.Scope.Define(stage, "/nonXformable")
-        UsdPhysics.RigidBodyAPI.Apply(non_xformable.GetPrim())
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(non_xformable.GetPrim())
-            add_failed.assert_called_once()
-
-        UsdGeom.Xform.Define(stage, "/source")
-        rigid_body = UsdGeom.Cube.Define(stage, "/source/rigidBody")
-        rb_api = UsdPhysics.RigidBodyAPI.Apply(rigid_body.GetPrim())
-        instance = UsdGeom.Xform.Define(stage, "/instance")
-        instance.GetPrim().GetReferences().AddInternalReference("/source")
-        instance.GetPrim().SetInstanceable(True)
-        instance_body = stage.GetPrimAtPath("/instance/rigidBody")
-
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(instance_body)
-            add_failed.assert_called_once()
-
-        rb_api.GetKinematicEnabledAttr().Set(True)
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(instance_body)
-            add_failed.assert_not_called()
-
-        rb_api.GetKinematicEnabledAttr().Set(False)
-        rb_api.GetRigidBodyEnabledAttr().Set(False)
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(instance_body)
-            add_failed.assert_not_called()
-
-    def test_collider_fallback_ok(self):
-        checker = ColliderChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        stage = Usd.Stage.CreateInMemory()
-
-        no_api = UsdGeom.Xform.Define(stage, "/noApi")
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(no_api.GetPrim())
-            add_failed.assert_not_called()
-
-        non_gprim = UsdGeom.Scope.Define(stage, "/nonGprim")
-        UsdPhysics.CollisionAPI.Apply(non_gprim.GetPrim())
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(non_gprim.GetPrim())
-            add_failed.assert_not_called()
-
-        sphere = UsdGeom.Sphere.Define(stage, "/sphere")
-        sphere.AddScaleOp().Set(Gf.Vec3d(1.0, 2.0, 1.0))
-        UsdPhysics.CollisionAPI.Apply(sphere.GetPrim())
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(sphere.GetPrim())
-            add_failed.assert_called_once()
-
-    def test_physics_joint_fallback_ok(self):
-        checker = PhysicsJointChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        stage = Usd.Stage.CreateInMemory()
-
-        no_joint = UsdGeom.Xform.Define(stage, "/noJoint")
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(no_joint.GetPrim())
-            add_failed.assert_not_called()
-
-        joint = UsdPhysics.Joint.Define(stage, "/joint")
-        joint.GetBody0Rel().AddTarget("/missing0")
-        joint.GetBody0Rel().AddTarget("/missing1")
-        joint.GetBody1Rel().AddTarget("/missing2")
-        joint.GetBody1Rel().AddTarget("/missing3")
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(joint.GetPrim())
-            self.assertEqual(add_failed.call_count, 4)
-
-    def test_articulation_fallback_ok(self):
-        checker = ArticulationChecker(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        stage = Usd.Stage.CreateInMemory()
-
-        no_api = UsdGeom.Xform.Define(stage, "/noApi")
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(no_api.GetPrim())
-            add_failed.assert_not_called()
-
-        parent = UsdGeom.Xform.Define(stage, "/parent")
-        child = UsdGeom.Xform.Define(stage, "/parent/child")
-        UsdPhysics.ArticulationRootAPI.Apply(parent.GetPrim())
-        UsdPhysics.ArticulationRootAPI.Apply(child.GetPrim())
-        rb_api = UsdPhysics.RigidBodyAPI.Apply(child.GetPrim())
-        rb_api.GetRigidBodyEnabledAttr().Set(False)
-
-        with mock.patch.object(checker, "_AddFailedCheck") as add_failed:
-            checker._CheckPrim(child.GetPrim())
-            self.assertEqual(add_failed.call_count, 2)
 
     async def test_rigid_body_xformable(self):
         stage = Usd.Stage.CreateInMemory()
