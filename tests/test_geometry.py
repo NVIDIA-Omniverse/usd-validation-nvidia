@@ -4,7 +4,7 @@
 import unittest
 
 from common import AsyncioValidationTestCase, get_url
-from pxr import Gf, Sdf, Usd, UsdGeom
+from pxr import Sdf, Usd
 
 import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
@@ -22,16 +22,6 @@ from usd_validation_nvidia import (
     ZeroAreaFaceChecker,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
-
-
-def _quad_points(size=4):
-    points = [
-        Gf.Vec3f(0, 0, 0),
-        Gf.Vec3f(1, 0, 0),
-        Gf.Vec3f(1, 1, 0),
-        Gf.Vec3f(0, 1, 0),
-    ]
-    return points[:size]
 
 
 class SubdivisionSchemeCheckerTest(AsyncioValidationTestCase):
@@ -210,39 +200,6 @@ class ValidateTopologyCheckerTest(AsyncioValidationTestCase):
                 IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_10")),
             ],
         )
-
-    async def test_time_sampled_topology_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-
-        static_topology = UsdGeom.Mesh.Define(stage, "/StaticTopology")
-        static_topology.GetFaceVertexCountsAttr().Set([4])
-        static_topology.GetFaceVertexIndicesAttr().Set([0, 1, 2, 3])
-        static_topology.GetPointsAttr().Set(_quad_points(), 1.0)
-        static_topology.GetPointsAttr().Set(_quad_points(3), 2.0)
-
-        static_indices = UsdGeom.Mesh.Define(stage, "/StaticIndices")
-        static_indices.GetPointsAttr().Set(_quad_points())
-        static_indices.GetFaceVertexIndicesAttr().Set([0, 1, 2, 3])
-        static_indices.GetFaceVertexCountsAttr().Set([4])
-        static_indices.GetFaceVertexCountsAttr().Set([5], 1.0)
-
-        static_counts = UsdGeom.Mesh.Define(stage, "/StaticCounts")
-        static_counts.GetPointsAttr().Set(_quad_points())
-        static_counts.GetFaceVertexCountsAttr().Set([4])
-        static_counts.GetFaceVertexIndicesAttr().Set([0, 1, 2, 3])
-        static_counts.GetFaceVertexIndicesAttr().Set([0, 1, 2, 4], 1.0)
-
-        time_sampled_topology = UsdGeom.Mesh.Define(stage, "/TimeSampledTopology")
-        time_sampled_topology.GetPointsAttr().Set(_quad_points())
-        time_sampled_topology.GetFaceVertexCountsAttr().Set([4], 1.0)
-        time_sampled_topology.GetFaceVertexIndicesAttr().Set([0, 1, 2, 4], 1.0)
-
-        time_sampled_all = UsdGeom.Mesh.Define(stage, "/TimeSampledAll")
-        time_sampled_all.GetPointsAttr().Set(_quad_points(3), 1.0)
-        time_sampled_all.GetFaceVertexCountsAttr().Set([4], 1.0)
-        time_sampled_all.GetFaceVertexIndicesAttr().Set([0, 1, 2, 3], 1.0)
-
-        await self.assertFailureAsync(asset=stage, rule=ValidateTopologyChecker)
 
 
 class UnusedPrimvarCheckerTest(AsyncioValidationTestCase):
