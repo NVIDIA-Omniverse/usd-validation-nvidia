@@ -257,9 +257,9 @@ test-coverage:
   script:
     - |
       set -o pipefail
-      ./repo.sh uv -- run --with coverage coverage combine .coverage-data
-      ./repo.sh uv -- run --with coverage coverage report -m
-      ./repo.sh uv -- run --with coverage coverage xml -o coverage.xml
+      ./repo.sh uv -- run --no-project --with coverage coverage combine .coverage-data
+      ./repo.sh uv -- run --no-project --with coverage coverage report -m
+      ./repo.sh uv -- run --no-project --with coverage coverage xml -o coverage.xml
   coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+(?:\.\d+)?)%/'
   artifacts:
     when: always
