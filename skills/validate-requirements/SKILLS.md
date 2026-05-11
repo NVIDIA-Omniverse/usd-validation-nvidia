@@ -1,4 +1,7 @@
 ---
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
 name: validate-requirements
 description: Validating generated requirements with NVIDIA USD Validation. Use when authoring a Markdown requirement, generating requirement code with usd-profiles-nvidia, registering a custom rule against that generated requirement, or validating with nvidia_usd_validate --requirement.
 ---

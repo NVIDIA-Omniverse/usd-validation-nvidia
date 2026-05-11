@@ -1,4 +1,7 @@
 ---
+# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
 name: project-setup-python
 description: Setting up a Python plugin project that uses NVIDIA USD Validation. Use when creating a new validation project, wiring a usd_validation_nvidia entry point, registering a custom rule, installing the plugin with uv or pip, or running the first validation against a USD asset.
 ---
