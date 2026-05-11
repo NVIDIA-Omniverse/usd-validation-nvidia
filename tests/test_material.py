@@ -450,6 +450,7 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
         return transformed, type_name, input_value, connections
 
 
+@unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
 class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
     def test_input_value_captures_static_and_time_sampled_values(self):
         stage = Usd.Stage.CreateInMemory()
@@ -563,7 +564,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
 
         self.assertEqual(shade_input.GetTypeName(), Sdf.ValueTypeNames.Float)
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_api(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/usdPreviewSurfaceFail.usda"),
@@ -608,7 +608,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             ],
         )
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_pass(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/usdPreviewSurfacePass.usda"),
@@ -616,7 +615,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             asserts=[],
         )
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_warns_when_shader_defs_missing(self):
         # Simulate a runtime where ``shaderDefs.usda`` is unavailable: the Sdr Registry
         # returns no ``Usd*`` shader nodes, so the checker has no shaders to validate
@@ -644,7 +642,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
         finally:
             MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = original
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_autofix_suggestions(self):
         await self.assertSuggestionAsync(
             asset=get_url("Materials/usdPreviewSurfaceFail.usda"),
@@ -652,7 +649,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             predicate=None,
         )
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_time_sampled(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/usdPreviewSurfaceTimeSampledFail.usda"),
@@ -671,7 +667,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             ],
         )
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_fix_time_sampled(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/usdPreviewSurfaceTimeSampledPass.usda"),
@@ -679,7 +674,6 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             asserts=[],
         )
 
-    @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
     async def test_interface_only_connections(self):
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.SetStageUpAxis(stage, UsdGeom.Tokens.y)
