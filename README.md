@@ -99,6 +99,11 @@ nvidia_usd_validate --csv-output results.csv asset.usda
 nvidia_usd_validate --help
 ```
 
+## AI Coding Agents
+
+The [AGENTS.md](AGENTS.md) file and [skills](skills/) directory contain structured guidance for AI coding
+agents. Start there for Python project setup and generated requirement validation workflows.
+
 ## Documentation
 
 - [Full Documentation](https://docs.omniverse.nvidia.com/kit/docs/asset-validator)
