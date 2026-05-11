@@ -263,6 +263,7 @@ test-coverage:
   coverage: '/^TOTAL\s+.*\s(\d+(?:\.\d+)?)%/'
   artifacts:
     when: always
+    expire_in: 2 weeks
     paths:
       - coverage.xml
     reports:
