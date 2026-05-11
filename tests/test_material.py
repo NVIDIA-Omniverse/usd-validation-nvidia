@@ -451,7 +451,7 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
 
 
 class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
-    def test_input_value_captures_static_and_time_sampled_values(self):
+    def test_input_value_time_samples_ok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
@@ -463,7 +463,7 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         self.assertEqual(input_value.value, 0.25)
         self.assertEqual(input_value.time_samples, [(1.0, 0.5)])
 
-    def test_write_usd_shade_input_value_updates_static_and_time_sampled_values(self):
+    def test_write_input_value_time_samples_ok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
@@ -479,7 +479,7 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         self.assertAlmostEqual(shade_input.GetAttr().Get(1.0), 0.1)
         self.assertAlmostEqual(shade_input.GetAttr().Get(2.0), 0.2)
 
-    def test_convert_color3f_to_float_updates_values_and_rgb_connections(self):
+    def test_convert_color3f_to_float_ok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
         texture = UsdShade.Shader.Define(stage, "/Texture")
@@ -504,7 +504,7 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         self.assertEqual(converted_connections[0][0].sourceName, "r")
         self.assertEqual(converted_connections[0][0].typeName, Sdf.ValueTypeNames.Float)
 
-    def test_validation_helpers_report_metadata_connectability_value_and_connection_failures(self):
+    def test_validate_input_helpers_nok(self):
         checker = MaterialUsdPreviewSurfaceChecker(
             verbose=True,
             consumerLevelChecks=True,
@@ -541,7 +541,7 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
             )
             self.assertIsNotNone(checker._validate_usd_shade_input_invalid_connection(token_input))
 
-    def test_update_usd_shade_input_restores_default_type(self):
+    def test_update_input_type_ok(self):
         checker = MaterialUsdPreviewSurfaceChecker(
             verbose=True,
             consumerLevelChecks=True,
