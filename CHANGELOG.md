@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.0] - 2026-05-11
+### Added
+- AI-agent documentation layout, initial skills, and runnable validation examples.
+- CloudFront platform package publishing jobs.
+
+### Changed
+- Use `usd-profiles-nvidia` for capability code generation and update the build documentation.
+- Add support for USD 26.03.
+
+### Fixed
+- Keep non-primary rules registered after requirement overrides.
+- Warn when USD shader definitions are unavailable instead of failing Material Preview Surface validation.
+
 ## [1.18.7] - 2026-05-06
 ### Fixed
 - Add `python -m omni.asset_validator` compatibility entry point.
