@@ -256,7 +256,6 @@ test-coverage:
       artifacts: true
   script:
     - |
-      set -o pipefail
       ./repo.sh uv -- run --no-project --with coverage coverage combine .coverage-data
       ./repo.sh uv -- run --no-project --with coverage coverage report -m
       ./repo.sh uv -- run --no-project --with coverage coverage xml -o coverage.xml
