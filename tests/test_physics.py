@@ -42,7 +42,7 @@ class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
             checker._CheckPrim(non_xformable.GetPrim())
             add_failed.assert_called_once()
 
-        source = UsdGeom.Xform.Define(stage, "/source")
+        UsdGeom.Xform.Define(stage, "/source")
         rigid_body = UsdGeom.Cube.Define(stage, "/source/rigidBody")
         rb_api = UsdPhysics.RigidBodyAPI.Apply(rigid_body.GetPrim())
         instance = UsdGeom.Xform.Define(stage, "/instance")

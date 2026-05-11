@@ -87,16 +87,24 @@ class MeshToolsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             has_weldable_points(mesh)
 
-    def test_index_helpers(self):
+    def test_has_unreferenced_primvar(self):
         stage = Usd.Stage.CreateInMemory()
         mesh = UsdGeom.Mesh.Define(stage, "/Mesh")
         primvar = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("values", Sdf.ValueTypeNames.FloatArray)
         self.assertFalse(has_unreferenced_primvar(primvar))
-        self.assertFalse(has_invalid_primvar_indices(primvar))
 
         primvar.Set([1.0, 2.0, 3.0])
         primvar.SetIndices([0, 2])
         self.assertTrue(has_unreferenced_primvar(primvar))
+
+    def test_has_invalid_primvar_indices(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/Mesh")
+        primvar = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("values", Sdf.ValueTypeNames.FloatArray)
+        self.assertFalse(has_invalid_primvar_indices(primvar))
+
+        primvar.Set([1.0, 2.0, 3.0])
+        primvar.SetIndices([0, 2])
         self.assertFalse(has_invalid_primvar_indices(primvar))
 
         primvar.SetIndices([0, 3])
