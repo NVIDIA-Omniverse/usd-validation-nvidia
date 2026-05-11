@@ -3,6 +3,7 @@
 #
 import os
 import pathlib
+import re
 import shutil
 import typing
 import unittest
@@ -19,6 +20,7 @@ from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
     IssuePredicates,
+    MaterialOldMdlSchemaChecker,
     MaterialOutOfScopeChecker,
     MaterialPathChecker,
     MaterialUsdPreviewSurfaceChecker,
@@ -315,6 +317,45 @@ class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
                 ),
             ],
         )
+
+
+class MaterialOldMdlSchemaCheckerTest(AsyncioValidationTestCase):
+    async def test_success_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        UsdGeom.Xform.Define(stage, "/Xform")
+
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.SetSourceAsset(Sdf.AssetPath("module.mdl"), "mdl")
+        shader.SetSourceAssetSubIdentifier("Material", "mdl")
+
+        await self.assertSuccessAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
+
+    async def test_failure_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetImplementationSourceAttr().Set("mdlMaterial")
+        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
+        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
+
+        await self.assertRuleAsync(
+            asset=stage,
+            rule=MaterialOldMdlSchemaChecker,
+            asserts=[
+                IsAFailure(
+                    re.compile("The shader is using the deprecated MDL schema.*"),
+                    at=Sdf.Path("/Shader"),
+                ),
+            ],
+        )
+
+    async def test_fix_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetImplementationSourceAttr().Set("mdlMaterial")
+        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
+        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
+
+        await self.assertSuggestionAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
 
 
 @dataclass
