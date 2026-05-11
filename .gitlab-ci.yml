@@ -215,27 +215,52 @@ test-pip:
         $NUMPY_ARG \
         python -m unittest discover -s tests
 
-test-coverage:
+test-coverage-data:
   stage: test
   extends:
     - .ipp_lnx_x86_64_cpu_medium
   needs: []
+  parallel:
+    matrix:
+      - USD_VERSION: ["23.11", "24.05", "25.05", "25.11"]
+        NUMPY_VERSION: ["", "1.24", "2.2"]
+  variables:
+    COVERAGE_FILE: ".coverage-data/.coverage.usd-${USD_VERSION}.numpy-${NUMPY_VERSION}"
   script:
     - !reference [.build-capabilities-linux, script]
     - |
-      set -o pipefail
+      NUMPY_ARG=""
+      [ -n "$NUMPY_VERSION" ] && NUMPY_ARG="--with numpy==$NUMPY_VERSION"
+      mkdir -p .coverage-data
       ./repo.sh uv -- run \
         --with coverage \
-        --with usd-core==25.11 \
-        --with numpy==2.2 \
+        --with usd-core==$USD_VERSION \
+        $NUMPY_ARG \
         --with-editable . \
-        coverage run \
+        coverage run --parallel-mode \
           --source=src \
           --omit="src/usd_validation_nvidia/capabilities/*" \
           -m unittest discover -s tests
-      ./repo.sh uv -- run --with coverage coverage report
+  artifacts:
+    when: always
+    expire_in: 2 weeks
+    paths:
+      - .coverage-data/
+
+test-coverage:
+  stage: test
+  extends:
+    - .ipp_lnx_x86_64_cpu_medium
+  needs:
+    - job: test-coverage-data
+      artifacts: true
+  script:
+    - |
+      set -o pipefail
+      ./repo.sh uv -- run --with coverage coverage combine .coverage-data
+      ./repo.sh uv -- run --with coverage coverage report -m
       ./repo.sh uv -- run --with coverage coverage xml -o coverage.xml
-  coverage: '/^TOTAL.*\s+(\d+(?:\.\d+)?%)$/'
+  coverage: '/^TOTAL\s+\d+\s+\d+\s+(\d+(?:\.\d+)?)%/'
   artifacts:
     when: always
     paths:
