@@ -19,9 +19,6 @@ class _MissingReferenceValidator(UsdValidatorAdapter):
     def validator_name(cls) -> str:
         return "usdUtilsValidators:MissingReferenceValidator"
 
-    def _CheckPrim(self, prim):
-        self.checked_prim = prim
-
 
 @unittest.skipIf(_MissingReferenceValidator.is_implemented(), "Tests disabled because validator is implemented")
 class UsdValidatorAdapterCompatibilityTest(AsyncioValidationTestCase):
@@ -69,11 +66,19 @@ class UsdValidatorAdapterTest(AsyncioValidationTestCase):
 
 class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_check_prim_fallback_ok(self):
+        class _FallbackValidator(UsdValidatorAdapter):
+            @classmethod
+            def validator_name(cls) -> str:
+                return "test:FallbackValidator"
+
+            def _CheckPrim(self, prim):
+                self.checked_prim = prim
+
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
-        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _FallbackValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
-        with patch.object(_MissingReferenceValidator, "is_implemented", return_value=False):
+        with patch.object(_FallbackValidator, "is_implemented", return_value=False):
             checker.CheckPrim(prim)
 
         self.assertEqual(checker.checked_prim, prim)
