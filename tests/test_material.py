@@ -328,7 +328,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
             assetLevelChecks=True,
         )
 
-    def test_update_deprecated_mdl_schema_warns_for_non_shader(self):
+    def test_update_non_shader_nok(self):
         stage = Usd.Stage.CreateInMemory()
         xform = UsdGeom.Xform.Define(stage, "/Xform")
 
@@ -336,7 +336,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
             self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, xform.GetPrim()))
             add_warning.assert_called_once()
 
-    def test_update_deprecated_mdl_schema_warns_for_missing_data(self):
+    def test_update_missing_data_nok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
 
@@ -344,7 +344,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
             self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, shader.GetPrim()))
             add_warning.assert_called_once()
 
-    def test_update_deprecated_mdl_schema_writes_mdl_source_asset(self):
+    def test_update_source_asset_ok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
@@ -354,7 +354,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
         self.assertEqual(shader.GetSourceAsset("mdl").path, "module.mdl")
         self.assertEqual(shader.GetSourceAssetSubIdentifier("mdl"), "Material")
 
-    def test_check_prim_adds_fix_for_old_mdl_schema(self):
+    def test_check_prim_old_mdl_schema_nok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shader.GetImplementationSourceAttr().Set("mdlMaterial")
