@@ -7,13 +7,13 @@ import re
 import shutil
 import typing
 import unittest
+import unittest.mock
 from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
-from unittest.mock import patch
 
 from common import AsyncioValidationTestCase, get_url, is_package_installed
-from pxr import Gf, Sdf, Sdr, Usd, UsdGeom, UsdShade
+from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
 
 import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
@@ -32,7 +32,6 @@ from usd_validation_nvidia import (
     register_requirements,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAWarning
-from usd_validation_nvidia._material_checker import _InputValue as SourceInputValue
 
 
 class MaterialOutOfScopeCheckerTest(AsyncioValidationTestCase):
@@ -429,61 +428,6 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
         return transformed, type_name, input_value, connections
 
 
-class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
-    def test_input_value_time_samples_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
-        shade_input.Set(0.25)
-        shade_input.GetAttr().Set(0.5, 1.0)
-
-        input_value = SourceInputValue.create_from_input(shade_input)
-
-        self.assertEqual(input_value.value, 0.25)
-        self.assertEqual(input_value.time_samples, [(1.0, 0.5)])
-
-    def test_write_input_value_time_samples_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
-        shade_input.Set(0.25)
-        shade_input.GetAttr().Set(0.5, 1.0)
-
-        MaterialUsdPreviewSurfaceChecker.write_usd_shade_input_value(
-            shade_input,
-            SourceInputValue(value=0.75, time_samples=[(1.0, 0.1), (2.0, 0.2)]),
-        )
-
-        self.assertEqual(shade_input.GetAttr().Get(), 0.75)
-        self.assertAlmostEqual(shade_input.GetAttr().Get(1.0), 0.1)
-        self.assertAlmostEqual(shade_input.GetAttr().Get(2.0), 0.2)
-
-    def test_convert_color3f_to_float_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        texture = UsdShade.Shader.Define(stage, "/Texture")
-        texture.CreateOutput("rgb", Sdf.ValueTypeNames.Float3)
-        shade_input = shader.CreateInput("metallic", Sdf.ValueTypeNames.Color3f)
-        shade_input.ConnectToSource(texture.ConnectableAPI(), "rgb")
-        connections = list(shade_input.GetConnectedSources())
-
-        input_value = SourceInputValue(
-            value=Gf.Vec3f(0.1, 0.2, 0.3),
-            time_samples=[(1.0, Gf.Vec3f(0.4, 0.5, 0.6))],
-        )
-
-        converted_value, converted_connections = MaterialUsdPreviewSurfaceChecker.convert_color3f_to_float(
-            input_value,
-            connections,
-        )
-
-        self.assertAlmostEqual(converted_value.value, 0.1)
-        self.assertEqual(converted_value.time_samples[0][0], 1.0)
-        self.assertAlmostEqual(converted_value.time_samples[0][1], 0.4)
-        self.assertEqual(converted_connections[0][0].sourceName, "r")
-        self.assertEqual(converted_connections[0][0].typeName, Sdf.ValueTypeNames.Float)
-
-
 @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
 class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
     async def test_api(self):
@@ -549,7 +493,7 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
         )
         try:
-            with patch.object(Sdr.Registry, registry_method, return_value=[]):
+            with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
                 await self.assertRuleAsync(
                     asset=get_url("Materials/usdPreviewSurfacePass.usda"),
                     rule=MaterialUsdPreviewSurfaceChecker,

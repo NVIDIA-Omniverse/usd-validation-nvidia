@@ -4,7 +4,7 @@
 from unittest.mock import ANY
 
 from common import AsyncioValidationTestCase, get_url
-from pxr import Sdf, Usd, UsdGeom
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdShade
 
 import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
@@ -20,7 +20,41 @@ from usd_validation_nvidia import (
     TypeChecker,
     ValidationEngine,
 )
-from usd_validation_nvidia.tests import IsAFailure, IsAnError
+from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
+
+
+def _create_portable_asset_paths_stage() -> Usd.Stage:
+    stage = Usd.Stage.CreateInMemory()
+    stage.GetRootLayer().subLayerPaths.append("sublayers\\materials.usda")
+
+    prim = stage.DefinePrim("/Asset")
+    prim.GetReferences().AddReference("references\\asset.usda")
+    prim.GetPayloads().AddPayload("payloads\\asset.usda")
+    prim.CreateAttribute("assetPath", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("textures\\diffuse.png"))
+
+    return stage
+
+
+def _create_normal_map_stage(*, source_color_space=None, bias=None, scale=None) -> Usd.Stage:
+    stage = Usd.Stage.CreateInMemory()
+
+    texture = UsdShade.Shader.Define(stage, "/Root/NormalTexture")
+    texture.CreateIdAttr("UsdUVTexture")
+    texture.CreateInput("file", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath(get_url("textures/brick.jpg")))
+    texture.CreateOutput("rgb", Sdf.ValueTypeNames.Float3)
+
+    if source_color_space is not None:
+        texture.CreateInput("sourceColorSpace", Sdf.ValueTypeNames.Token).Set(source_color_space)
+    if bias is not None:
+        texture.CreateInput("bias", Sdf.ValueTypeNames.Float4).Set(bias)
+    if scale is not None:
+        texture.CreateInput("scale", Sdf.ValueTypeNames.Float4).Set(scale)
+
+    surface = UsdShade.Shader.Define(stage, "/Root/Surface")
+    surface.CreateIdAttr("UsdPreviewSurface")
+    surface.CreateInput("normal", Sdf.ValueTypeNames.Normal3f).ConnectToSource(texture.ConnectableAPI(), "rgb")
+
+    return stage
 
 
 class ExtentsCheckerTest(AsyncioValidationTestCase):
@@ -116,6 +150,14 @@ class PortableAssetPathCheckerTest(AsyncioValidationTestCase):
 
         await self.assertSuggestionAsync(asset=stage, rule=PortableAssetPathChecker, predicate=None)
 
+    async def test_fix_layer_payload_and_attribute_paths(self):
+        await self.assertFailureAsync(asset=_create_portable_asset_paths_stage(), rule=PortableAssetPathChecker)
+        await self.assertSuggestionAsync(
+            asset=_create_portable_asset_paths_stage(),
+            rule=PortableAssetPathChecker,
+            predicate=None,
+        )
+
 
 class StageMetadataCheckerTest(AsyncioValidationTestCase):
 
@@ -156,6 +198,43 @@ class PrimEncapsulationCheckerTest(AsyncioValidationTestCase):
             rule=PrimEncapsulationChecker,
             asserts=[
                 IsAFailure(".*has an ancestor prim that is also a Gprim.*"),
+            ],
+        )
+
+    async def test_connectable_nesting_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        material = UsdShade.Material.Define(stage, "/Material")
+        shader = UsdShade.Shader.Define(stage, "/Material/Shader")
+        shader.CreateIdAttr("UsdPreviewSurface")
+        material.CreateSurfaceOutput().ConnectToSource(shader.ConnectableAPI(), "surface")
+
+        await self.assertSuccessAsync(asset=stage, rule=PrimEncapsulationChecker)
+
+    async def test_connectable_nesting_nok(self):
+        stage = Usd.Stage.CreateInMemory()
+
+        UsdShade.Material.Define(stage, "/Material")
+        UsdGeom.Scope.Define(stage, "/Material/Scope")
+        shader_under_scope = UsdShade.Shader.Define(stage, "/Material/Scope/Shader")
+        shader_under_scope.CreateIdAttr("UsdPreviewSurface")
+
+        parent_shader = UsdShade.Shader.Define(stage, "/Shader")
+        parent_shader.CreateIdAttr("UsdPreviewSurface")
+        child_shader = UsdShade.Shader.Define(stage, "/Shader/Child")
+        child_shader.CreateIdAttr("UsdUVTexture")
+
+        await self.assertRuleAsync(
+            asset=stage,
+            rule=PrimEncapsulationChecker,
+            asserts=[
+                IsAFailure(
+                    r"Connectable Shader </Material/Scope/Shader> can only have Connectable Container ancestors.*",
+                    at=Sdf.Path("/Material/Scope/Shader"),
+                ),
+                IsAWarning(
+                    r"Connectable Shader </Shader/Child> cannot reside under a non-Container Connectable Shader",
+                    at=Sdf.Path("/Shader/Child"),
+                ),
             ],
         )
 
@@ -258,6 +337,16 @@ class CheckZipFileErrorRule(BaseRuleChecker):
 
 
 class NormalMapTextureCheckerTest(AsyncioValidationTestCase):
+    async def test_stage_pass(self):
+        await self.assertSuccessAsync(
+            asset=_create_normal_map_stage(
+                source_color_space="raw",
+                bias=Gf.Vec4f(-1, -1, -1, 0),
+                scale=Gf.Vec4f(2, 2, 2, 1),
+            ),
+            rule=NormalMapTextureChecker,
+        )
+
     async def test_validate(self):
         await self.assertRuleAsync(
             asset=get_url("cleanNormalMapReader.usda"),
@@ -284,6 +373,28 @@ class NormalMapTextureCheckerTest(AsyncioValidationTestCase):
             ],
         )
 
+    async def test_normal_map_missing_color_space_and_transform(self):
+        await self.assertRuleAsync(
+            asset=_create_normal_map_stage(),
+            rule=NormalMapTextureChecker,
+            asserts=[
+                IsAWarning(r".*may need to set inputs:sourceColorSpace to 'raw'.*"),
+                IsAWarning(r".*requires that inputs:scale be set to.*"),
+            ],
+        )
+
+    async def test_normal_map_non_standard_transform(self):
+        await self.assertRuleAsync(
+            asset=_create_normal_map_stage(
+                source_color_space="raw",
+                bias=Gf.Vec4f(0, 0, 0, 0),
+                scale=Gf.Vec4f(1, 1, 1, 1),
+            ),
+            rule=NormalMapTextureChecker,
+            asserts=[
+                IsAWarning(r".*reads an 8 bit Normal Map, but has non-standard inputs:scale.*"),
+            ],
+        )
 
 class CheckZipFileTest(AsyncioValidationTestCase):
     async def test_validate(self):

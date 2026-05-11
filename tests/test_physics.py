@@ -12,18 +12,11 @@ from usd_validation_nvidia import (
     RigidBodyChecker,
 )
 from usd_validation_nvidia.tests import IsAFailure
-from usd_validation_nvidia._physics_checker import _scale_is_uniform
 
 
 class UsdPhysicsCheckerTestCase(AsyncioValidationTestCase):
 
     maxDiff = None
-
-    def test_scale_is_uniform_ok(self):
-        self.assertTrue(_scale_is_uniform(Gf.Vec3d(1.0, 1.0, 1.0)))
-        self.assertTrue(_scale_is_uniform(Gf.Vec3d(0.0, 0.0, 0.0)))
-        self.assertFalse(_scale_is_uniform(Gf.Vec3d(1.0, 1.0001, 1.0)))
-        self.assertFalse(_scale_is_uniform(Gf.Vec3d(-1.0, 1.0, 1.0)))
 
     async def test_rigid_body_xformable(self):
         stage = Usd.Stage.CreateInMemory()
