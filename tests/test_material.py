@@ -6,10 +6,10 @@ import pathlib
 import shutil
 import typing
 import unittest
-import unittest.mock
 from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
+from unittest.mock import Mock, patch
 
 from common import AsyncioValidationTestCase, get_url, is_package_installed
 from pxr import Gf, Sdf, Sdr, Usd, UsdGeom, UsdShade
@@ -332,7 +332,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
         stage = Usd.Stage.CreateInMemory()
         xform = UsdGeom.Xform.Define(stage, "/Xform")
 
-        with unittest.mock.patch.object(self.checker, "_AddWarning") as add_warning:
+        with patch.object(self.checker, "_AddWarning") as add_warning:
             self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, xform.GetPrim()))
             add_warning.assert_called_once()
 
@@ -340,7 +340,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
 
-        with unittest.mock.patch.object(self.checker, "_AddWarning") as add_warning:
+        with patch.object(self.checker, "_AddWarning") as add_warning:
             self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, shader.GetPrim()))
             add_warning.assert_called_once()
 
@@ -359,7 +359,7 @@ class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shader.GetImplementationSourceAttr().Set("mdlMaterial")
 
-        with unittest.mock.patch.object(self.checker, "_AddFailedCheck") as add_failed:
+        with patch.object(self.checker, "_AddFailedCheck") as add_failed:
             self.checker.CheckPrim(shader.GetPrim())
             add_failed.assert_called_once()
 
@@ -504,15 +504,15 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         source.CreateOutput("out", Sdf.ValueTypeNames.Float)
         token_input.ConnectToSource(source.ConnectableAPI(), "out")
 
-        with unittest.mock.patch.object(
+        with patch.object(
             material_checker,
             "get_sdf_type_for_shader_property",
             return_value=Sdf.ValueTypeNames.Token,
         ):
-            property_with_options = unittest.mock.Mock()
+            property_with_options = Mock()
             property_with_options.GetOptions.return_value = [("raw", ""), ("sRGB", "")]
             property_with_options.IsConnectable.return_value = True
-            non_connectable_property = unittest.mock.Mock()
+            non_connectable_property = Mock()
             non_connectable_property.GetOptions.return_value = []
             non_connectable_property.IsConnectable.return_value = False
             input_value = SourceInputValue.create_from_input(token_input)
@@ -539,12 +539,12 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         shader = UsdShade.Shader.Define(stage, "/Shader")
         shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Color3f)
 
-        with unittest.mock.patch.object(
+        with patch.object(
             material_checker,
             "get_sdf_type_for_shader_property",
             return_value=Sdf.ValueTypeNames.Float,
         ):
-            sdr_property = unittest.mock.Mock()
+            sdr_property = Mock()
             sdr_property.GetDefaultValue.return_value = 0.5
             sdr_property.GetOptions.return_value = []
             sdr_property.IsConnectable.return_value = True
@@ -621,7 +621,7 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
         )
         try:
-            with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
+            with patch.object(Sdr.Registry, registry_method, return_value=[]):
                 await self.assertRuleAsync(
                     asset=get_url("Materials/usdPreviewSurfacePass.usda"),
                     rule=MaterialUsdPreviewSurfaceChecker,
