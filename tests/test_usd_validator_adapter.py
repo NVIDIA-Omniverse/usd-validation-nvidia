@@ -19,12 +19,6 @@ class _MissingReferenceValidator(UsdValidatorAdapter):
     def validator_name(cls) -> str:
         return "usdUtilsValidators:MissingReferenceValidator"
 
-
-class _FallbackPrimValidator(UsdValidatorAdapter):
-    @classmethod
-    def validator_name(cls) -> str:
-        return "test:FallbackPrimValidator"
-
     def _CheckPrim(self, prim):
         self.checked_prim = prim
 
@@ -83,9 +77,9 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_check_prim_uses_fallback_when_native_validator_is_unavailable(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
-        checker = _FallbackPrimValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
-        with mock.patch.object(_FallbackPrimValidator, "is_implemented", return_value=False):
+        with mock.patch.object(_MissingReferenceValidator, "is_implemented", return_value=False):
             checker.CheckPrim(prim)
 
         self.assertEqual(checker.checked_prim, prim)
