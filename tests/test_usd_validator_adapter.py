@@ -3,7 +3,7 @@
 #
 import re
 import unittest
-from unittest import mock
+from unittest.mock import Mock, patch
 
 from common import AsyncioValidationTestCase, get_url
 from pxr import Usd
@@ -73,7 +73,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         prim = stage.DefinePrim("/Prim")
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
-        with mock.patch.object(_MissingReferenceValidator, "is_implemented", return_value=False):
+        with patch.object(_MissingReferenceValidator, "is_implemented", return_value=False):
             checker.CheckPrim(prim)
 
         self.assertEqual(checker.checked_prim, prim)
@@ -84,8 +84,8 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
         with (
-            mock.patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
-            mock.patch.object(_MissingReferenceValidator, "_CheckPrim", UsdValidatorAdapter._CheckPrim),
+            patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
+            patch.object(_MissingReferenceValidator, "_CheckPrim", UsdValidatorAdapter._CheckPrim),
             self.assertRaisesRegex(ValueError, "not implemented"),
         ):
             checker.CheckPrim(prim)
@@ -94,14 +94,14 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        site = mock.Mock()
+        site = Mock()
         site.GetPrim.return_value = prim
         site.GetProperty.return_value = None
         site.GetPrimSpec.return_value = None
         site.GetPropertySpec.return_value = None
         site.GetLayer.return_value = None
         site.GetStage.return_value = None
-        error = mock.Mock()
+        error = Mock()
         error.GetMessage.return_value = "message"
         error.GetSites.return_value = [site]
 
@@ -113,7 +113,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
 
     def test_transform_no_sites_ok(self):
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
-        error = mock.Mock()
+        error = Mock()
         error.GetMessage.return_value = "message"
         error.GetSites.return_value = []
 
