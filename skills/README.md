@@ -4,8 +4,9 @@ This directory contains structured skill files for AI coding agents working on t
 Each skill is a self-contained reference for a specific validation task, with code snippets from live examples and
 tests where possible.
 
-For agents that do not automatically discover repo skills, such as Claude in some setups, prompt the agent to read
-`AGENTS.md` and this `skills/README.md` first, then the specific `skills/*/SKILLS.md` file that matches the task.
+For agents that do not automatically discover `skills/`, such as Claude in some setups or Codex CLI when skills are not
+auto-discovered, prompt the agent to read `AGENTS.md` and this `skills/README.md` first, then the specific
+`skills/*/SKILLS.md` file that matches the task.
 
 ## Structure
 
