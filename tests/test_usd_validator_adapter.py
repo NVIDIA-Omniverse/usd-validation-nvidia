@@ -68,7 +68,7 @@ class UsdValidatorAdapterTest(AsyncioValidationTestCase):
 
 
 class UsdValidatorAdapterHelperTest(unittest.TestCase):
-    def test_check_prim_uses_fallback_when_native_validator_is_unavailable(self):
+    def test_check_prim_fallback_ok(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
@@ -78,7 +78,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
 
         self.assertEqual(checker.checked_prim, prim)
 
-    def test_check_prim_raises_when_no_native_validator_or_fallback_exists(self):
+    def test_check_prim_no_fallback_nok(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
