@@ -12,13 +12,15 @@ from tempfile import TemporaryDirectory
 from typing import Any
 
 from common import AsyncioValidationTestCase, get_url, is_package_installed
-from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
+from pxr import Gf, Sdf, Sdr, Usd, UsdGeom, UsdShade
 
 import usd_validation_nvidia.capabilities as cap
+import usd_validation_nvidia._material_checker as material_checker
 from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
     IssuePredicates,
+    MaterialOldMdlSchemaChecker,
     MaterialOutOfScopeChecker,
     MaterialPathChecker,
     MaterialUsdPreviewSurfaceChecker,
@@ -30,6 +32,7 @@ from usd_validation_nvidia import (
     register_requirements,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAWarning
+from usd_validation_nvidia._material_checker import _InputValue as SourceInputValue
 
 
 class MaterialOutOfScopeCheckerTest(AsyncioValidationTestCase):
@@ -315,6 +318,179 @@ class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
                 ),
             ],
         )
+
+
+class _FakeSdrProperty:
+    def __init__(self, *, default_value=None, connectable=True, options=None):
+        self._default_value = default_value
+        self._connectable = connectable
+        self._options = options or []
+
+    def GetDefaultValue(self):
+        return self._default_value
+
+    def GetOptions(self):
+        return self._options
+
+    def IsConnectable(self):
+        return self._connectable
+
+
+class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
+    def setUp(self):
+        self.checker = MaterialUsdPreviewSurfaceChecker(
+            verbose=True,
+            consumerLevelChecks=True,
+            assetLevelChecks=True,
+        )
+
+    def test_input_value_captures_static_and_time_sampled_values(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
+        shade_input.Set(0.25)
+        shade_input.GetAttr().Set(0.5, 1.0)
+
+        input_value = SourceInputValue.create_from_input(shade_input)
+
+        self.assertEqual(input_value.value, 0.25)
+        self.assertEqual(input_value.time_samples, [(1.0, 0.5)])
+
+    def test_write_usd_shade_input_value_updates_static_and_time_sampled_values(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Float)
+        shade_input.Set(0.25)
+        shade_input.GetAttr().Set(0.5, 1.0)
+
+        MaterialUsdPreviewSurfaceChecker.write_usd_shade_input_value(
+            shade_input,
+            SourceInputValue(value=0.75, time_samples=[(1.0, 0.1), (2.0, 0.2)]),
+        )
+
+        self.assertEqual(shade_input.GetAttr().Get(), 0.75)
+        self.assertAlmostEqual(shade_input.GetAttr().Get(1.0), 0.1)
+        self.assertAlmostEqual(shade_input.GetAttr().Get(2.0), 0.2)
+
+    def test_convert_color3f_to_float_updates_values_and_rgb_connections(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        texture = UsdShade.Shader.Define(stage, "/Texture")
+        texture.CreateOutput("rgb", Sdf.ValueTypeNames.Float3)
+        shade_input = shader.CreateInput("metallic", Sdf.ValueTypeNames.Color3f)
+        shade_input.ConnectToSource(texture.ConnectableAPI(), "rgb")
+        connections = list(shade_input.GetConnectedSources())
+
+        input_value = SourceInputValue(
+            value=Gf.Vec3f(0.1, 0.2, 0.3),
+            time_samples=[(1.0, Gf.Vec3f(0.4, 0.5, 0.6))],
+        )
+
+        converted_value, converted_connections = MaterialUsdPreviewSurfaceChecker.convert_color3f_to_float(
+            input_value,
+            connections,
+        )
+
+        self.assertAlmostEqual(converted_value.value, 0.1)
+        self.assertEqual(converted_value.time_samples[0][0], 1.0)
+        self.assertAlmostEqual(converted_value.time_samples[0][1], 0.4)
+        self.assertEqual(converted_connections[0][0].sourceName, "r")
+        self.assertEqual(converted_connections[0][0].typeName, Sdf.ValueTypeNames.Float)
+
+    def test_validation_helpers_report_metadata_connectability_value_and_connection_failures(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        token_input = shader.CreateInput("sourceColorSpace", Sdf.ValueTypeNames.Token)
+        token_input.Set("bad")
+        token_input.GetAttr().SetMetadata("allowedTokens", ["bad"])
+        token_input.SetConnectability(UsdShade.Tokens.interfaceOnly)
+        source = UsdShade.Shader.Define(stage, "/Source")
+        source.CreateOutput("out", Sdf.ValueTypeNames.Float)
+        token_input.ConnectToSource(source.ConnectableAPI(), "out")
+
+        with unittest.mock.patch.object(
+            material_checker,
+            "get_sdf_type_for_shader_property",
+            return_value=Sdf.ValueTypeNames.Token,
+        ):
+            property_with_options = _FakeSdrProperty(connectable=True, options=[("raw", ""), ("sRGB", "")])
+            non_connectable_property = _FakeSdrProperty(connectable=False)
+            input_value = SourceInputValue.create_from_input(token_input)
+
+            self.assertIsNotNone(
+                self.checker._validate_usd_shade_input_metadata(token_input, property_with_options)
+            )
+            self.assertIsNotNone(
+                self.checker._validate_usd_shade_input_connectability(token_input, property_with_options)
+            )
+            self.assertIsNotNone(
+                self.checker._validate_usd_shade_input_value(token_input, input_value, non_connectable_property)
+            )
+            self.assertIsNotNone(
+                self.checker._validate_usd_shade_input_connections(token_input, non_connectable_property)
+            )
+            self.assertIsNotNone(self.checker._validate_usd_shade_input_invalid_connection(token_input))
+
+    def test_update_usd_shade_input_restores_default_type(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Color3f)
+
+        with unittest.mock.patch.object(
+            material_checker,
+            "get_sdf_type_for_shader_property",
+            return_value=Sdf.ValueTypeNames.Float,
+        ):
+            self.checker.update_usd_shade_input(
+                shade_input,
+                _FakeSdrProperty(default_value=0.5, connectable=True),
+            )
+
+        self.assertEqual(shade_input.GetTypeName(), Sdf.ValueTypeNames.Float)
+
+
+class MaterialOldMdlSchemaCheckerTest(unittest.TestCase):
+    def setUp(self):
+        self.checker = MaterialOldMdlSchemaChecker(
+            verbose=True,
+            consumerLevelChecks=True,
+            assetLevelChecks=True,
+        )
+
+    def test_update_deprecated_mdl_schema_warns_for_non_shader(self):
+        stage = Usd.Stage.CreateInMemory()
+        xform = UsdGeom.Xform.Define(stage, "/Xform")
+
+        with unittest.mock.patch.object(self.checker, "_AddWarning") as add_warning:
+            self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, xform.GetPrim()))
+            add_warning.assert_called_once()
+
+    def test_update_deprecated_mdl_schema_warns_for_missing_data(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+
+        with unittest.mock.patch.object(self.checker, "_AddWarning") as add_warning:
+            self.assertFalse(self.checker.update_deprecated_mdl_schema(stage, shader.GetPrim()))
+            add_warning.assert_called_once()
+
+    def test_update_deprecated_mdl_schema_writes_mdl_source_asset(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
+        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
+
+        self.assertTrue(self.checker.update_deprecated_mdl_schema(stage, shader.GetPrim()))
+        self.assertEqual(shader.GetSourceAsset("mdl").path, "module.mdl")
+        self.assertEqual(shader.GetSourceAssetSubIdentifier("mdl"), "Material")
+
+    def test_check_prim_adds_fix_for_old_mdl_schema(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetImplementationSourceAttr().Set("mdlMaterial")
+
+        with unittest.mock.patch.object(self.checker, "_AddFailedCheck") as add_failed:
+            self.checker.CheckPrim(shader.GetPrim())
+            add_failed.assert_called_once()
 
 
 @dataclass

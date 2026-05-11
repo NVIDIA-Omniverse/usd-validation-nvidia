@@ -4,12 +4,16 @@
 import random
 import unittest
 
-from pxr import Gf
+from pxr import Gf, Sdf, Usd, UsdGeom
 
 from usd_validation_nvidia import (
     RepeatedValuesSet,
+    has_invalid_primvar_indices,
+    has_unreferenced_primvar,
+    has_weldable_points,
     remove_unused_values_and_remap_indices,
 )
+from usd_validation_nvidia._mesh_tools import vector_area
 
 
 class MeshToolsTest(unittest.TestCase):
@@ -59,6 +63,44 @@ class MeshToolsTest(unittest.TestCase):
         result = repetitions_numbers & repetitions_words
         self.assertTrue(result)
         self.assertEqual(2, len(result))
+
+    def test_vector_area(self):
+        area = vector_area(
+            [
+                Gf.Vec3f(0.0, 0.0, 0.0),
+                Gf.Vec3f(1.0, 0.0, 0.0),
+                Gf.Vec3f(0.0, 1.0, 0.0),
+            ]
+        )
+        self.assertEqual(area, Gf.Vec3f(0.0, 0.0, 0.5))
+
+    def test_has_weldable_points(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/Mesh")
+        mesh.GetPointsAttr().Set([Gf.Vec3f(0.0), Gf.Vec3f(1.0, 0.0, 0.0)])
+        self.assertFalse(has_weldable_points(mesh))
+
+        mesh.GetPointsAttr().Set([Gf.Vec3f(0.0), Gf.Vec3f(0.0)])
+        self.assertTrue(has_weldable_points(mesh))
+
+        mesh.GetVelocitiesAttr().Set([Gf.Vec3f(0.0)])
+        with self.assertRaises(ValueError):
+            has_weldable_points(mesh)
+
+    def test_index_helpers(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/Mesh")
+        primvar = UsdGeom.PrimvarsAPI(mesh).CreatePrimvar("values", Sdf.ValueTypeNames.FloatArray)
+        self.assertFalse(has_unreferenced_primvar(primvar))
+        self.assertFalse(has_invalid_primvar_indices(primvar))
+
+        primvar.Set([1.0, 2.0, 3.0])
+        primvar.SetIndices([0, 2])
+        self.assertTrue(has_unreferenced_primvar(primvar))
+        self.assertFalse(has_invalid_primvar_indices(primvar))
+
+        primvar.SetIndices([0, 3])
+        self.assertTrue(has_invalid_primvar_indices(primvar))
 
     def test_remove_used_values_and_indices(self):
         vec_values = []
