@@ -450,8 +450,7 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
         return transformed, type_name, input_value, connections
 
 
-@unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
-class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
+class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
     def test_input_value_captures_static_and_time_sampled_values(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
@@ -564,6 +563,9 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
 
         self.assertEqual(shade_input.GetTypeName(), Sdf.ValueTypeNames.Float)
 
+
+@unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
+class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
     async def test_api(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/usdPreviewSurfaceFail.usda"),
