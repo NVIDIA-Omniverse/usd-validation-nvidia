@@ -90,7 +90,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         ):
             checker.CheckPrim(prim)
 
-    def test_transform_uses_validator_error_sites(self):
+    def test_transform_sites_ok(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
@@ -111,7 +111,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         self.assertEqual(issues[0].message, "message")
         self.assertEqual(issues[0].at, PrimId.from_(prim))
 
-    def test_transform_returns_site_less_issue_when_error_has_no_sites(self):
+    def test_transform_no_sites_ok(self):
         checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         error = mock.Mock()
         error.GetMessage.return_value = "message"
