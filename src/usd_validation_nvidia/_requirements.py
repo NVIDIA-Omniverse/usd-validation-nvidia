@@ -109,7 +109,11 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
 
     def _remove_validator_requirements(self, rule: type[BaseRuleChecker]) -> None:
         with self.event_stream:
-            for requirement in self.get_requirements(rule):
+            # Iterate the rule's actual registrations (snapshot copy because we mutate
+            # during iteration). ``get_requirements`` only returns primary registrations,
+            # so using it here would leak non-primary entries when the rule had been
+            # overridden by another rule on the same requirement (OMPE-64259).
+            for requirement in list(self._rule_to_req[rule]):
                 key = self.create_key(requirement)
                 self._req_to_rule[key].remove(rule)
                 self._rule_to_req[rule].remove(requirement)
@@ -184,6 +188,10 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
 
     def is_registered(self, rule: type[BaseRuleChecker], requirement: Requirement) -> bool:
         """
+        Returns True if the rule is registered to the requirement, regardless of
+        whether it is the primary (last-registered) validator. Use
+        :py:meth:`get_validator` to check primary status.
+
         Args:
             rule: A rule.
             requirement: A requirement.
@@ -191,7 +199,8 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
         Returns:
             True if the rule is registered to the requirement.
         """
-        return self.get_validator(requirement) == rule
+        key = self.create_key(requirement)
+        return rule in self._req_to_rule[key]
 
     def find_requirement(self, code: str, version: str | None = None) -> Requirement | None:
         """

@@ -42,7 +42,8 @@ _SCHEMA_MIN_USD_VERSION = (0, 25, 11)
 
 def _tf_schema_registered(type_name: str) -> bool:
     t = Tf.Type.FindByName(type_name)
-    return bool(t) and not t.IsUnknown()
+    is_unknown = t.IsUnknown() if hasattr(t, "IsUnknown") else t.isUnknown
+    return bool(t) and not is_unknown
 
 
 def _particle_field_gaussian_splat_schema_available() -> bool:

@@ -30,9 +30,6 @@
   <dependency name="repo_nv" linkPath="../_repo/deps/repo_nv">
     <package name="repo_nv" version="0.2.8"/>
   </dependency>
-  <dependency name="repo_usd_profiles" linkPath="../_repo/deps/repo_usd_profiles">
-    <package name="repo_usd_profiles" version="1.11.2" />
-  </dependency>
   <dependency name="repo_package" linkPath="../_repo/deps/repo_package">
     <package name="repo_package" version="6.1.1" />
   </dependency>

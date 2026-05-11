@@ -3,10 +3,12 @@
 #
 import re
 import unittest
+from unittest.mock import Mock, patch
 
 from common import AsyncioValidationTestCase, get_url
+from pxr import Usd
 
-from usd_validation_nvidia import UsdValidatorAdapter
+from usd_validation_nvidia import PrimId, UsdValidatorAdapter
 from usd_validation_nvidia.tests import IsAFailure
 
 
@@ -60,3 +62,63 @@ class UsdValidatorAdapterTest(AsyncioValidationTestCase):
                 ),
             ],
         )
+
+
+class UsdValidatorAdapterHelperTest(unittest.TestCase):
+    def test_check_prim_fallback_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        prim = stage.DefinePrim("/Prim")
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+
+        with (
+            patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
+            patch.object(_MissingReferenceValidator, "_CheckPrim") as check_prim,
+        ):
+            checker.CheckPrim(prim)
+
+        check_prim.assert_called_once_with(prim)
+
+    def test_check_prim_no_fallback_nok(self):
+        stage = Usd.Stage.CreateInMemory()
+        prim = stage.DefinePrim("/Prim")
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+
+        with (
+            patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
+            patch.object(_MissingReferenceValidator, "_CheckPrim", UsdValidatorAdapter._CheckPrim),
+            self.assertRaisesRegex(ValueError, "not implemented"),
+        ):
+            checker.CheckPrim(prim)
+
+    def test_transform_sites_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        prim = stage.DefinePrim("/Prim")
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        site = Mock()
+        site.GetPrim.return_value = prim
+        site.GetProperty.return_value = None
+        site.GetPrimSpec.return_value = None
+        site.GetPropertySpec.return_value = None
+        site.GetLayer.return_value = None
+        site.GetStage.return_value = None
+        error = Mock()
+        error.GetMessage.return_value = "message"
+        error.GetSites.return_value = [site]
+
+        issues = checker._transform(error)
+
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0].message, "message")
+        self.assertEqual(issues[0].at, PrimId.from_(prim))
+
+    def test_transform_no_sites_ok(self):
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        error = Mock()
+        error.GetMessage.return_value = "message"
+        error.GetSites.return_value = []
+
+        issues = checker._transform(error)
+
+        self.assertEqual(len(issues), 1)
+        self.assertEqual(issues[0].message, "message")
+        self.assertIsNone(issues[0].at)

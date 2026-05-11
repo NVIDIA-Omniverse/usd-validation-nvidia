@@ -35,6 +35,22 @@ pip install usd-validation-nvidia[numpy]
 pip install usd-validation-nvidia[usd,numpy]
 ```
 
+## Build from Source
+
+Generate the capabilities package with `usd-profiles-nvidia`, then build the wheel:
+
+```bash
+uv run \
+  --no-project \
+  --with usd-profiles-nvidia==1.14.1 \
+  python -m usd_profiles_nvidia.codegen \
+    --docs-root specs \
+    --destination-dir src \
+    --package-name usd_validation_nvidia.capabilities
+
+uv build -o dist
+```
+
 ## Basic usage
 
 ```python

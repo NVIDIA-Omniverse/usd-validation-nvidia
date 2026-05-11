@@ -3,9 +3,11 @@
 #
 import os
 import pathlib
+import re
 import shutil
 import typing
 import unittest
+import unittest.mock
 from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -18,6 +20,7 @@ from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
     IssuePredicates,
+    MaterialOldMdlSchemaChecker,
     MaterialOutOfScopeChecker,
     MaterialPathChecker,
     MaterialUsdPreviewSurfaceChecker,
@@ -316,6 +319,45 @@ class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
         )
 
 
+class MaterialOldMdlSchemaCheckerTest(AsyncioValidationTestCase):
+    async def test_success_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        UsdGeom.Xform.Define(stage, "/Xform")
+
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.SetSourceAsset(Sdf.AssetPath("module.mdl"), "mdl")
+        shader.SetSourceAssetSubIdentifier("Material", "mdl")
+
+        await self.assertSuccessAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
+
+    async def test_failure_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetImplementationSourceAttr().Set("mdlMaterial")
+        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
+        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
+
+        await self.assertRuleAsync(
+            asset=stage,
+            rule=MaterialOldMdlSchemaChecker,
+            asserts=[
+                IsAFailure(
+                    re.compile("The shader is using the deprecated MDL schema.*"),
+                    at=Sdf.Path("/Shader"),
+                ),
+            ],
+        )
+
+    async def test_fix_ok(self):
+        stage = Usd.Stage.CreateInMemory()
+        shader = UsdShade.Shader.Define(stage, "/Shader")
+        shader.GetImplementationSourceAttr().Set("mdlMaterial")
+        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
+        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
+
+        await self.assertSuggestionAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
+
+
 @dataclass
 class _InputValue:
     """Stores value of the underlying Usd.Attribute for a UsdShade.Input object.
@@ -386,7 +428,10 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
         return transformed, type_name, input_value, connections
 
 
-@unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
+@unittest.skipIf(
+    is_package_installed("usd-core") and Usd.GetVersion() < (0, 26, 3),
+    "Tests require usd-core with shader definitions, available in 26.03+",
+)
 class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
     async def test_api(self):
         await self.assertRuleAsync(
@@ -438,6 +483,33 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
             rule=MaterialUsdPreviewSurfaceChecker,
             asserts=[],
         )
+
+    async def test_warns_when_shader_defs_missing(self):
+        # Simulate a runtime where ``shaderDefs.usda`` is unavailable: the Sdr Registry
+        # returns no ``Usd*`` shader nodes, so the checker has no shaders to validate
+        # against and would otherwise silently pass.
+        original = list(MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders)
+        MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.clear()
+        # The checker uses ``GetShaderNodeNames`` on USD 25.08+ and ``GetNodeNames`` before
+        # that; patch whichever this runtime exposes so the cache stays empty.
+        registry_method = (
+            "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
+        )
+        try:
+            with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
+                await self.assertRuleAsync(
+                    asset=get_url("Materials/usdPreviewSurfacePass.usda"),
+                    rule=MaterialUsdPreviewSurfaceChecker,
+                    asserts=[
+                        IsAWarning(
+                            "No UsdPreviewSurface shader definitions are registered with the Sdr Registry, "
+                            "so this rule cannot validate any shaders. This typically means the "
+                            "'shaderDefs.usda' shader resource is unavailable in the current USD runtime.",
+                        ),
+                    ],
+                )
+        finally:
+            MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = original
 
     async def test_autofix_suggestions(self):
         await self.assertSuggestionAsync(
