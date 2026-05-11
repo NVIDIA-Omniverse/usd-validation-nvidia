@@ -23,12 +23,6 @@ class _MissingReferenceValidator(UsdValidatorAdapter):
         self.checked_prim = prim
 
 
-class _NoFallbackValidator(UsdValidatorAdapter):
-    @classmethod
-    def validator_name(cls) -> str:
-        return "test:NoFallbackValidator"
-
-
 @unittest.skipIf(_MissingReferenceValidator.is_implemented(), "Tests disabled because validator is implemented")
 class UsdValidatorAdapterCompatibilityTest(AsyncioValidationTestCase):
     async def test_description_ok(self):
@@ -87,10 +81,11 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_check_prim_raises_when_no_native_validator_or_fallback_exists(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
-        checker = _NoFallbackValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
 
         with (
-            mock.patch.object(_NoFallbackValidator, "is_implemented", return_value=False),
+            mock.patch.object(_MissingReferenceValidator, "is_implemented", return_value=False),
+            mock.patch.object(_MissingReferenceValidator, "_CheckPrim", UsdValidatorAdapter._CheckPrim),
             self.assertRaisesRegex(ValueError, "not implemented"),
         ):
             checker.CheckPrim(prim)
@@ -98,7 +93,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_transform_uses_validator_error_sites(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
-        checker = _NoFallbackValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         site = mock.Mock()
         site.GetPrim.return_value = prim
         site.GetProperty.return_value = None
@@ -117,7 +112,7 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         self.assertEqual(issues[0].at, PrimId.from_(prim))
 
     def test_transform_returns_site_less_issue_when_error_has_no_sites(self):
-        checker = _NoFallbackValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
+        checker = _MissingReferenceValidator(verbose=True, consumerLevelChecks=True, assetLevelChecks=True)
         error = mock.Mock()
         error.GetMessage.return_value = "message"
         error.GetSites.return_value = []
