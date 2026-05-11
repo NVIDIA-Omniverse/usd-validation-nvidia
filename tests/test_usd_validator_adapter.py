@@ -79,7 +79,7 @@ class UsdValidatorAdapterTest(AsyncioValidationTestCase):
         )
 
 
-class UsdValidatorAdapterFallbackTest(unittest.TestCase):
+class UsdValidatorAdapterHelperTest(unittest.TestCase):
     def test_check_prim_uses_fallback_when_native_validator_is_unavailable(self):
         stage = Usd.Stage.CreateInMemory()
         prim = stage.DefinePrim("/Prim")
