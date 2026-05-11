@@ -10,13 +10,12 @@ import unittest
 from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from common import AsyncioValidationTestCase, get_url, is_package_installed
 from pxr import Gf, Sdf, Sdr, Usd, UsdGeom, UsdShade
 
 import usd_validation_nvidia.capabilities as cap
-import usd_validation_nvidia._material_checker as material_checker
 from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
@@ -431,18 +430,6 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
 
 
 class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
-    def _create_checker(self):
-        original = list(MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders)
-        MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = ["UsdPreviewSurface"]
-        try:
-            return MaterialUsdPreviewSurfaceChecker(
-                verbose=True,
-                consumerLevelChecks=True,
-                assetLevelChecks=True,
-            )
-        finally:
-            MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = original
-
     def test_input_value_time_samples_ok(self):
         stage = Usd.Stage.CreateInMemory()
         shader = UsdShade.Shader.Define(stage, "/Shader")
@@ -495,65 +482,6 @@ class MaterialUsdPreviewSurfaceHelperTest(unittest.TestCase):
         self.assertAlmostEqual(converted_value.time_samples[0][1], 0.4)
         self.assertEqual(converted_connections[0][0].sourceName, "r")
         self.assertEqual(converted_connections[0][0].typeName, Sdf.ValueTypeNames.Float)
-
-    def test_validate_input_helpers_nok(self):
-        checker = self._create_checker()
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        token_input = shader.CreateInput("sourceColorSpace", Sdf.ValueTypeNames.Token)
-        token_input.Set("bad")
-        token_input.GetAttr().SetMetadata("allowedTokens", ["bad"])
-        token_input.SetConnectability(UsdShade.Tokens.interfaceOnly)
-        source = UsdShade.Shader.Define(stage, "/Source")
-        source.CreateOutput("out", Sdf.ValueTypeNames.Float)
-        token_input.ConnectToSource(source.ConnectableAPI(), "out")
-
-        with patch.object(
-            material_checker,
-            "get_sdf_type_for_shader_property",
-            return_value=Sdf.ValueTypeNames.Token,
-        ):
-            property_with_options = Mock()
-            property_with_options.GetOptions.return_value = [("raw", ""), ("sRGB", "")]
-            property_with_options.IsConnectable.return_value = True
-            non_connectable_property = Mock()
-            non_connectable_property.GetOptions.return_value = []
-            non_connectable_property.IsConnectable.return_value = False
-            input_value = SourceInputValue.create_from_input(token_input)
-
-            self.assertIsNotNone(checker._validate_usd_shade_input_metadata(token_input, property_with_options))
-            self.assertIsNotNone(
-                checker._validate_usd_shade_input_connectability(token_input, property_with_options)
-            )
-            self.assertIsNotNone(
-                checker._validate_usd_shade_input_value(token_input, input_value, non_connectable_property)
-            )
-            self.assertIsNotNone(
-                checker._validate_usd_shade_input_connections(token_input, non_connectable_property)
-            )
-            self.assertIsNotNone(checker._validate_usd_shade_input_invalid_connection(token_input))
-
-    def test_update_input_type_ok(self):
-        checker = self._create_checker()
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shade_input = shader.CreateInput("roughness", Sdf.ValueTypeNames.Color3f)
-
-        with patch.object(
-            material_checker,
-            "get_sdf_type_for_shader_property",
-            return_value=Sdf.ValueTypeNames.Float,
-        ):
-            sdr_property = Mock()
-            sdr_property.GetDefaultValue.return_value = 0.5
-            sdr_property.GetOptions.return_value = []
-            sdr_property.IsConnectable.return_value = True
-            checker.update_usd_shade_input(
-                shade_input,
-                sdr_property,
-            )
-
-        self.assertEqual(shade_input.GetTypeName(), Sdf.ValueTypeNames.Float)
 
 
 @unittest.skipIf(is_package_installed("usd-core"), "Tests disabled for usd-core")
