@@ -1,3 +1,6 @@
+<!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # AGENTS.md - AI Agent Guide for USD Validation NVIDIA
 
 This file gives AI coding agents the minimum context needed to work effectively with this repository. Use it as a
