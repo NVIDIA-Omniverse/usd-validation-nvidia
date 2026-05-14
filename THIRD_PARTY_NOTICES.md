@@ -2,7 +2,7 @@
 
 ## Apache 2.0 License
 
-The USD Validation NVIDIA python module is provided under the [Apache License, Version 2.0](../LICENSE).
+The USD Validation NVIDIA python module is provided under the [Apache License, Version 2.0](LICENSE).
 
 ## Runtime License Notices
 
@@ -25,7 +25,7 @@ therefore link to the upstream projects directly.
 
 ### USD Validation NVIDIA License
 
-- [Apache License, Version 2.0](../LICENSE)
+- [Apache License, Version 2.0](LICENSE)
 
 ### OpenUSD / usd-core License
 

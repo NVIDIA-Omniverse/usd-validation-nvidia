@@ -1,7 +1,7 @@
 include:
   - project: 'omniverse/devplat/gitlab/templates/runners'
     file: 'modules/include.yml'
-    ref: v2_latest
+    ref: v3_latest
   - project: 'omniverse/sectools/vault'
     file:
       - 'templates/v3/linux/packman_s3.gitlab-ci.yml'
