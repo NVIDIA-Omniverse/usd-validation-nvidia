@@ -200,7 +200,7 @@ build-pip:
 
 osec:sonarqube:
   variables:
-    SONAR_EXCLUSIONS: "_build/**,_repo/**,tools/**"
+    SONAR_EXCLUSIONS: "_build/**,_repo/**,tools/**,tests/**"
 
 test-pip:
   stage: test
