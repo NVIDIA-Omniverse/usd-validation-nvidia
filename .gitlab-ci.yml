@@ -1,4 +1,7 @@
 include:
+  - project: 'omniverse/devplat/gitlab/templates/common/compliance'
+    file: 'modules/omniverse-repo-compliance.gitlab-ci.yml'
+    ref: v1_latest
   - project: 'omniverse/devplat/gitlab/templates/runners'
     file: 'modules/include.yml'
     ref: v3_latest
@@ -12,6 +15,9 @@ include:
 
 variables:
   MIRROR_REPO_ID: "usd-validation-nvidia"
+  OSEC_CHECKMARX_ENABLED: false
+  OSEC_SONARQUBE_ENABLED: true
+  SONARQUBE_PROJECT_KEY: "SimTech_Omniverse_Omniverse_omniverse-usd-rels-usd-validation-nvidia"
 
 .default-rules:
   rules:
@@ -58,7 +64,6 @@ stages:
     paths:
       - _repo/repo.log
       - _repo/repolog*.txt
-
 
 # ==============================================================================================================
 # Pre-build Checks
@@ -192,6 +197,10 @@ build-pip:
 # ==============================================================================================================
 # Test Jobs
 # ==============================================================================================================
+
+osec:sonarqube:
+  variables:
+    SONAR_EXCLUSIONS: "_build/**,_repo/**,tools/**"
 
 test-pip:
   stage: test
