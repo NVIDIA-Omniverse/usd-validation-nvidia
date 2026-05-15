@@ -52,7 +52,7 @@ python -m pip install omniverse-usd-profiles
 python -m pip install usd-profiles-nvidia
 ```
 
-## Setup with pip
+## Verify venv activation
 
 Use `pip` inside the activated virtual environment for every dependency and install step. Avoid mixing packages from a
 different Python environment with the local `.venv`.
