@@ -284,11 +284,7 @@ test-skills-nvbase:
   stage: test
   extends:
     - .ipp_lnx_x86_64_cpu_medium
-  needs:
-    - job: test-pip
-      artifacts: false
-    - job: test-coverage
-      artifacts: false
+  needs: []
   script:
     - mkdir -p reports/nvbase
     - >
