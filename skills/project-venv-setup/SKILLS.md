@@ -135,14 +135,14 @@ After installation, run the command line validator from the activated virtual en
 
 ```bash
 nvidia_usd_validate --help
-nvidia_usd_validate examples/assets/asset.usda
+nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/asset.usda
 ```
 
 On Windows:
 
 ```powershell
 nvidia_usd_validate --help
-nvidia_usd_validate examples\assets\asset.usda
+nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples\assets\asset.usda
 ```
 
 Use `python -m pip install --force-reinstall "$wheel"` after rebuilding if the virtual environment already has an older
@@ -178,5 +178,7 @@ local wheel installed.
   forced include is missing.
 - Build and test against the wheel in `dist/` rather than the editable source tree when checking CI parity.
 - Reinstall the wheel after rebuilding, otherwise `nvidia_usd_validate` may still run code from the previous build.
+- Use a focused rule such as `DefaultPrimChecker` for CLI smoke tests; running the full default rule set can exercise
+  optional OpenUSD shader resources that are environment-dependent.
 - Confirm the command is coming from `.venv` with `python -c "import sys; print(sys.executable)"` when command discovery
   or dependency versions look wrong.
