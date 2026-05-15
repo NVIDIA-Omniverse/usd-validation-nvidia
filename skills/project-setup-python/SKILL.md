@@ -143,8 +143,8 @@ uv run `
     --namespace usd_validation_nvidia.capabilities
 uv run `
   --with . `
-  --with examples\python\minimal `
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples\assets\asset.usda
+  --with examples/python/minimal `
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
 ```
 
 Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
