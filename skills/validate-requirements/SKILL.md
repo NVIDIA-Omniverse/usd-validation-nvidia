@@ -15,7 +15,7 @@ metadata:
 
 # Validate Requirements
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` extensions are Python plugin packages discovered through entry points.
 This skill shows the smallest useful plugin that registers one rule backed by one requirement.

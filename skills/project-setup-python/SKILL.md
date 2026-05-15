@@ -15,7 +15,7 @@ metadata:
 
 # Project Setup and First Validation (Python)
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin
 project and run its first validation command.
