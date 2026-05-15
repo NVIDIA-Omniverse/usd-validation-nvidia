@@ -4,16 +4,16 @@ This directory contains structured skill files for AI coding agents working on t
 Each skill is a self-contained reference for a specific validation task, with code snippets from live examples and
 tests where possible.
 
-For agents that do not automatically discover `skills/`, such as Claude in some setups or Codex CLI when skills are not
-auto-discovered, prompt the agent to read `AGENTS.md` and this `skills/README.md` first, then the specific
-`skills/*/SKILL.md` file that matches the task.
+For agents that do not automatically discover `.agents/skills/`, such as Claude in some setups or Codex CLI when skills
+are not auto-discovered, prompt the agent to read `AGENTS.md` and this `.agents/skills/README.md` first, then the
+specific `.agents/skills/*/SKILL.md` file that matches the task.
 
 ## Structure
 
 Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 
 ```text
-skills/
+.agents/skills/
   project-setup-python/SKILL.md
   validate-requirements/SKILL.md
 ```
@@ -73,7 +73,7 @@ whole file.
 
 1. Add or identify a focused test or example that demonstrates each code path the skill will reference.
 2. Wrap every illustrative section in `# [snippet:name]` / `# [/snippet:name]` markers.
-3. Create a new directory under `skills/` named after the skill, using kebab-case.
+3. Create a new directory under `.agents/skills/` named after the skill, using kebab-case.
 4. Add a `SKILL.md` file inside it following the format above.
 5. Prefer `> **Source:** ...` blockquotes for API usage so skills stay aligned with executable examples.
 
@@ -86,6 +86,6 @@ affect an existing skill, update the corresponding `SKILL.md` to keep it accurat
 
 - Preserve snippet markers. If you move or restructure marked code, update the markers to stay around the illustrative
   section.
-- Do not remove markers without also removing or updating every `> **Source:**` reference in `skills/`.
+- Do not remove markers without also removing or updating every `> **Source:**` reference in `.agents/skills/`.
 - Add markers to new tests or examples that demonstrate API workflows. If the workflow maps to an existing skill, add a
   reference there. If not, consider creating a new skill.

@@ -293,7 +293,7 @@ test-skills-nvbase:
       --python 3.12
       --index https://urm.nvidia.com/artifactory/api/pypi/nv-shared-pypi/simple
       --with nv-base
-      nv-base validate .
+      nv-base validate .agents/skills
       --no-dedup
       --external
       --type skill
