@@ -295,7 +295,7 @@ test-skills-nvbase:
       ./repo.sh uv -- run
       --no-project
       --python 3.12
-      --default-index https://urm.nvidia.com/artifactory/api/pypi/nv-shared-pypi/simple
+      --index https://urm.nvidia.com/artifactory/api/pypi/nv-shared-pypi/simple
       --with nv-base
       nv-base validate .
       --no-dedup
