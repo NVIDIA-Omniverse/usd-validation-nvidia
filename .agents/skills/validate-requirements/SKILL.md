@@ -1,5 +1,4 @@
 ---
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 name: validate-requirements
 version: "1.19.0"
 license: Apache-2.0
@@ -11,6 +10,9 @@ metadata:
     - requirements
     - codegen
 ---
+
+<!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Validate Requirements
 
