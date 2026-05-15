@@ -52,16 +52,6 @@ python -m pip install omniverse-usd-profiles
 python -m pip install usd-profiles-nvidia
 ```
 
-## Verify venv activation
-
-Use `pip` inside the activated virtual environment for every dependency and install step. Avoid mixing packages from a
-different Python environment with the local `.venv`.
-
-```bash
-python -m pip --version
-python -c "import sys; print(sys.executable)"
-```
-
 ## Build from Source
 
 Generate the capabilities package with the legacy package, then build the wheel:
@@ -180,5 +170,3 @@ local wheel installed.
 - Reinstall the wheel after rebuilding, otherwise `nvidia_usd_validate` may still run code from the previous build.
 - Use a focused rule such as `DefaultPrimChecker` for CLI smoke tests; running the full default rule set can exercise
   optional OpenUSD shader resources that are environment-dependent.
-- Confirm the command is coming from `.venv` with `python -c "import sys; print(sys.executable)"` when command discovery
-  or dependency versions look wrong.
