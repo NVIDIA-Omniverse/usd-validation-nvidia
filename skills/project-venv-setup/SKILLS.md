@@ -98,15 +98,13 @@ python -m usd_profiles_nvidia.codegen `
 python -m build --wheel --outdir dist
 ```
 
-## Run
+## Install Built Wheel
 
-Install the built wheel into the virtual environment with the same OpenUSD and NumPy versions used by the CI smoke test,
-then run the test suite against the installed wheel:
+Install the built wheel into the virtual environment with the same OpenUSD and NumPy versions used by the CI smoke test:
 
 ```bash
 wheel=$(ls -t dist/usd_validation_nvidia-*.whl | head -n 1)
 python -m pip install "$wheel" "usd-core==25.11" "numpy==2.2"
-python -m unittest discover -s tests
 ```
 
 On Windows:
@@ -118,10 +116,26 @@ $wheel = (
   Select-Object -First 1
 ).FullName
 python -m pip install $wheel usd-core==25.11 numpy==2.2
+```
+
+Use `python -m pip install --force-reinstall "$wheel"` after rebuilding if the virtual environment already has an older
+local wheel installed.
+
+## Run
+
+Run the test suite against the installed wheel:
+
+```bash
 python -m unittest discover -s tests
 ```
 
-After installation, run the command line validator from the activated virtual environment:
+On Windows:
+
+```powershell
+python -m unittest discover -s tests
+```
+
+Run the command line validator from the activated virtual environment:
 
 ```bash
 nvidia_usd_validate --help
@@ -134,9 +148,6 @@ On Windows:
 nvidia_usd_validate --help
 nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples\assets\asset.usda
 ```
-
-Use `python -m pip install --force-reinstall "$wheel"` after rebuilding if the virtual environment already has an older
-local wheel installed.
 
 ## Key Types / Functions
 
