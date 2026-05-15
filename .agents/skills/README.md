@@ -15,6 +15,7 @@ Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 ```text
 .agents/skills/
   project-setup-python/SKILL.md
+  project-venv-setup/SKILL.md
   validate-requirements/SKILL.md
 ```
 
@@ -23,8 +24,17 @@ Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 ```markdown
 ---
 name: skill-name
-description: What this skill covers. Use when user asks to [trigger phrases].
+version: "1.0.0"
+license: Apache-2.0
+description: "What this skill covers. Use when user asks to [trigger phrases]."
+metadata:
+  author: NVIDIA
+  tags:
+    - example
 ---
+
+<!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Skill Title
 

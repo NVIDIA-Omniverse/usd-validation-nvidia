@@ -243,6 +243,7 @@ uv run `
 When a request maps to a known validation workflow, go directly to the relevant skill in `.agents/skills/`:
 
 - Python setup and first sample validation: `.agents/skills/project-setup-python/SKILL.md`
+- Project venv build, install, and test setup: `.agents/skills/project-venv-setup/SKILL.md`
 - Validate Requirements: `.agents/skills/validate-requirements/SKILL.md`
 
 If multiple skills seem relevant, start with the narrowest skill that matches the user request, then layer in adjacent
