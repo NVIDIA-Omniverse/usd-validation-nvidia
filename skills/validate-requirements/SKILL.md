@@ -3,7 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 name: validate-requirements
-description: Validating generated requirements with NVIDIA USD Validation. Use when authoring a Markdown requirement, generating requirement code with omniverse-usd-profiles or the future usd-profiles-nvidia package, registering a custom rule against that generated requirement, or validating with nvidia_usd_validate --requirement.
+version: "1.0.0"
+description: "Author and validate USD Validation requirements: Markdown specs, codegen, rule mapping, --requirement CLI. Do NOT use for basic plugins."
+metadata:
+  author: NVIDIA
+  tags:
+    - usd-validation
+    - requirements
+    - codegen
 ---
 
 # Validate Requirements
