@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 name: project-venv-setup
-description: Creating a local Python venv for usd-validation-nvidia, generating capabilities, building the project from source, installing the built wheel into the venv, running tests against the wheel, or using the nvidia_usd_validate command from that environment.
+description: Creating a local Python venv for usd-validation-nvidia, generating capabilities with omniverse-usd-profiles or the future usd-profiles-nvidia package, building the project from source, installing the built wheel into the venv, running tests against the wheel, or using the nvidia_usd_validate command from that environment.
 ---
 
 # Project Virtual Environment Setup
@@ -34,7 +34,7 @@ ignored build prerequisite and must not be edited by hand.
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip build
-python -m pip install usd-profiles-nvidia==1.14.1
+python -m pip install omniverse-usd-profiles
 ```
 
 On Windows:
@@ -43,16 +43,13 @@ On Windows:
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip build
-python -m pip install usd-profiles-nvidia==1.14.1
+python -m pip install omniverse-usd-profiles
 ```
 
-If `usd-profiles-nvidia` is not available on the default index in an NVIDIA environment, install it from the same index
-used by CI:
+`usd-profiles-nvidia` is the intended package name once published. When it is available, use:
 
 ```bash
-python -m pip install \
-  --index-url https://urm.nvidia.com/artifactory/api/pypi/ct-omniverse-pypi-local/simple \
-  usd-profiles-nvidia==1.14.1
+python -m pip install usd-profiles-nvidia
 ```
 
 ## Setup with pip
@@ -67,7 +64,29 @@ python -c "import sys; print(sys.executable)"
 
 ## Build from Source
 
-Generate the capabilities package, then build the wheel:
+Generate the capabilities package with the legacy package, then build the wheel:
+
+```bash
+python -m omni.usd_profiles.codegen \
+  --docs-root specs \
+  --destination-dir src \
+  --namespace usd_validation_nvidia.capabilities
+
+python -m build --wheel --outdir dist
+```
+
+On Windows:
+
+```powershell
+python -m omni.usd_profiles.codegen `
+  --docs-root specs `
+  --destination-dir src `
+  --namespace usd_validation_nvidia.capabilities
+
+python -m build --wheel --outdir dist
+```
+
+Future package name:
 
 ```bash
 python -m usd_profiles_nvidia.codegen \
@@ -78,7 +97,7 @@ python -m usd_profiles_nvidia.codegen \
 python -m build --wheel --outdir dist
 ```
 
-On Windows:
+Future package name on Windows:
 
 ```powershell
 python -m usd_profiles_nvidia.codegen `
@@ -132,7 +151,10 @@ local wheel installed.
 ## Key Types / Functions
 
 - `python -m venv .venv`: creates the local virtual environment.
-- `python -m usd_profiles_nvidia.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/`.
+- `python -m omni.usd_profiles.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/` with the legacy
+  package.
+- `python -m usd_profiles_nvidia.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/` with the future
+  package.
 - `python -m build --wheel --outdir dist`: builds the source tree into a wheel.
 - `python -m unittest discover -s tests`: runs the repository test suite.
 - `nvidia_usd_validate`: validates USD assets from the installed package's console script.
@@ -142,7 +164,8 @@ local wheel installed.
 | Package | Purpose |
 |---------|---------|
 | `build` | PEP 517 wheel build frontend for source builds inside the venv |
-| `usd-profiles-nvidia==1.14.1` | Capability, feature, and requirement code generation used by README and CI builds |
+| `omniverse-usd-profiles` | Current capability, feature, and requirement code generation package |
+| `usd-profiles-nvidia` | Intended future codegen package name |
 | `usd-core==25.11` | OpenUSD runtime dependency used by the CI wheel smoke test example |
 | `numpy==2.2` | Optional NumPy dependency used by the CI wheel smoke test example |
 
