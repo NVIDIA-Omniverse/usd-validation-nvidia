@@ -1,9 +1,8 @@
 ---
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
 name: validate-requirements
-version: "1.0.0"
+version: "1.19.0"
+license: Apache-2.0
 description: "Author and validate USD Validation requirements: Markdown specs, codegen, rule mapping, --requirement CLI. Do NOT use for basic plugins."
 metadata:
   author: NVIDIA

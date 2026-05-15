@@ -1,9 +1,8 @@
 ---
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
 name: project-setup-python
-version: "1.0.0"
+version: "1.19.0"
+license: Apache-2.0
 description: "Set up Python NVIDIA USD Validation plugins: entry points, custom rules, uv/pip install, first CLI run. Do NOT use for requirements."
 metadata:
   author: NVIDIA
