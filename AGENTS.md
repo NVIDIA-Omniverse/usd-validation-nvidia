@@ -25,7 +25,7 @@ entry points are discovered.
 - Read `README.md` for package installation and basic CLI/API examples.
 - Read `skills/README.md` to understand the skill format and available task guides.
 - For agents that do not automatically load `skills/`, such as Claude in some setups or Codex CLI when skills are not
-  auto-discovered, explicitly read `AGENTS.md`, `skills/README.md`, and then the relevant `skills/*/SKILLS.md` file
+  auto-discovered, explicitly read `AGENTS.md`, `skills/README.md`, and then the relevant `skills/*/SKILL.md` file
   before following a workflow.
 - Use `nvidia_usd_validate --help` inside the target Python environment to discover the profiles, features,
   capabilities, requirements, categories, and rules actually registered there.
@@ -68,7 +68,7 @@ with `--with .`.
 - `examples/` - runnable examples referenced by skill files
 - `src/usd_validation_nvidia/capabilities/` - generated package from `specs/`; do not edit by hand
 - `tests/` - unit and CLI tests
-- `skills/` - task-oriented agent skills (`*/SKILLS.md`)
+- `skills/` - task-oriented agent skills (`*/SKILL.md`)
 
 ## Common Workflows
 
@@ -242,8 +242,8 @@ uv run `
 
 When a request maps to a known validation workflow, go directly to the relevant skill in `skills/`:
 
-- Python setup and first sample validation: `skills/project-setup-python/SKILLS.md`
-- Validate Requirements: `skills/validate-requirements/SKILLS.md`
+- Python setup and first sample validation: `skills/project-setup-python/SKILL.md`
+- Validate Requirements: `skills/validate-requirements/SKILL.md`
 
 If multiple skills seem relevant, start with the narrowest skill that matches the user request, then layer in adjacent
 skills only when the workflow needs them.

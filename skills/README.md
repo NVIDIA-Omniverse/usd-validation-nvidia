@@ -6,19 +6,19 @@ tests where possible.
 
 For agents that do not automatically discover `skills/`, such as Claude in some setups or Codex CLI when skills are not
 auto-discovered, prompt the agent to read `AGENTS.md` and this `skills/README.md` first, then the specific
-`skills/*/SKILLS.md` file that matches the task.
+`skills/*/SKILL.md` file that matches the task.
 
 ## Structure
 
-Each subdirectory contains a single `SKILLS.md` file with YAML frontmatter:
+Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 
 ```text
 skills/
-  project-setup-python/SKILLS.md
-  validate-requirements/SKILLS.md
+  project-setup-python/SKILL.md
+  validate-requirements/SKILL.md
 ```
 
-## SKILLS.md Format
+## SKILL.md Format
 
 ```markdown
 ---
@@ -57,7 +57,7 @@ class ExampleDefaultPrimChecker(BaseRuleChecker):
 
 Names are kebab-case and unique within each file.
 
-### Reference format in SKILLS.md
+### Reference format in SKILL.md
 
 Replace inline code blocks with a blockquote directive:
 
@@ -74,13 +74,13 @@ whole file.
 1. Add or identify a focused test or example that demonstrates each code path the skill will reference.
 2. Wrap every illustrative section in `# [snippet:name]` / `# [/snippet:name]` markers.
 3. Create a new directory under `skills/` named after the skill, using kebab-case.
-4. Add a `SKILLS.md` file inside it following the format above.
+4. Add a `SKILL.md` file inside it following the format above.
 5. Prefer `> **Source:** ...` blockquotes for API usage so skills stay aligned with executable examples.
 
 ## Updating Skills
 
 When you make changes to package names, CLI flags, output schema, profile behavior, examples, or plugin APIs that
-affect an existing skill, update the corresponding `SKILLS.md` to keep it accurate.
+affect an existing skill, update the corresponding `SKILL.md` to keep it accurate.
 
 ## Modifying Tests or Examples
 
