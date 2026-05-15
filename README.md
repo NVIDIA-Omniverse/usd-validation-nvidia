@@ -101,7 +101,7 @@ nvidia_usd_validate --help
 
 ## AI Coding Agents
 
-The [AGENTS.md](AGENTS.md) file and [skills](skills/) directory contain structured guidance for AI coding
+The [AGENTS.md](AGENTS.md) file and [.agents/skills](.agents/skills/) directory contain structured guidance for AI coding
 agents. Start there for Python project setup and generated requirement validation workflows.
 
 ## Documentation

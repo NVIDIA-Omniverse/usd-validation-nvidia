@@ -1,14 +1,22 @@
 ---
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
 name: validate-requirements
-description: Validating generated requirements with NVIDIA USD Validation. Use when authoring a Markdown requirement, generating requirement code with omniverse-usd-profiles or the future usd-profiles-nvidia package, registering a custom rule against that generated requirement, or validating with nvidia_usd_validate --requirement.
+version: "1.19.0"
+license: Apache-2.0
+description: "Author and validate USD Validation requirements: Markdown specs, codegen, rule mapping, --requirement CLI. Do NOT use for basic plugins."
+metadata:
+  author: NVIDIA
+  tags:
+    - usd-validation
+    - requirements
+    - codegen
 ---
+
+<!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Validate Requirements
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` extensions are Python plugin packages discovered through entry points.
 This skill shows the smallest useful plugin that registers one rule backed by one requirement.
@@ -93,8 +101,8 @@ uv run `
   --no-project `
   --with omniverse-usd-profiles `
   python -m omni.usd_profiles.codegen `
-    --docs-root examples\python\requirement\specs `
-    --destination-dir examples\python\requirement `
+    --docs-root examples/python/requirement/specs `
+    --destination-dir examples/python/requirement `
     --namespace example_requirements
 ```
 
@@ -105,8 +113,8 @@ uv run `
   --no-project `
   --with usd-profiles-nvidia `
   python -m usd_profiles_nvidia.codegen `
-    --docs-root examples\python\requirement\specs `
-    --destination-dir examples\python\requirement `
+    --docs-root examples/python/requirement/specs `
+    --destination-dir examples/python/requirement `
     --package-name example_requirements
 ```
 
@@ -164,8 +172,8 @@ uv run `
     --namespace usd_validation_nvidia.capabilities
 uv run `
   --with . `
-  --with examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset.usda
+  --with examples/python/requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
 ```
 
 To see the requirement-mapped failure on Windows:
@@ -173,8 +181,8 @@ To see the requirement-mapped failure on Windows:
 ```powershell
 uv run `
   --with . `
-  --with examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset-missing-default-prim.usda
+  --with examples/python/requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset-missing-default-prim.usda
 ```
 
 Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.

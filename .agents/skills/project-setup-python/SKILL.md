@@ -1,14 +1,22 @@
 ---
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
 name: project-setup-python
-description: Setting up a Python plugin project that uses NVIDIA USD Validation. Use when creating a new validation project, wiring a usd_validation_nvidia entry point, registering a custom rule, installing the plugin with uv or pip, or running the first validation against a USD asset.
+version: "1.19.0"
+license: Apache-2.0
+description: "Set up Python NVIDIA USD Validation plugins: entry points, custom rules, uv/pip install, first CLI run. Do NOT use for requirements."
+metadata:
+  author: NVIDIA
+  tags:
+    - usd-validation
+    - python
+    - plugin-setup
 ---
+
+<!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Project Setup and First Validation (Python)
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin
 project and run its first validation command.
@@ -136,8 +144,8 @@ uv run `
     --namespace usd_validation_nvidia.capabilities
 uv run `
   --with . `
-  --with examples\python\minimal `
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples\assets\asset.usda
+  --with examples/python/minimal `
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
 ```
 
 Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
