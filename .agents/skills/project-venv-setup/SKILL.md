@@ -1,10 +1,19 @@
 ---
-# SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
 name: project-venv-setup
-description: Creating a local Python venv for usd-validation-nvidia, generating capabilities with omniverse-usd-profiles or the future usd-profiles-nvidia package, building the project from source, installing the built wheel into the venv, running tests against the wheel, or using the nvidia_usd_validate command from that environment.
+version: "1.19.0"
+license: Apache-2.0
+description: "Set up a local Python venv for usd-validation-nvidia: generate capabilities, build/install the wheel, run tests, or use nvidia_usd_validate."
+metadata:
+  author: NVIDIA
+  tags:
+    - usd-validation
+    - venv
+    - build
+    - test
 ---
+
+<!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
 
 # Project Virtual Environment Setup
 
@@ -41,7 +50,7 @@ On Windows:
 
 ```powershell
 py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+./.venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip build
 python -m pip install omniverse-usd-profiles
 ```
@@ -111,7 +120,7 @@ On Windows:
 
 ```powershell
 $wheel = (
-  Get-ChildItem .\dist\usd_validation_nvidia-*.whl |
+  Get-ChildItem ./dist/usd_validation_nvidia-*.whl |
   Sort-Object LastWriteTime -Descending |
   Select-Object -First 1
 ).FullName
@@ -146,7 +155,7 @@ On Windows:
 
 ```powershell
 nvidia_usd_validate --help
-nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples\assets\asset.usda
+nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/asset.usda
 ```
 
 ## Key Types / Functions
