@@ -4,7 +4,7 @@
 # AGENTS.md - AI Agent Guide for USD Validation NVIDIA
 
 This file gives AI coding agents the minimum context needed to work effectively with this repository. Use it as a
-starting map, then go to `skills/` for task-level validation guidance.
+starting map, then go to `.agents/skills/` for task-level validation guidance.
 
 ## What This Repo Is
 
@@ -23,9 +23,9 @@ entry points are discovered.
 ## Start Here
 
 - Read `README.md` for package installation and basic CLI/API examples.
-- Read `skills/README.md` to understand the skill format and available task guides.
-- For agents that do not automatically load `skills/`, such as Claude in some setups or Codex CLI when skills are not
-  auto-discovered, explicitly read `AGENTS.md`, `skills/README.md`, and then the relevant `skills/*/SKILLS.md` file
+- Read `.agents/skills/README.md` to understand the skill format and available task guides.
+- For agents that do not automatically load `.agents/skills/`, such as Claude in some setups or Codex CLI when skills are not
+  auto-discovered, explicitly read `AGENTS.md`, `.agents/skills/README.md`, and then the relevant `.agents/skills/*/SKILL.md` file
   before following a workflow.
 - Use `nvidia_usd_validate --help` inside the target Python environment to discover the profiles, features,
   capabilities, requirements, categories, and rules actually registered there.
@@ -68,7 +68,7 @@ with `--with .`.
 - `examples/` - runnable examples referenced by skill files
 - `src/usd_validation_nvidia/capabilities/` - generated package from `specs/`; do not edit by hand
 - `tests/` - unit and CLI tests
-- `skills/` - task-oriented agent skills (`*/SKILLS.md`)
+- `.agents/skills/` - task-oriented agent skills (`*/SKILL.md`)
 
 ## Common Workflows
 
@@ -240,10 +240,11 @@ uv run `
 
 ## Use Skills for Task-Specific Work
 
-When a request maps to a known validation workflow, go directly to the relevant skill in `skills/`:
+When a request maps to a known validation workflow, go directly to the relevant skill in `.agents/skills/`:
 
-- Python setup and first sample validation: `skills/project-setup-python/SKILLS.md`
-- Validate Requirements: `skills/validate-requirements/SKILLS.md`
+- Python setup and first sample validation: `.agents/skills/project-setup-python/SKILL.md`
+- Project venv build, install, and test setup: `.agents/skills/project-venv-setup/SKILL.md`
+- Validate Requirements: `.agents/skills/validate-requirements/SKILL.md`
 
 If multiple skills seem relevant, start with the narrowest skill that matches the user request, then layer in adjacent
 skills only when the workflow needs them.
@@ -253,7 +254,7 @@ skills only when the workflow needs them.
 - Prefer small, targeted edits over broad refactors unless requested.
 - Do not edit generated files under `src/usd_validation_nvidia/capabilities/` directly. Update `specs/` and
   regenerate instead.
-- Keep `README.md`, `AGENTS.md`, and `skills/` in sync when CLI flags, package names, profile behavior, or JSON output
+- Keep `README.md`, `AGENTS.md`, and `.agents/skills/` in sync when CLI flags, package names, profile behavior, or JSON output
   change.
 - Preserve licensing headers in source files where present.
 - Use `--json-output` for machine-readable validation results in automation.
