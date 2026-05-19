@@ -209,6 +209,11 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `omniverse-usd-profiles` | Current codegen package for generated requirements |
 | `usd-profiles-nvidia` | Intended future codegen package name |
 
+## Limitations
+
+- Covers requirement-backed plugins only; use `project-setup-python` for basic custom rule plugins.
+- Does not author full production capability models beyond the minimal example.
+
 ## Common Pitfalls
 
 - Install the plugin package into the same environment as `usd-validation-nvidia`.

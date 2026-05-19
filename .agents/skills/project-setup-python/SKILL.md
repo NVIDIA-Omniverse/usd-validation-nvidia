@@ -173,6 +173,11 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `usd-profiles-nvidia` | Intended future profile/capability/feature/requirement modeling and code generation package |
 | `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
+## Limitations
+
+- Covers basic rule plugins only; use `validate-requirements` for requirement-backed workflows.
+- Does not publish packages or configure external CI.
+
 ## Common Pitfalls
 
 - `usd-validation-nvidia` requires Python 3.10-3.12.

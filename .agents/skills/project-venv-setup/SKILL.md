@@ -185,6 +185,11 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 | `usd-core==25.11` | OpenUSD runtime dependency used by the CI wheel smoke test example |
 | `numpy==2.2` | Optional NumPy dependency used by the CI wheel smoke test example |
 
+## Limitations
+
+- Sets up a local Python virtual environment only; it does not publish release artifacts.
+- CI parity depends on testing the built wheel rather than importing the editable source tree.
+
 ## Common Pitfalls
 
 - Use Python 3.10-3.12; the examples above prefer Python 3.11.
