@@ -201,3 +201,10 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 - Reinstall the wheel after rebuilding, otherwise `nvidia_usd_validate` may still run code from the previous build.
 - Use a focused rule such as `DefaultPrimChecker` for CLI smoke tests; running the full default rule set can exercise
   optional OpenUSD shader resources that are environment-dependent.
+
+## Troubleshooting
+
+- If the wheel build fails because a forced include is missing, generate `src/usd_validation_nvidia/capabilities` before
+  running `python -m build`.
+- If `nvidia_usd_validate` still runs old code after a rebuild, reinstall the newest wheel from `dist/` in the active
+  virtual environment.

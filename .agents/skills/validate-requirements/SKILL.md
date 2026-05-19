@@ -226,3 +226,10 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 - Register requirements and rules in `on_startup()`, and unregister them in `on_shutdown()`.
 - Pass the same requirement object to `register_requirements(...)` and `_AddFailedCheck(requirement=...)`.
 - Confirm the requirement appears in `nvidia_usd_validate --help` before debugging rule behavior.
+
+## Troubleshooting
+
+- If installing or running the example fails because `example_requirements` is missing, run requirement codegen before
+  building or installing the example plugin.
+- If `--requirement EXAMPLE.001` does not select the custom rule, confirm the requirement package is generated,
+  installed with the plugin, and registered from `on_startup()`.

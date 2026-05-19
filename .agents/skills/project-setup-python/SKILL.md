@@ -188,3 +188,10 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 - Point the entry point at `main:Plugin` when the package exposes a `Plugin` class.
 - Confirm the custom rule appears in `nvidia_usd_validate --help` before debugging validation output.
 - Project-specific profiles such as `Prop-Robotics-Neutral` must be installed and registered before use.
+
+## Troubleshooting
+
+- If `nvidia_usd_validate --help` does not list the custom rule, confirm the plugin is installed in the same
+  environment and the entry point targets `main:Plugin`.
+- If local source installation fails because `capabilities` is missing, generate `src/usd_validation_nvidia/capabilities`
+  from `specs/` before using `--with .`.
