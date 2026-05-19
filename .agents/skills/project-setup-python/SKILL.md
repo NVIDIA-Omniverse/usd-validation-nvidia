@@ -9,6 +9,7 @@ metadata:
     - usd-validation
     - python
     - plugin-setup
+compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
@@ -20,6 +21,11 @@ metadata:
 
 `usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin
 project and run its first validation command.
+
+## Prerequisites
+
+- Python 3.10-3.12.
+- `uv` or `pip` with package-index access.
 
 ## Project Structure
 
@@ -167,6 +173,11 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `usd-profiles-nvidia` | Intended future profile/capability/feature/requirement modeling and code generation package |
 | `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
+## Limitations
+
+- Covers basic rule plugins only; use `validate-requirements` for requirement-backed workflows.
+- Does not publish packages or configure external CI.
+
 ## Common Pitfalls
 
 - `usd-validation-nvidia` requires Python 3.10-3.12.
@@ -177,3 +188,10 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 - Point the entry point at `main:Plugin` when the package exposes a `Plugin` class.
 - Confirm the custom rule appears in `nvidia_usd_validate --help` before debugging validation output.
 - Project-specific profiles such as `Prop-Robotics-Neutral` must be installed and registered before use.
+
+## Troubleshooting
+
+- If `nvidia_usd_validate --help` does not list the custom rule, confirm the plugin is installed in the same
+  environment and the entry point targets `main:Plugin`.
+- If local source installation fails because `capabilities` is missing, generate `src/usd_validation_nvidia/capabilities`
+  from `specs/` before using `--with .`.

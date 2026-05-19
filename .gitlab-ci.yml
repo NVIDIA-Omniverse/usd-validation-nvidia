@@ -297,6 +297,7 @@ test-skills-nvbase:
       --no-dedup
       --external
       --type skill
+      --min-score 100
       -r cli html
       -o reports/nvbase
   artifacts:

@@ -10,6 +10,7 @@ metadata:
     - venv
     - build
     - test
+compatibility: "Requires Python 3.10-3.12, pip and venv, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
@@ -17,11 +18,16 @@ metadata:
 
 # Project Virtual Environment Setup
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` can be built and tested from a plain Python virtual environment. This skill shows how to
 create a local `.venv`, generate the capabilities package required by source builds, build the wheel, install that
 wheel into the virtual environment, run the unit tests, and use the `nvidia_usd_validate` command.
+
+## Prerequisites
+
+- Python 3.10-3.12.
+- `pip`, `venv`, and package-index access.
 
 ## Project Structure
 
@@ -179,6 +185,11 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 | `usd-core==25.11` | OpenUSD runtime dependency used by the CI wheel smoke test example |
 | `numpy==2.2` | Optional NumPy dependency used by the CI wheel smoke test example |
 
+## Limitations
+
+- Sets up a local Python virtual environment only; it does not publish release artifacts.
+- CI parity depends on testing the built wheel rather than importing the editable source tree.
+
 ## Common Pitfalls
 
 - Use Python 3.10-3.12; the examples above prefer Python 3.11.
@@ -190,3 +201,10 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 - Reinstall the wheel after rebuilding, otherwise `nvidia_usd_validate` may still run code from the previous build.
 - Use a focused rule such as `DefaultPrimChecker` for CLI smoke tests; running the full default rule set can exercise
   optional OpenUSD shader resources that are environment-dependent.
+
+## Troubleshooting
+
+- If the wheel build fails because a forced include is missing, generate `src/usd_validation_nvidia/capabilities` before
+  running `python -m build`.
+- If `nvidia_usd_validate` still runs old code after a rebuild, reinstall the newest wheel from `dist/` in the active
+  virtual environment.

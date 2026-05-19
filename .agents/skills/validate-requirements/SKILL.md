@@ -9,6 +9,7 @@ metadata:
     - usd-validation
     - requirements
     - codegen
+compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
@@ -22,6 +23,11 @@ metadata:
 This skill shows the smallest useful plugin that registers one rule backed by one requirement.
 The requirement is authored as Markdown and generated with `omniverse-usd-profiles` until `usd-profiles-nvidia` is
 published; the rule registration, execution, and CLI filtering stay in `usd-validation-nvidia`.
+
+## Prerequisites
+
+- Python 3.10-3.12.
+- `uv` or `pip` with package-index access.
 
 ## Project Structure
 
@@ -203,6 +209,11 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `omniverse-usd-profiles` | Current codegen package for generated requirements |
 | `usd-profiles-nvidia` | Intended future codegen package name |
 
+## Limitations
+
+- Covers requirement-backed plugins only; use `project-setup-python` for basic custom rule plugins.
+- Does not author full production capability models beyond the minimal example.
+
 ## Common Pitfalls
 
 - Install the plugin package into the same environment as `usd-validation-nvidia`.
@@ -215,3 +226,10 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 - Register requirements and rules in `on_startup()`, and unregister them in `on_shutdown()`.
 - Pass the same requirement object to `register_requirements(...)` and `_AddFailedCheck(requirement=...)`.
 - Confirm the requirement appears in `nvidia_usd_validate --help` before debugging rule behavior.
+
+## Troubleshooting
+
+- If installing or running the example fails because `example_requirements` is missing, run requirement codegen before
+  building or installing the example plugin.
+- If `--requirement EXAMPLE.001` does not select the custom rule, confirm the requirement package is generated,
+  installed with the plugin, and registered from `on_startup()`.
