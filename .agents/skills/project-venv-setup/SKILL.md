@@ -10,6 +10,7 @@ metadata:
     - venv
     - build
     - test
+compatibility: "Requires Python 3.10-3.12, pip and venv, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
