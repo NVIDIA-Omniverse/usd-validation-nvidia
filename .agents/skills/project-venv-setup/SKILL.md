@@ -18,7 +18,7 @@ compatibility: "Requires Python 3.10-3.12, pip and venv, network access to Pytho
 
 # Project Virtual Environment Setup
 
-## Overview
+## Purpose
 
 `usd-validation-nvidia` can be built and tested from a plain Python virtual environment. This skill shows how to
 create a local `.venv`, generate the capabilities package required by source builds, build the wheel, install that
