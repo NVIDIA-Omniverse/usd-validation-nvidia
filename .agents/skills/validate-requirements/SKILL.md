@@ -24,6 +24,11 @@ This skill shows the smallest useful plugin that registers one rule backed by on
 The requirement is authored as Markdown and generated with `omniverse-usd-profiles` until `usd-profiles-nvidia` is
 published; the rule registration, execution, and CLI filtering stay in `usd-validation-nvidia`.
 
+## Prerequisites
+
+- Python 3.10-3.12.
+- `uv` or `pip` with package-index access.
+
 ## Project Structure
 
 ```text

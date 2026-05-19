@@ -24,6 +24,11 @@ compatibility: "Requires Python 3.10-3.12, pip and venv, network access to Pytho
 create a local `.venv`, generate the capabilities package required by source builds, build the wheel, install that
 wheel into the virtual environment, run the unit tests, and use the `nvidia_usd_validate` command.
 
+## Prerequisites
+
+- Python 3.10-3.12.
+- `pip`, `venv`, and package-index access.
+
 ## Project Structure
 
 ```text
