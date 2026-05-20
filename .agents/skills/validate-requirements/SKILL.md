@@ -97,7 +97,7 @@ uv run \
   python -m omni.usd_profiles.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
-    --package-name example_requirements
+    --namespace example_requirements
 ```
 
 On Windows:
@@ -121,7 +121,7 @@ uv run `
   python -m omni.usd_profiles.codegen `
     --docs-root examples/python/requirement/specs `
     --destination-dir examples/python/requirement `
-    --package-name example_requirements
+    --namespace example_requirements
 ```
 
 The example package force-includes `example_requirements`, so skipping this step fails during wheel build.

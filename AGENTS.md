@@ -53,7 +53,7 @@ uv run \
   python -m omni.usd_profiles.codegen \
     --docs-root specs \
     --destination-dir src \
-    --package-name usd_validation_nvidia.capabilities
+    --namespace usd_validation_nvidia.capabilities
 ```
 
 Published wheels already include `src/usd_validation_nvidia/capabilities`; fresh source checkouts do not. Skipping this
@@ -117,7 +117,7 @@ uv run \
   python -m omni.usd_profiles.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
-    --package-name example_requirements
+    --namespace example_requirements
 ```
 
 On Windows:
@@ -141,7 +141,7 @@ uv run `
   python -m omni.usd_profiles.codegen `
     --docs-root examples\python\requirement\specs `
     --destination-dir examples\python\requirement `
-    --package-name example_requirements
+    --namespace example_requirements
 ```
 
 After codegen, run the plugin:

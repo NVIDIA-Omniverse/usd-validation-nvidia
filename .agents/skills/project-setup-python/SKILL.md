@@ -128,7 +128,7 @@ uv run \
   python -m omni.usd_profiles.codegen \
     --docs-root specs \
     --destination-dir src \
-    --package-name usd_validation_nvidia.capabilities
+    --namespace usd_validation_nvidia.capabilities
 ```
 
 ```bash
