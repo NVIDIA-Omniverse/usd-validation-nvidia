@@ -44,6 +44,13 @@ my-usd-validation-plugin/
 
 After `uv init`, create `main.py`, `specs/`, and the Markdown spec files manually or copy them from the example.
 
+## Verify Python Version
+
+This skill requires Python 3.10-3.12. Before setup, run `uv run --python 3.11 python --version` or
+`py -3.11 --version` on Windows; use `3.10` or `3.12` instead if that is the supported interpreter. If no supported
+interpreter is available, stop with: "This skill requires Python 3.10-3.12. Install a supported interpreter, then
+rerun." For uv workflows, install one with `uv python install 3.11`.
+
 ## Setup with uv (Recommended)
 
 ```bash

@@ -43,6 +43,12 @@ usd-validation-nvidia/
 Run these commands from the repository root. The generated `src/usd_validation_nvidia/capabilities/` package is an
 ignored build prerequisite and must not be edited by hand.
 
+## Verify Python Version
+
+This skill requires Python 3.10-3.12. Before creating `.venv`, run `python3.11 --version` or `py -3.11 --version` on
+Windows; use `3.10` or `3.12` instead if that is the supported interpreter. If no supported interpreter is available,
+stop with: "This skill requires Python 3.10-3.12. Install a supported interpreter, then rerun."
+
 ## Setup with venv (Recommended)
 
 ```bash
