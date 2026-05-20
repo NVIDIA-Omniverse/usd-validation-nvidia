@@ -49,7 +49,7 @@ ignored build prerequisite and must not be edited by hand.
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip build
-python -m pip install omniverse-usd-profiles
+python -m pip install usd-profiles-nvidia
 ```
 
 On Windows:
@@ -58,18 +58,40 @@ On Windows:
 py -3.11 -m venv .venv
 ./.venv/Scripts/Activate.ps1
 python -m pip install --upgrade pip build
-python -m pip install omniverse-usd-profiles
+python -m pip install usd-profiles-nvidia
 ```
 
-`usd-profiles-nvidia` is the intended package name once published. When it is available, use:
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
 
 ```bash
-python -m pip install usd-profiles-nvidia
+python -m pip install omniverse-usd-profiles
 ```
 
 ## Build from Source
 
-Generate the capabilities package with the legacy package, then build the wheel:
+Generate the capabilities package, then build the wheel:
+
+```bash
+python -m usd_profiles_nvidia.codegen \
+  --docs-root specs \
+  --destination-dir src \
+  --namespace usd_validation_nvidia.capabilities
+
+python -m build --wheel --outdir dist
+```
+
+On Windows:
+
+```powershell
+python -m usd_profiles_nvidia.codegen `
+  --docs-root specs `
+  --destination-dir src `
+  --namespace usd_validation_nvidia.capabilities
+
+python -m build --wheel --outdir dist
+```
+
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
 
 ```bash
 python -m omni.usd_profiles.codegen \
@@ -80,35 +102,13 @@ python -m omni.usd_profiles.codegen \
 python -m build --wheel --outdir dist
 ```
 
-On Windows:
+If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package:
 
 ```powershell
 python -m omni.usd_profiles.codegen `
   --docs-root specs `
   --destination-dir src `
   --namespace usd_validation_nvidia.capabilities
-
-python -m build --wheel --outdir dist
-```
-
-Future package name:
-
-```bash
-python -m usd_profiles_nvidia.codegen \
-  --docs-root specs \
-  --destination-dir src \
-  --package-name usd_validation_nvidia.capabilities
-
-python -m build --wheel --outdir dist
-```
-
-Future package name on Windows:
-
-```powershell
-python -m usd_profiles_nvidia.codegen `
-  --docs-root specs `
-  --destination-dir src `
-  --package-name usd_validation_nvidia.capabilities
 
 python -m build --wheel --outdir dist
 ```
@@ -167,10 +167,8 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 ## Key Types / Functions
 
 - `python -m venv .venv`: creates the local virtual environment.
-- `python -m omni.usd_profiles.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/` with the legacy
-  package.
-- `python -m usd_profiles_nvidia.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/` with the future
-  package.
+- `python -m usd_profiles_nvidia.codegen`: generates `usd_validation_nvidia.capabilities` from `specs/`.
+- `python -m omni.usd_profiles.codegen`: legacy compatibility codegen module.
 - `python -m build --wheel --outdir dist`: builds the source tree into a wheel.
 - `python -m unittest discover -s tests`: runs the repository test suite.
 - `nvidia_usd_validate`: validates USD assets from the installed package's console script.
@@ -180,8 +178,8 @@ nvidia_usd_validate --no-init-rules --rule DefaultPrimChecker examples/assets/as
 | Package | Purpose |
 |---------|---------|
 | `build` | PEP 517 wheel build frontend for source builds inside the venv |
-| `omniverse-usd-profiles` | Current capability, feature, and requirement code generation package |
-| `usd-profiles-nvidia` | Intended future codegen package name |
+| `usd-profiles-nvidia` | Capability, feature, and requirement code generation package |
+| `omniverse-usd-profiles` | Legacy codegen package for package-index fallback |
 | `usd-core==25.11` | OpenUSD runtime dependency used by the CI wheel smoke test example |
 | `numpy==2.2` | Optional NumPy dependency used by the CI wheel smoke test example |
 

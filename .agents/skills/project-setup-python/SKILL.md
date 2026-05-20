@@ -76,16 +76,16 @@ For NumPy acceleration:
 uv add "usd-validation-nvidia[numpy]"
 ```
 
-For profile code generation, use the legacy package until `usd-profiles-nvidia` is published:
-
-```bash
-uv add omniverse-usd-profiles
-```
-
-`usd-profiles-nvidia` is the intended package name once published:
+For profile code generation, use:
 
 ```bash
 uv add usd-profiles-nvidia
+```
+
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
+
+```bash
+uv add omniverse-usd-profiles
 ```
 
 ## Setup with pip
@@ -112,23 +112,23 @@ From the repository root:
 ```bash
 uv run \
   --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
     --namespace usd_validation_nvidia.capabilities
 ```
 
-`usd-profiles-nvidia` is the intended package name once published. When it is available, use:
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
 
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
-  python -m usd_profiles_nvidia.codegen \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
     --docs-root specs \
     --destination-dir src \
-    --package-name usd_validation_nvidia.capabilities
+    --namespace usd_validation_nvidia.capabilities
 ```
 
 ```bash
@@ -143,8 +143,8 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with omniverse-usd-profiles `
-  python -m omni.usd_profiles.codegen `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
     --destination-dir src `
     --namespace usd_validation_nvidia.capabilities
@@ -169,8 +169,8 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 |---------|---------|
 | `usd-validation-nvidia[usd]` | Engine, CLI, built-in validators, and `usd-core` runtime dependency |
 | `usd-validation-nvidia[numpy]` | Optional NumPy acceleration |
-| `omniverse-usd-profiles` | Current profile codegen package used until `usd-profiles-nvidia` is published |
-| `usd-profiles-nvidia` | Intended future profile/capability/feature/requirement modeling and code generation package |
+| `usd-profiles-nvidia` | Profile/capability/feature/requirement modeling and code generation package |
+| `omniverse-usd-profiles` | Legacy profile codegen package for package-index fallback |
 | `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
 ## Limitations
@@ -183,8 +183,8 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 - `usd-validation-nvidia` requires Python 3.10-3.12.
 - Install the plugin package into the same environment as `usd-validation-nvidia`.
 - In a fresh source checkout, generate `src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
-  omniverse-usd-profiles python -m omni.usd_profiles.codegen ...` before commands that install the local repo with
-  `--with .`.
+  usd-profiles-nvidia python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo
+  with `--with .`.
 - Point the entry point at `main:Plugin` when the package exposes a `Plugin` class.
 - Confirm the custom rule appears in `nvidia_usd_validate --help` before debugging validation output.
 - Project-specific profiles such as `Prop-Robotics-Neutral` must be installed and registered before use.
