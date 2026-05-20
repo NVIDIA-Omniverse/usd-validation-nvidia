@@ -88,17 +88,8 @@ uv run \
     --namespace example_requirements
 ```
 
-If `usd-profiles-nvidia` is unavailable, use the legacy package:
-
-```bash
-uv run \
-  --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
-    --docs-root examples/python/requirement/specs \
-    --destination-dir examples/python/requirement \
-    --namespace example_requirements
-```
+If `usd-profiles-nvidia` is unavailable, use the legacy package `omniverse-usd-profiles` and module
+`omni.usd_profiles.codegen` with the same arguments.
 
 On Windows:
 
@@ -112,17 +103,8 @@ uv run `
     --namespace example_requirements
 ```
 
-If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package:
-
-```powershell
-uv run `
-  --no-project `
-  --with omniverse-usd-profiles `
-  python -m omni.usd_profiles.codegen `
-    --docs-root examples/python/requirement/specs `
-    --destination-dir examples/python/requirement `
-    --namespace example_requirements
-```
+If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package `omniverse-usd-profiles` and module
+`omni.usd_profiles.codegen` with the same arguments.
 
 The example package force-includes `example_requirements`, so skipping this step fails during wheel build.
 
