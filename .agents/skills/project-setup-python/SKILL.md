@@ -46,9 +46,12 @@ rerun." For uv workflows, install one with `uv python install 3.11`.
 
 ## Setup with uv (Recommended)
 
+Start from a clean parent directory outside this workspace where `my-usd-validation-plugin` does not already exist. If
+that folder already exists, choose a different folder name or move the existing folder aside before continuing.
+
 ```bash
-mkdir my-usd-validation-plugin && cd my-usd-validation-plugin
-uv init --python 3.11
+mkdir -p my-usd-validation-plugin && cd my-usd-validation-plugin
+uv init --no-workspace --python 3.11
 uv add "usd-validation-nvidia[usd]"
 ```
 
