@@ -42,7 +42,7 @@ Generate the capabilities package with `usd-profiles-nvidia`, then build the whe
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia==1.14.1 \
+  --with usd-profiles-nvidia==1.15.0 \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \

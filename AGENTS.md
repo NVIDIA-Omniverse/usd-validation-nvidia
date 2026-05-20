@@ -37,20 +37,20 @@ When running this repository from source with `--with .`, generate the ignored c
 ```bash
 uv run \
   --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
     --namespace usd_validation_nvidia.capabilities
 ```
 
-`usd-profiles-nvidia` is the intended package name once published. When it is available, use:
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
 
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
-  python -m usd_profiles_nvidia.codegen \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
     --docs-root specs \
     --destination-dir src \
     --package-name usd_validation_nvidia.capabilities
@@ -101,20 +101,20 @@ and JSON mapping:
 ```bash
 uv run \
   --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
     --namespace example_requirements
 ```
 
-`usd-profiles-nvidia` is the intended package name once published. When it is available, use:
+If `usd-profiles-nvidia` is unavailable, use the legacy package:
 
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
-  python -m usd_profiles_nvidia.codegen \
+  --with omniverse-usd-profiles \
+  python -m omni.usd_profiles.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
     --package-name example_requirements
@@ -125,20 +125,20 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with omniverse-usd-profiles `
-  python -m omni.usd_profiles.codegen `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
     --docs-root examples\python\requirement\specs `
     --destination-dir examples\python\requirement `
     --namespace example_requirements
 ```
 
-Future package name on Windows:
+If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package:
 
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
-  python -m usd_profiles_nvidia.codegen `
+  --with omniverse-usd-profiles `
+  python -m omni.usd_profiles.codegen `
     --docs-root examples\python\requirement\specs `
     --destination-dir examples\python\requirement `
     --package-name example_requirements
@@ -204,8 +204,8 @@ For CI parity, build the wheel and run tests against the wheel rather than the e
 ```bash
 uv run \
   --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
+  --with usd-profiles-nvidia \
+  python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
     --namespace usd_validation_nvidia.capabilities
@@ -223,8 +223,8 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with omniverse-usd-profiles `
-  python -m omni.usd_profiles.codegen `
+  --with usd-profiles-nvidia `
+  python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
     --destination-dir src `
     --namespace usd_validation_nvidia.capabilities
