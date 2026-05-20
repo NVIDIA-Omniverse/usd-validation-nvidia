@@ -2,7 +2,7 @@
 name: project-venv-setup
 version: "1.19.0"
 license: Apache-2.0
-description: "Set up a local Python venv for usd-validation-nvidia: generate capabilities, build/install the wheel, run tests, or use nvidia_usd_validate."
+description: "Use when setting up a local usd-validation-nvidia venv for builds, tests, or nvidia_usd_validate. Do NOT use for plugin scaffolding."
 metadata:
   author: NVIDIA
   tags:
