@@ -42,7 +42,7 @@ Generate the capabilities package with `usd-profiles-nvidia`, then build the whe
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia==1.14.1 \
+  --with usd-profiles-nvidia==1.15.0 \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
@@ -57,16 +57,19 @@ uv build -o dist
 from usd_validation_nvidia import ValidationEngine, IssueFixer
 
 engine = ValidationEngine()
-results = engine.validate("path/to/asset.usda")
+asset = "path/to/asset.usda"
+results = engine.validate(asset)
 
 for issue in results.issues():
     print(f"{issue.severity}: {issue.message}")
 
-fixer = IssueFixer()
+fixer = IssueFixer(asset)
 fix_results = fixer.fix(results.issues())
 
 for result in fix_results:
     print(f"{result.status}: {result.issue.message}")
+
+fixer.save()
 ```
 
 The `ValidationEngine` also supports selecting specific rules with `enableRule()` / `disableRule()`
