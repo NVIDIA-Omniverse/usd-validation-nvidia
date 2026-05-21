@@ -1,6 +1,6 @@
 ---
 name: project-setup-python
-version: "1.19.0"
+version: "1.19.1"
 license: Apache-2.0
 description: "Set up Python NVIDIA USD Validation plugins: entry points, custom rules, uv/pip install, first CLI run. Do NOT use for requirements."
 metadata:

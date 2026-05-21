@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.19.1] - 2026-05-20
+### Added
+- Add `project-venv-setup` agent skill for local virtual environment, build, test, and CLI validation workflows.
+- Add `SECURITY.md`, root `THIRD_PARTY_NOTICES.md`, and a `CLAUDE.md` entry point.
+
+### Changed
+- Move agent skills to `.agents/skills` and align skill manifests with public metadata, license, SPDX, purpose, compatibility, prerequisite, limitation, and troubleshooting guidance.
+- Update setup and requirement skill guidance for portable paths, focused smoke validation, `usd-profiles-nvidia` code generation, legacy fallback commands, and Python version preflight checks.
+
+### Fixed
+- Correct the project venv setup skill discriminator.
+- Correct `IssueFixer` usage in the README to pass the asset path and save applied fixes.
+
 ## [1.19.0] - 2026-05-11
 ### Added
 - AI-agent documentation layout, initial skills, and runnable validation examples.

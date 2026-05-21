@@ -1,6 +1,6 @@
 ---
 name: project-venv-setup
-version: "1.19.0"
+version: "1.19.1"
 license: Apache-2.0
 description: "Use when setting up a local usd-validation-nvidia venv for builds, tests, or nvidia_usd_validate. Do NOT use for plugin scaffolding."
 metadata:
