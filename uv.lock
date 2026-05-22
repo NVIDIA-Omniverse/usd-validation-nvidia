@@ -52,7 +52,7 @@ wheels = [
 
 [[package]]
 name = "usd-validation-nvidia"
-version = "1.19.2"
+version = "1.19.3"
 source = { editable = "." }
 
 [package.optional-dependencies]

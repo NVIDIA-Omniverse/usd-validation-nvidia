@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.19.3] - 2026-05-22
+### Changed
+- Release setup.
+
 ## [1.19.2] - 2026-05-22
 ### Changed
 - Release setup.
