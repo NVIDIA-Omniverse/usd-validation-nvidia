@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.19.2] - 2026-05-22
+### Changed
+- Release setup.
+
 ## [1.19.1] - 2026-05-20
 ### Added
 - Add `project-venv-setup` agent skill for local virtual environment, build, test, and CLI validation workflows.
