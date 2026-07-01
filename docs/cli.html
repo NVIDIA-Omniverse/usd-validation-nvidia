@@ -1,0 +1,1024 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command Line Interface &#8212; USD Validation NVIDIA</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/nvidia-sphinx-theme.css?v=933278ad" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=767de534" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/_style.css?v=e1c02e80" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+
+
+
+    <script rel="preload" src="../_static/modal-table.js"></script>
+    <script src="../_static/documentation_options.js?v=aa52d2d4"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=65e89d2a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/cli';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.20.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../_static/version-patch.js?v=3e13fdd2"></script>
+
+    <link rel="icon" href="../_static/favicon.png"/>
+
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Authoring rules" href="authoring.html" />
+    <link rel="prev" title="Python API" href="api.html" />
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+    <meta name="docbuild:last-update" content="Jul 01, 2026"/>
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+
+
+  </head>
+
+  <body data-default-mode="">
+
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="USD Validation NVIDIA - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="USD Validation NVIDIA - Home"/>
+  
+  
+    <p class="title logo__title">USD Validation NVIDIA</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/nvidiaomniverse" title="twitter" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-twitter fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">twitter</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.youtube.com/channel/UCSKUoczbGAcMld7HjpCR8OA" title="youtube" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-youtube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">youtube</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.instagram.com/nvidiaomniverse" title="instagram" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-instagram fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">instagram</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.nvidia.com/en-us/omniverse/" title="www" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">www</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/showcase/nvidia-omniverse" title="linkedin" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">linkedin</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.twitch.tv/nvidiaomniverse" title="twitch" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-twitch fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">twitch</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.svg" class="logo__image only-light" alt="USD Validation NVIDIA - Home"/>
+    <img src="../_static/nvidia-logo-horiz-rgb-wht-for-screen.svg" class="logo__image only-dark pst-js-only" alt="USD Validation NVIDIA - Home"/>
+  
+  
+    <p class="title logo__title">USD Validation NVIDIA</p>
+  
+</a>
+
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+
+
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/nvidiaomniverse" title="twitter" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-twitter fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">twitter</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.youtube.com/channel/UCSKUoczbGAcMld7HjpCR8OA" title="youtube" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-youtube fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">youtube</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.instagram.com/nvidiaomniverse" title="instagram" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-instagram fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">instagram</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.nvidia.com/en-us/omniverse/" title="www" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-globe fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">www</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.linkedin.com/showcase/nvidia-omniverse" title="linkedin" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-linkedin fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">linkedin</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.twitch.tv/nvidiaomniverse" title="twitch" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-twitch fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">twitch</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Table of Contents">
+  <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Technical Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Python API</a></li>
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authoring.html">Authoring Rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from omniverse-asset-validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="categories.html">Categories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Requirements</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../specs/index.html">Content Guidelines and Requirements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../specs/capabilities/capabilities.html">Requirements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../specs/capabilities/core/core.html">Core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../specs/capabilities/core/units/capability-units.html">Units</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specs/capabilities/core/atomic_asset/capability-atomic_asset.html">Atomic Asset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/capabilities/geometry/capability-geometry.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/capabilities/hierarchy/capability-hierarchy.html">Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/capabilities/materials/capability-materials.html">Materials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/capabilities/semantic_labels/capability-semantic_labels.html">Semantic Labels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/capabilities/dense_captions/capability-dense_captions.html">Dense Captions</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../specs/capabilities/nonvisual_sensors/nonvisual_sensors.html">Nonvisual Sensors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../specs/capabilities/nonvisual_sensors/nonvisual_materials/capability-nonvisual_materials.html">Non-Visual Materials</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../specs/capabilities/physics_bodies/physics_bodies.html">Physics Bodies</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../specs/capabilities/physics_bodies/physics_rigid_bodies/capability-physics_rigid_bodies.html">Rigid Bodies and Colliders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../specs/capabilities/physics_bodies/physics_joints/capability-physics_joints.html">Joints and Articulations</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../specs/features/features.html">Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../specs/features/minimal_placeable_visual.html">Minimal Placeable Visual</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../specs/features/performant_placeable_visual.html">Performant Placeable Visual</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../specs/indexes/requirements_index.html">Requirements Index</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Command Line Interface</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="command-line-interface">
+<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h1>
+<dl class="simple">
+<dt>usage: nvidia_usd_validate [-h] [–version] [-e] [-r RULE] [-D RULE] [-c CATEGORY]</dt><dd><p>[–disable-category CATEGORY] [–requirement REQUIREMENT]
+[–capability CAPABILITY] [–feature FEATURE]
+[–disable-feature FEATURE] [–profile PROFILE]
+[–disable-profile PROFILE] [–parameter PARAMETER]
+[-f | –fix | –no-fix] [–stamp | –no-stamp] [-p PREDICATE]
+[–group-by GROUP_BY]
+[-d | –init-rules | –no-init-rules | –defaultRules | –no-defaultRules]
+[–variants | –no-variants]
+[–instance-prototypes | –no-instance-prototypes]
+[–csv-output CSV] [–json-output JSON]
+ASSET</p>
+</dd>
+</dl>
+<p>Utility for USD validation to ensure assets run smoothly across all OpenUSD
+products. Validation is based on the USD ComplianceChecker (i.e. the same
+backend as the usdchecker commandline tool), and has been extended with
+additional rules as follows:</p>
+<ul class="simple">
+<li><p>Additional rules applicable in the broader OpenUSD ecosystem.</p></li>
+<li><p>Configurable end-user rules that can be specific to individual company
+and/or team workflows.</p></li>
+</ul>
+<p>Note this level of configuration requires setting the environment,
+prior to launching this tool.</p>
+<dl>
+<dt>positional arguments:</dt><dd><dl>
+<dt>ASSET                 A single OpenUSD Asset.</dt><dd><div class="line-block">
+<div class="line">Note: This can be a file or folder.</div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt>options:</dt><dd><dl class="option-list">
+<dt><kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></dt>
+<dd><p>show this help message and exit</p>
+</dd>
+<dt><kbd><span class="option">--version</span></kbd></dt>
+<dd><p>show program’s version number and exit</p>
+</dd>
+<dt><kbd><span class="option">-e</span>, <span class="option">--explain</span></kbd></dt>
+<dd><p>Provide descriptions for each argument provided and exit.</p>
+</dd>
+<dt><kbd><span class="option">-r <var>RULE</var></span>, <span class="option">--rule <var>RULE</var></span>, <span class="option">--enable-rule <var>RULE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Rule to select. Valid options include:</div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdzPackageValidator</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingReferenceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">StageMetadataChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrimEncapsulationChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalMapTextureChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">KindChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtentsChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexedPrimvarChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManifoldChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsExistChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsValidChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsWindingsChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubdivisionSchemeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnusedMeshTopologyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnusedPrimvarChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidateTopologyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeldChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroAreaFaceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerSpecChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdAsciiPerformanceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultPrimChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">DanglingOverPrimChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialPathChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialOutOfScopeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdDanglingMaterialBinding</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdMaterialBindingApi</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialUsdPreviewSurfaceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShaderImplementationSourceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialOldMdlSchemaChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnicodeNameChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdGeomSubsetChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdLuxSchemaChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">SkelBindingAPIAppliedChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">RigidBodyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColliderChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicsJointChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArticulationChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MassChecker</span></code> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">-D <var>RULE</var></span>, <span class="option">--disable-rule <var>RULE</var></span>, <span class="option">--disableRules <var>RULE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Rule to disable. Valid options include:</div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdzPackageValidator</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MissingReferenceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">StageMetadataChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextureChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrimEncapsulationChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalMapTextureChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">KindChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtentsChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">IndexedPrimvarChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManifoldChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsExistChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsValidChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">NormalsWindingsChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubdivisionSchemeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnusedMeshTopologyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnusedPrimvarChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidateTopologyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">WeldChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ZeroAreaFaceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">LayerSpecChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdAsciiPerformanceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultPrimChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">DanglingOverPrimChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialPathChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialOutOfScopeChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdDanglingMaterialBinding</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdMaterialBindingApi</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialUsdPreviewSurfaceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShaderImplementationSourceChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaterialOldMdlSchemaChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnicodeNameChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdGeomSubsetChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">UsdLuxSchemaChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">SkelBindingAPIAppliedChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">RigidBodyChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColliderChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">PhysicsJointChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArticulationChecker</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">MassChecker</span></code> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">-c <var>CATEGORY</var></span>, <span class="option">--category <var>CATEGORY</var></span>, <span class="option">--enable-category <var>CATEGORY</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Category to select. Valid options include:</div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Basic</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layout</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Other</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Physics</span></code> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--disable-category <var>CATEGORY</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Category to disable. Valid options include:</div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Basic</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Layout</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Other</span></code></div>
+<div class="line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Physics</span></code> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--requirement <var>REQUIREMENT</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Requirement to add. Valid options include:</div>
+<div class="line">AA.001</div>
+<div class="line"><a class="reference external" href="mailto:AA&#46;001&#37;&#52;&#48;1&#46;0&#46;0">AA<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">AA.002</div>
+<div class="line"><a class="reference external" href="mailto:AA&#46;002&#37;&#52;&#48;1&#46;0&#46;0">AA<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">AA.003</div>
+<div class="line"><a class="reference external" href="mailto:AA&#46;003&#37;&#52;&#48;1&#46;0&#46;0">AA<span>&#46;</span>003<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">AA.OV.001</div>
+<div class="line"><a class="reference external" href="mailto:AA&#46;OV&#46;001&#37;&#52;&#48;1&#46;0&#46;0">AA<span>&#46;</span>OV<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">HI.001</div>
+<div class="line"><a class="reference external" href="mailto:HI&#46;001&#37;&#52;&#48;1&#46;0&#46;0">HI<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">HI.003</div>
+<div class="line"><a class="reference external" href="mailto:HI&#46;003&#37;&#52;&#48;1&#46;0&#46;0">HI<span>&#46;</span>003<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">HI.004</div>
+<div class="line"><a class="reference external" href="mailto:HI&#46;004&#37;&#52;&#48;1&#46;0&#46;0">HI<span>&#46;</span>004<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">JT.002</div>
+<div class="line"><a class="reference external" href="mailto:JT&#46;002&#37;&#52;&#48;1&#46;0&#46;0">JT<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">JT.003</div>
+<div class="line"><a class="reference external" href="mailto:JT&#46;003&#37;&#52;&#48;1&#46;0&#46;0">JT<span>&#46;</span>003<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">JT.ART.002</div>
+<div class="line"><a class="reference external" href="mailto:JT&#46;ART&#46;002&#37;&#52;&#48;1&#46;0&#46;0">JT<span>&#46;</span>ART<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">JT.ART.004</div>
+<div class="line"><a class="reference external" href="mailto:JT&#46;ART&#46;004&#37;&#52;&#48;1&#46;0&#46;0">JT<span>&#46;</span>ART<span>&#46;</span>004<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">RB.003</div>
+<div class="line"><a class="reference external" href="mailto:RB&#46;003&#37;&#52;&#48;1&#46;0&#46;0">RB<span>&#46;</span>003<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">RB.005</div>
+<div class="line"><a class="reference external" href="mailto:RB&#46;005&#37;&#52;&#48;1&#46;0&#46;0">RB<span>&#46;</span>005<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">RB.007</div>
+<div class="line"><a class="reference external" href="mailto:RB&#46;007&#37;&#52;&#48;1&#46;0&#46;0">RB<span>&#46;</span>007<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">RB.009</div>
+<div class="line"><a class="reference external" href="mailto:RB&#46;009&#37;&#52;&#48;1&#46;0&#46;0">RB<span>&#46;</span>009<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">RB.COL.004</div>
+<div class="line"><a class="reference external" href="mailto:RB&#46;COL&#46;004&#37;&#52;&#48;1&#46;0&#46;0">RB<span>&#46;</span>COL<span>&#46;</span>004<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">UN.001</div>
+<div class="line"><a class="reference external" href="mailto:UN&#46;001&#37;&#52;&#48;1&#46;0&#46;0">UN<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">UN.002</div>
+<div class="line"><a class="reference external" href="mailto:UN&#46;002&#37;&#52;&#48;1&#46;0&#46;0">UN<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">UN.006</div>
+<div class="line"><a class="reference external" href="mailto:UN&#46;006&#37;&#52;&#48;1&#46;0&#46;0">UN<span>&#46;</span>006<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">UN.007</div>
+<div class="line"><a class="reference external" href="mailto:UN&#46;007&#37;&#52;&#48;1&#46;0&#46;0">UN<span>&#46;</span>007<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.002</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;002&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.007</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;007&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>007<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.009</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;009&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>009<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.010</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;010&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>010<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.011</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;011&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>011<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.014</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;014&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>014<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.016</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;016&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>016<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.018</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;018&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>018<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.019</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;019&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>019<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.020</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;020&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>020<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.025</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;025&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>025<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.027</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;027&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>027<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.028</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;028&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>028<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.029</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;029&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>029<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.035</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;035&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>035<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.MESH.001</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;MESH&#46;001&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>MESH<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VG.RTX.001</div>
+<div class="line"><a class="reference external" href="mailto:VG&#46;RTX&#46;001&#37;&#52;&#48;1&#46;0&#46;0">VG<span>&#46;</span>RTX<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VM.BIND.001</div>
+<div class="line"><a class="reference external" href="mailto:VM&#46;BIND&#46;001&#37;&#52;&#48;1&#46;0&#46;0">VM<span>&#46;</span>BIND<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VM.MDL.001</div>
+<div class="line"><a class="reference external" href="mailto:VM&#46;MDL&#46;001&#37;&#52;&#48;1&#46;0&#46;0">VM<span>&#46;</span>MDL<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VM.MDL.002</div>
+<div class="line"><a class="reference external" href="mailto:VM&#46;MDL&#46;002&#37;&#52;&#48;1&#46;0&#46;0">VM<span>&#46;</span>MDL<span>&#46;</span>002<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">VM.PS.001</div>
+<div class="line"><a class="reference external" href="mailto:VM&#46;PS&#46;001&#37;&#52;&#48;1&#46;0&#46;0">VM<span>&#46;</span>PS<span>&#46;</span>001<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--capability <var>CAPABILITY</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Capability to add. Valid options include:</div>
+<div class="line">atomic_asset</div>
+<div class="line"><a class="reference external" href="mailto:atomic_asset&#37;&#52;&#48;1&#46;0&#46;0">atomic_asset<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">dense_captions</div>
+<div class="line"><a class="reference external" href="mailto:dense_captions&#37;&#52;&#48;1&#46;0&#46;0">dense_captions<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">geometry</div>
+<div class="line"><a class="reference external" href="mailto:geometry&#37;&#52;&#48;1&#46;0&#46;0">geometry<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">hierarchy</div>
+<div class="line"><a class="reference external" href="mailto:hierarchy&#37;&#52;&#48;1&#46;0&#46;0">hierarchy<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">materials</div>
+<div class="line"><a class="reference external" href="mailto:materials&#37;&#52;&#48;1&#46;0&#46;0">materials<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">nonvisual_materials</div>
+<div class="line"><a class="reference external" href="mailto:nonvisual_materials&#37;&#52;&#48;1&#46;0&#46;0">nonvisual_materials<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">physics_joints</div>
+<div class="line"><a class="reference external" href="mailto:physics_joints&#37;&#52;&#48;1&#46;0&#46;0">physics_joints<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">physics_rigid_bodies</div>
+<div class="line"><a class="reference external" href="mailto:physics_rigid_bodies&#37;&#52;&#48;1&#46;0&#46;0">physics_rigid_bodies<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">semantic_labels</div>
+<div class="line"><a class="reference external" href="mailto:semantic_labels&#37;&#52;&#48;1&#46;0&#46;0">semantic_labels<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">units</div>
+<div class="line"><a class="reference external" href="mailto:units&#37;&#52;&#48;1&#46;0&#46;0">units<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--feature <var>FEATURE</var></span>, <span class="option">--enable-feature <var>FEATURE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Feature to enable. Valid options include:</div>
+<div class="line">minimal_placeable_visual</div>
+<div class="line"><a class="reference external" href="mailto:minimal_placeable_visual&#37;&#52;&#48;1&#46;0&#46;0">minimal_placeable_visual<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">performant_placeable_visual</div>
+<div class="line"><a class="reference external" href="mailto:performant_placeable_visual&#37;&#52;&#48;0&#46;0&#46;1">performant_placeable_visual<span>&#64;</span>0<span>&#46;</span>0<span>&#46;</span>1</a> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--disable-feature <var>FEATURE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Feature to disable. Valid options include:</div>
+<div class="line">minimal_placeable_visual</div>
+<div class="line"><a class="reference external" href="mailto:minimal_placeable_visual&#37;&#52;&#48;1&#46;0&#46;0">minimal_placeable_visual<span>&#64;</span>1<span>&#46;</span>0<span>&#46;</span>0</a></div>
+<div class="line">performant_placeable_visual</div>
+<div class="line"><a class="reference external" href="mailto:performant_placeable_visual&#37;&#52;&#48;0&#46;0&#46;1">performant_placeable_visual<span>&#64;</span>0<span>&#46;</span>0<span>&#46;</span>1</a> (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--profile <var>PROFILE</var></span>, <span class="option">--enable-profile <var>PROFILE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Profile to enable. Valid options include: (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--disable-profile <var>PROFILE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Profile to disable. Valid options include: (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--parameter <var>PARAMETER</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Parameter to override in NAME=VALUE format. Can be specified multiple times. (default: [])</div>
+</div>
+</dd>
+<dt><kbd><span class="option">-f</span>, <span class="option">--fix</span>, <span class="option">--no-fix</span></kbd></dt>
+<dd><p>Whether to fix issues. (default: False)</p>
+</dd>
+<dt><kbd><span class="option">--stamp</span>, <span class="option">--no-stamp</span></kbd></dt>
+<dd><p>Stamp the asset’s metadata with validation profile info after successful validation. Requires –profile. (default: False)</p>
+</dd>
+<dt><kbd><span class="option">-p <var>PREDICATE</var></span>, <span class="option">--predicate <var>PREDICATE</var></span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Predicate to select. Valid options include:</div>
+<div class="line">Any</div>
+<div class="line">HasRootLayer</div>
+<div class="line">IsError</div>
+<div class="line">IsFailure</div>
+<div class="line">IsWarning (default: None)</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--group-by <var>GROUP_BY</var></span></kbd></dt>
+<dd><p>Group by. Valid options include:
+| requirement
+| rule_name (default: None)</p>
+</dd>
+<dt><kbd><span class="option">-d</span>, <span class="option">--init-rules</span>, <span class="option">--no-init-rules</span>, <span class="option">--defaultRules</span>, <span class="option">--no-defaultRules</span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Whether to use the default enabled validation rules.</div>
+<div class="line">Opt-out of this behavior to gain finer control over</div>
+<div class="line">the rules using the –categories and –rules flags. (default: True)</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--variants</span>, <span class="option">--no-variants</span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Whether to set variants. Note: This can be expensive. (default: True)</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--instance-prototypes</span>, <span class="option">--no-instance-prototypes</span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Whether to process instance proxy prims for every instance.</div>
+<div class="line">Disabling this can speed up heavily instanced stages. (default: True)</div>
+</div>
+</dd>
+<dt><kbd><span class="option">--csv-output <var>CSV</var></span></kbd></dt>
+<dd><p>Path to the CSV output file. (default: None)</p>
+</dd>
+<dt><kbd><span class="option">--json-output <var>JSON</var></span></kbd></dt>
+<dd><p>Path to the JSON output file. (default: None)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>See <a class="reference external" href="https://github.com/NVIDIA-Omniverse/usd-validation-nvidia">https://github.com/NVIDIA-Omniverse/usd-validation-nvidia</a> for more details.</p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Python API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="authoring.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Authoring rules</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+
+<div class="bd-sidebar-secondary"></div>
+
+
+              
+            
+
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+<a class="footer-brand logo" href="https://www.nvidia.com">
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-blk-for-screen.svg" class="logo__image only-light" alt="NVIDIA"/>
+  <img src="../_static/nvidia-logo-horiz-rgb-1c-wht-for-screen.svg" class="logo__image only-dark" alt="NVIDIA"/>
+</a></div>
+      
+        <div class="footer-item">
+
+
+
+
+  <p class="copyright">
+    
+      Copyright © 2024-2026, NVIDIA Corporation.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item"><p class="last-updated">
+  Last updated on Jul 01, 2026.
+  <br/>
+</p></div>
+      
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>
