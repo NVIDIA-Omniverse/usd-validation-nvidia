@@ -26,12 +26,13 @@ from ._compliance_runners import (
     ComplianceCheckerEventType,
     SyncComplianceCheckerRunner,
 )
+from ._conditions import should_skip
 from ._context_managers import AsyncCounter, DelegateContextManager, PeriodicCallback
 from ._identifiers import ANON_VALIDATOR_LAYER_NAME
 from ._issues import Issue, IssueSeverity
 from ._parameters import ParameterMapping
 from ._stats import ValidationStats
-from ._url_utils import LocalUriResolver, UriResolver
+from .utils import LocalUriResolver, UriResolver, make_absolute_url_if_possible
 
 __all__ = [
     "ComplianceChecker",
@@ -71,11 +72,13 @@ class ComplianceChecker:
         self,
         *,
         skip_variants: bool = False,
+        instance_prototypes: bool = True,
         stats: ValidationStats | None = None,
         parameters: ParameterMapping | None = None,
         resolver: UriResolver | None = None,
     ):
         self._doVariants = not skip_variants
+        self._instance_prototypes = instance_prototypes
         self._issues = []
         self._stats = stats or ValidationStats()
         self._parameters = parameters or ParameterMapping()
@@ -122,6 +125,14 @@ class ComplianceChecker:
         if rule_type in self._rule_types:
             return
         self._rule_types.add(rule_type)
+        if skip_reason := should_skip(rule_type):
+            self._issues.append(
+                Issue(
+                    severity=IssueSeverity.INFO,
+                    message=f"Skipping rule {rule_type.__name__}: {skip_reason}",
+                )
+            )
+            return
         try:
             # Instantiate rule based on constructor signature - use old OR new style, not both
             if self._is_old_style_rule(rule_type):
@@ -274,9 +285,19 @@ class ComplianceChecker:
         stage.SetEditTarget(stage.GetEditTargetForLocalLayer(compliance_layer))
         return stage
 
-    @classmethod
-    def _create_prims_it(cls, stage: Usd.Stage):
-        return iter(Usd.PrimRange.Stage(stage, Usd.TraverseInstanceProxies()))
+    def _create_prims_it(self, root: Usd.Stage | Usd.Prim) -> Iterator[Usd.Prim]:
+        """Create a prim iterator for a stage root or prim subtree with the instance-prototype policy."""
+        if isinstance(root, Usd.Stage):
+            if self._instance_prototypes:
+                prim_range = Usd.PrimRange.Stage(root, Usd.TraverseInstanceProxies())
+            else:
+                prim_range = Usd.PrimRange.Stage(root)
+        else:
+            if self._instance_prototypes:
+                prim_range = Usd.PrimRange(root, Usd.TraverseInstanceProxies())
+            else:
+                prim_range = Usd.PrimRange(root)
+        return iter(prim_range)
 
     def _check_compliance(
         self, asset: str | Usd.Stage, asset_dependencies: tuple[Sdf.Layer, str, str] | None = None
@@ -345,9 +366,15 @@ class ComplianceChecker:
         """
         with Ar.ResolverContextBinder(context):
             with Ar.ResolverScopedCache():
-                identifier: str = asset if isinstance(asset, str) else asset.GetRootLayer().identifier
+                if isinstance(asset, str):
+                    root_layer = Sdf.Layer.FindOrOpen(asset)
+                elif isinstance(asset, Usd.Stage):
+                    root_layer = asset.GetRootLayer()
+                else:
+                    raise TypeError(f"Unknown asset of type {type(asset)}")
+                asset_path = make_absolute_url_if_possible(root_layer.realPath or root_layer.identifier)
                 with DelegateContextManager():
-                    asset_dependencies = UsdUtils.ComputeAllDependencies(Sdf.AssetPath(identifier))
+                    asset_dependencies = UsdUtils.ComputeAllDependencies(Sdf.AssetPath(asset_path))
                     return asset_dependencies
 
     def _check_asset_format(self, asset_path: str) -> Iterator[ComplianceCheckerEvent]:
@@ -445,5 +472,4 @@ class ComplianceChecker:
             for idx, sel in enumerate(variation):
                 variant_sets.SetSelection(variant_sets_names[idx], sel)
             yield ComplianceCheckerEvent(ComplianceCheckerEventType.RESET_CACHE, None)
-            prim_range_iterator = iter(Usd.PrimRange(prim, Usd.TraverseInstanceProxies()))
-            yield from self._traverse_range(prim_range_iterator, isStageRoot=False)
+            yield from self._traverse_range(self._create_prims_it(prim), isStageRoot=False)

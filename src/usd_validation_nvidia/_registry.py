@@ -10,8 +10,7 @@ from dataclasses import dataclass
 from functools import cached_property, total_ordering
 from typing import Generic, TypeVar
 
-from ._events import EventListener, EventStream, create_event_stream
-from ._semver import SemVer
+from .utils import EventListener, EventStream, SemVer, create_event_stream
 
 K = TypeVar("K")
 V = TypeVar("V")
@@ -135,7 +134,6 @@ class VersionedRegistry(Registry[IdVersion, V]):
         key: IdVersion = self.create_key(value)
         if key not in self._registry:
             raise ValueError(f"Value with key {key} not found")
-        self._registry_by_id[key.id].remove(key)
         del self[key]
 
     def find(self, id: str, version: str | SemVer | None = None) -> V | None:
@@ -189,3 +187,7 @@ class VersionedRegistry(Registry[IdVersion, V]):
 
     def latest_values(self) -> list[V]:
         return [self[key] for key in self.latest_keys()]
+
+    def __delitem__(self, key: IdVersion) -> None:
+        self._registry_by_id[key.id].remove(key)
+        super().__delitem__(key)

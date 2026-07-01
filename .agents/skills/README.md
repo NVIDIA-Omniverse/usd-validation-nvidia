@@ -16,6 +16,7 @@ Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 .agents/skills/
   project-setup-python/SKILL.md
   project-venv-setup/SKILL.md
+  validate-references/SKILL.md
   validate-requirements/SKILL.md
 ```
 

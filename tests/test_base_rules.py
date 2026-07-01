@@ -20,7 +20,7 @@ from usd_validation_nvidia import (
     TypeChecker,
     ValidationEngine,
 )
-from usd_validation_nvidia.tests import IsAFailure, IsAnError
+from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
 
 
 class ExtentsCheckerTest(AsyncioValidationTestCase):
@@ -283,6 +283,23 @@ class NormalMapTextureCheckerTest(AsyncioValidationTestCase):
                 )
             ],
         )
+
+    async def test_warns_and_fixes_normal_map_texture_inputs(self):
+        await self.assertRuleAsync(
+            asset=get_url("normalMapFixable.usda"),
+            rule=NormalMapTextureChecker,
+            asserts=[
+                IsAWarning(
+                    message=".*inputs:sourceColorSpace value 'auto'.*should set it to 'raw'.*",
+                    at=Sdf.Path("/World/material/NormalMap"),
+                ),
+                IsAWarning(
+                    message=".*non-standard inputs:scale and inputs:bias values.*",
+                    at=Sdf.Path("/World/material/NormalMap"),
+                ),
+            ],
+        )
+        await self.assertSuggestionAsync(asset=get_url("normalMapFixable.usda"), rule=NormalMapTextureChecker)
 
 
 class CheckZipFileTest(AsyncioValidationTestCase):

@@ -12,8 +12,7 @@ from typing import Any, TypeVar
 
 from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
 
-from ._graph_tools import DisjointSet
-from ._import_utils import default_implementation, default_implementation_method
+from .utils import DisjointSet, default_implementation, default_implementation_method
 
 __all__ = [
     "RepeatedValuesSet",

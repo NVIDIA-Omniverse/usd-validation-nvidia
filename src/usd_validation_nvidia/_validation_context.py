@@ -8,9 +8,10 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from ._capabilities import Capability
-from ._features import Feature
+from ._features import Feature, FeatureRegistry
 from ._profiles import Profile
-from ._requirements import Requirement
+from ._requirements import Requirement, RequirementsRegistry
+from .capabilities import RequirementRefProtocol
 
 __all__ = [
     "FeatureStatus",
@@ -32,7 +33,7 @@ class ValidationStatus(str, Enum):
 class RequirementStatus:
     """Pass/fail status for a single requirement."""
 
-    requirement: Requirement
+    requirement: Requirement | RequirementRefProtocol
     status: ValidationStatus
 
 
@@ -45,9 +46,9 @@ class FeatureStatus:
     requirements: list[RequirementStatus]
 
     @property
-    def failed_requirements(self) -> list[Requirement]:
+    def failed_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         """All requirements that failed for this feature, deduplicated."""
-        seen: dict[tuple[str, str | None], Requirement] = {}
+        seen: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
         for req_status in self.requirements:
             if req_status.status == ValidationStatus.FAIL:
                 req = req_status.requirement
@@ -64,9 +65,9 @@ class ProfileStatus:
     features: list[FeatureStatus]
 
     @property
-    def failed_requirements(self) -> list[Requirement]:
+    def failed_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         """All requirements that failed across all features of this profile, deduplicated."""
-        seen: dict[tuple[str, str | None], Requirement] = {}
+        seen: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
         for feature_status in self.features:
             for req in feature_status.failed_requirements:
                 seen[(req.code, req.version)] = req
@@ -95,9 +96,9 @@ class ValidationContext:
         return [p for p in self.profiles if p.status == ValidationStatus.FAIL]
 
     @property
-    def failed_requirements(self) -> list[Requirement]:
+    def failed_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         """All requirements that failed across all profiles and features, deduplicated."""
-        seen: dict[tuple[str, str | None], Requirement] = {}
+        seen: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
         for profile_status in self.profiles:
             for req in profile_status.failed_requirements:
                 seen[(req.code, req.version)] = req
@@ -112,7 +113,7 @@ class ValidationContext:
         enabled_profiles: list[Profile],
         enabled_features: list[Feature],
         enabled_capabilities: list[Capability],
-        failed_requirements: Iterable[Requirement],
+        failed_requirements: Iterable[Requirement | RequirementRefProtocol],
     ) -> ValidationContext | None:
         """Build a typed validation context from engine state and failed requirements.
 
@@ -124,12 +125,18 @@ class ValidationContext:
 
         failed_keys: set[tuple[str, str | None]] = {(r.code, r.version) for r in failed_requirements}
 
-        def _req_status(req: Requirement) -> RequirementStatus:
+        def _req_status(req: Requirement | RequirementRefProtocol) -> RequirementStatus:
             status = ValidationStatus.FAIL if (req.code, req.version) in failed_keys else ValidationStatus.PASS
             return RequirementStatus(requirement=req, status=status)
 
-        def _feature_status(feature_like: Feature | Capability) -> FeatureStatus:
-            reqs = [_req_status(r) for r in feature_like.requirements]
+        feature_registry = FeatureRegistry()
+        requirement_registry = RequirementsRegistry()
+
+        def _feature_status(
+            feature_like: Feature | Capability,
+            requirements: Iterable[Requirement | RequirementRefProtocol],
+        ) -> FeatureStatus:
+            reqs = [_req_status(r) for r in requirement_registry.resolve_requirements(list(requirements))]
             status = (
                 ValidationStatus.FAIL if any(r.status == ValidationStatus.FAIL for r in reqs) else ValidationStatus.PASS
             )
@@ -137,9 +144,11 @@ class ValidationContext:
 
         profiles: list[ProfileStatus] = []
         for profile in enabled_profiles:
-            # Always resolve through capabilities — mirrors _direct_requirements in the engine,
-            # which exclusively uses profile.capabilities when enabling rules.
-            features = [_feature_status(cap) for cap in profile.capabilities]
+            # Modern profiles report feature status; capabilities are a legacy fallback.
+            if profile.features:
+                features = [_feature_status(f, feature_registry.get_requirements(f)) for f in profile.features]
+            else:
+                features = [_feature_status(cap, cap.requirements) for cap in profile.capabilities]
             p_status = (
                 ValidationStatus.FAIL
                 if any(f.status == ValidationStatus.FAIL for f in features)
@@ -149,8 +158,8 @@ class ValidationContext:
 
         features: list[FeatureStatus] = []
         if enabled_features:
-            features = [_feature_status(f) for f in enabled_features]
+            features = [_feature_status(f, feature_registry.get_requirements(f)) for f in enabled_features]
         elif enabled_capabilities and not enabled_profiles:
-            features = [_feature_status(c) for c in enabled_capabilities]
+            features = [_feature_status(c, c.requirements) for c in enabled_capabilities]
 
         return cls(profiles=profiles, features=features)

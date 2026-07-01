@@ -75,6 +75,15 @@ class CapabilitiesRegistryTest(unittest.TestCase):
         unregister_capability(self.mock_capability)
         self.assertNotIn(self.mock_capability, self.registry)
 
+    def test_delitem_capability_ok(self):
+        register_capability(self.mock_capability)
+        key = self.registry.create_key(self.mock_capability)
+
+        del self.registry[key]
+
+        self.assertNotIn(self.mock_capability, self.registry)
+        self.assertIsNone(self.registry.find("test_capability"))
+
     def test_register_capabilities(self):
         register_capabilities([self.mock_capability])
         try:

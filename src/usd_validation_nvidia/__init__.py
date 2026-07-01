@@ -16,27 +16,8 @@ from ._assets import (
     AssetType,
     AssetValidatedCallback,
 )
-from ._atomic_asset_checker import (
-    AnchoredAssetPathsChecker,
-    SupportedFileTypesChecker,
-    UsdzUdimLimitationChecker,
-)
 from ._base_rule_checker import BaseRuleChecker
 from ._base_rule_metadata import BaseRuleCheckerMetadata
-from ._base_rules import (
-    ByteAlignmentChecker,
-    CompressionChecker,
-    ExtentsChecker,
-    KindChecker,
-    MissingReferenceChecker,
-    NormalMapTextureChecker,
-    PortableAssetPathChecker,
-    PrimEncapsulationChecker,
-    StageMetadataChecker,
-    TextureChecker,
-    TypeChecker,
-    UsdzPackageValidator,
-)
 from ._capabilities import (
     Capability,
     CapabilityRegistry,
@@ -66,19 +47,23 @@ from ._compliance_runners import (
     ComplianceCheckerEventRule,
     ComplianceCheckerEventType,
 )
+from ._conditions import (
+    RulePredicate,
+    RulePredicates,
+    is_importable,
+    should_skip,
+    skip_if,
+    skip_unless,
+)
 from ._context_managers import (
     AsyncBatchRunner,
     AsyncCounter,
     DelegateContextManager,
     PeriodicCallback,
 )
-from ._csv_reports import IssueCSVData, export_csv_file
 from ._default_categories import DefaultCategoryRules
 from ._default_plugin import DefaultPlugin
-from ._deprecate import deprecated
 from ._engine import ValidationEngine
-from ._events import EventListener, EventStream, create_event_stream
-from ._expression import _common_pattern, _PatternTree
 from ._features import (
     Feature,
     FeatureRegistry,
@@ -89,23 +74,6 @@ from ._features import (
     unregister_features,
 )
 from ._fix import AuthoringLayers, FixResult, FixResultList, FixStatus, IssueFixer
-from ._gaussian_splat_checker import GaussianSplatSchemaChecker
-from ._geometry_checker import (
-    AssetOriginPositioningChecker,
-    ContainsMeshChecker,
-    IndexedPrimvarChecker,
-    ManifoldChecker,
-    NormalsExistChecker,
-    NormalsValidChecker,
-    NormalsWindingsChecker,
-    SubdivisionSchemeChecker,
-    UnusedMeshTopologyChecker,
-    UnusedPrimvarChecker,
-    ValidateTopologyChecker,
-    WeldChecker,
-    ZeroAreaFaceChecker,
-)
-from ._hierarchy_rules import HierarchyHasRootChecker, RootPrimXformableChecker
 from ._identifiers import (
     AttributeId,
     AtType,
@@ -125,7 +93,6 @@ from ._identifiers import (
     to_identifier,
     to_identifiers,
 )
-from ._import_utils import default_implementation, default_implementation_method
 from ._issues import (
     AssetFix,
     Issue,
@@ -136,18 +103,6 @@ from ._issues import (
     IssueSeverity,
     IssuesList,
     Suggestion,
-)
-from ._json_reports import IssueJSONEncoder, export_json_file
-from ._layer_checker import LayerSpecChecker, UsdAsciiPerformanceChecker
-from ._layout_checker import DanglingOverPrimChecker, DefaultPrimChecker
-from ._material_checker import (
-    MaterialOldMdlSchemaChecker,
-    MaterialOutOfScopeChecker,
-    MaterialPathChecker,
-    MaterialUsdPreviewSurfaceChecker,
-    ShaderImplementationSourceChecker,
-    UsdDanglingMaterialBinding,
-    UsdMaterialBindingApi,
 )
 from ._mesh_tools import (
     RepeatedValuesSet,
@@ -162,28 +117,7 @@ from ._mesh_tools import (
     is_typename_array,
     remove_unused_values_and_remap_indices,
 )
-from ._misc_checker import (
-    SkelBindingAPIAppliedChecker,
-    UsdGeomSubsetChecker,
-    UsdLuxSchemaChecker,
-)
 from ._parameters import Parameter, ParameterMapping, ParameterType, UserParameter
-from ._performance_checker import (
-    AlmostExtremeExtentChecker,
-    BaseBoundsChecker,
-    BoundsLimit,
-    PointsPrecisionChecker,
-    PointsPrecisionErrorChecker,
-    PointsPrecisionWarningChecker,
-    PrecisionLimit,
-)
-from ._physics_checker import (
-    ArticulationChecker,
-    ColliderChecker,
-    MassChecker,
-    PhysicsJointChecker,
-    RigidBodyChecker,
-)
 from ._plugins import LoadedPlugin, PluginManager, PluginProtocol
 from ._profiles import (
     Profile,
@@ -203,24 +137,13 @@ from ._requirements import (
     unregister_requirements,
 )
 from ._results import Results, ResultsList, to_issues_list
-from ._semver import SemVer
-from ._singleton import singleton
 from ._stats import ValidationStats
-from ._units_rules import UnitsInMetersChecker, UpAxisZChecker
-from ._url_utils import (
-    LocalUriResolver,
-    UriResolver,
-    make_relative_url_if_possible,
-    normalize_url,
-)
-from ._usd_utils import get_sdf_type_for_shader_property
 from ._usd_validator_adapter import (
     UsdValidatorAdapter,
     ValidatorErrorProtocol,
     ValidatorErrorSiteProtocol,
     ValidatorProtocol,
 )
-from ._utf8_checker import UnicodeNameChecker
 from ._validation_context import (
     FeatureStatus,
     ProfileStatus,
@@ -229,6 +152,94 @@ from ._validation_context import (
     ValidationStatus,
 )
 from ._version import __version__, get_version
+from .capabilities import (
+    CapabilityProtocol,
+    FeatureProtocol,
+    ProfileProtocol,
+    RequirementProtocol,
+    RequirementRefProtocol,
+)
+from .reporting import IssueCSVData, IssueJSONEncoder, export_csv_file, export_json_file
+from .rules import (
+    AlmostExtremeExtentChecker,
+    AnchoredAssetPathsChecker,
+    ArticulationChecker,
+    AssetOriginPositioningChecker,
+    BaseBoundsChecker,
+    BoundsLimit,
+    ByteAlignmentChecker,
+    ColliderChecker,
+    CompressionChecker,
+    ContainsMeshChecker,
+    DanglingOverPrimChecker,
+    DefaultPrimChecker,
+    ExtentsChecker,
+    GaussianSplatSchemaChecker,
+    HierarchyHasRootChecker,
+    IndexedPrimvarChecker,
+    KindChecker,
+    LayerSpecChecker,
+    ManifoldChecker,
+    MassChecker,
+    MaterialOldMdlSchemaChecker,
+    MaterialOutOfScopeChecker,
+    MaterialPathChecker,
+    MaterialUsdPreviewSurfaceChecker,
+    MissingReferenceChecker,
+    NormalMapTextureChecker,
+    NormalsExistChecker,
+    NormalsValidChecker,
+    NormalsWindingsChecker,
+    PhysicsJointChecker,
+    PointsPrecisionChecker,
+    PointsPrecisionErrorChecker,
+    PointsPrecisionWarningChecker,
+    PortableAssetPathChecker,
+    PrecisionLimit,
+    PrimEncapsulationChecker,
+    RigidBodyChecker,
+    RootPrimXformableChecker,
+    ShaderImplementationSourceChecker,
+    SkelBindingAPIAppliedChecker,
+    StageMetadataChecker,
+    SubdivisionSchemeChecker,
+    SupportedFileTypesChecker,
+    TextureChecker,
+    TypeChecker,
+    UnicodeNameChecker,
+    UnitsInMetersChecker,
+    UnusedMeshTopologyChecker,
+    UnusedPrimvarChecker,
+    UpAxisZChecker,
+    UsdAsciiPerformanceChecker,
+    UsdDanglingMaterialBinding,
+    UsdGeomSubsetChecker,
+    UsdLuxSchemaChecker,
+    UsdMaterialBindingApi,
+    UsdzPackageValidator,
+    UsdzUdimLimitationChecker,
+    ValidateTopologyChecker,
+    WeldChecker,
+    ZeroAreaFaceChecker,
+)
+from .utils import (
+    EventListener,
+    EventStream,
+    LocalUriResolver,
+    SemVer,
+    UriResolver,
+    _common_pattern,
+    _PatternTree,
+    create_event_stream,
+    default_implementation,
+    default_implementation_method,
+    deprecated,
+    get_sdf_type_for_shader_property,
+    make_absolute_url_if_possible,
+    make_relative_url_if_possible,
+    normalize_url,
+    singleton,
+)
 
 __all__ = [
     "AlmostExtremeExtentChecker",
@@ -255,6 +266,7 @@ __all__ = [
     "BoundsLimit",
     "ByteAlignmentChecker",
     "Capability",
+    "CapabilityProtocol",
     "CapabilityRegistry",
     "CategoryRuleRegistry",
     "ColliderChecker",
@@ -275,6 +287,7 @@ __all__ = [
     "EventStream",
     "ExtentsChecker",
     "Feature",
+    "FeatureProtocol",
     "FeatureRegistry",
     "FeatureStatus",
     "FixResult",
@@ -329,18 +342,23 @@ __all__ = [
     "PrimId",
     "PrimvarId",
     "Profile",
+    "ProfileProtocol",
     "ProfileRegistry",
     "ProfileStatus",
     "PropertyId",
     "Registry",
     "RepeatedValuesSet",
     "Requirement",
+    "RequirementProtocol",
+    "RequirementRefProtocol",
     "RequirementStatus",
     "RequirementsRegistry",
     "Results",
     "ResultsList",
     "RigidBodyChecker",
     "RootPrimXformableChecker",
+    "RulePredicate",
+    "RulePredicates",
     "SchemaBaseId",
     "SemVer",
     "ShaderImplementationSourceChecker",
@@ -411,7 +429,9 @@ __all__ = [
     "has_unreferenced_primvar",
     "has_unreferenced_values",
     "has_weldable_points",
+    "is_importable",
     "is_typename_array",
+    "make_absolute_url_if_possible",
     "make_relative_url_if_possible",
     "normalize_url",
     "register_capabilities",
@@ -424,7 +444,10 @@ __all__ = [
     "register_requirements",
     "register_rule",
     "remove_unused_values_and_remap_indices",
+    "should_skip",
     "singleton",
+    "skip_if",
+    "skip_unless",
     "to_identifier",
     "to_identifiers",
     "to_issues_list",

@@ -23,7 +23,7 @@ Visualization, culling and other algorithms rely on correct winding order to det
 
 ### Invalid: Inconsistent winding order
 
-```{figure} /_static/images/winding_order.jpg
+```{figure} /specs/_static/images/winding_order.jpg
 
 Visual artifacts when the winding order is incorrect in Storm.
 ```

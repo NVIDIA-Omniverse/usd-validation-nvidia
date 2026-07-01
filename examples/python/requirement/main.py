@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
+#
 """Minimal requirement-backed NVIDIA USD Validation plugin example."""
 
-from pxr import Usd
 from example_requirements import Requirements
+from pxr import Usd
 
 from usd_validation_nvidia import (
     BaseRuleChecker,
@@ -13,7 +13,6 @@ from usd_validation_nvidia import (
     unregister_requirements,
     unregister_rule,
 )
-
 
 # [snippet:custom-requirement]
 EXAMPLE_DEFAULT_PRIM = Requirements.EXAMPLE_001
@@ -44,4 +43,6 @@ class Plugin:
     def on_shutdown(self) -> None:
         unregister_rule(ExampleDefaultPrimRequirementChecker)
         unregister_requirements(ExampleDefaultPrimRequirementChecker)
+
+
 # [/snippet:plugin-entry-point]

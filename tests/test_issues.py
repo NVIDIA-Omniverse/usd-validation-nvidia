@@ -3,7 +3,6 @@
 #
 import unittest
 from collections.abc import Callable
-from enum import Enum
 from unittest.mock import Mock
 
 from common import get_url
@@ -23,6 +22,7 @@ from usd_validation_nvidia import (
     StageId,
     Suggestion,
 )
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 from usd_validation_nvidia.capabilities import Requirements
 
 
@@ -243,17 +243,11 @@ class IssueGroupsByTest(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(p2(issues[2]))
 
     def test_requirement(self):
-        class MyRequirement(Enum):
-            REQ001 = ("001", "message", ("tag1", "tag2"))
-
-            def __init__(self, code, message, tags):
-                self.code = code
-                self.message = message
-                self.tags = tags
+        requirement = RequirementDTO(code="001", message="message", tags=("tag1", "tag2"))
 
         issues = [
-            Issue(severity=IssueSeverity.ERROR, requirement=MyRequirement.REQ001),
-            Issue(severity=IssueSeverity.ERROR, requirement=MyRequirement.REQ001),
+            Issue(severity=IssueSeverity.ERROR, requirement=requirement),
+            Issue(severity=IssueSeverity.ERROR, requirement=requirement),
         ]
         self.assertEqual(issues[0].code, "001")
         self.assertEqual(issues[0].message, "message")
@@ -384,7 +378,7 @@ class IssuePredicatesTest(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(
             repr(IssuePredicates.MatchesCode(Requirements.AA_001.code)),
-            "IssuePredicates.MatchesCode('AA.001',){}",
+            f"IssuePredicates.MatchesCode({Requirements.AA_001.code!r},){{}}",
         )
 
     def test_matches_token(self):

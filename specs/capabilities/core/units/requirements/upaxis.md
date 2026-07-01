@@ -49,7 +49,7 @@ The stage must have a valid upAxis value specified to define the orientation of 
 
 ## Related Requirements
 
-- [corrective-transforms](/capabilities/core/units/requirements/corrective-transforms)
+- [corrective-transforms](/specs/capabilities/core/units/requirements/corrective-transforms)
 
 ## For More Information
 

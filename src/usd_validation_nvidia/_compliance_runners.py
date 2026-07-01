@@ -11,11 +11,11 @@ from collections.abc import Awaitable, Callable
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from contextvars import ContextVar
-from dataclasses import dataclass, field
+from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from inspect import iscoroutinefunction
 from operator import attrgetter
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, cast
 
 from pxr import Ar
 
@@ -80,11 +80,6 @@ class ComplianceCheckerEvent:
         else:
             return (self.value,)
 
-    def apply(self, rules: list[BaseRuleChecker], stats: ValidationStats) -> None:
-        for rule in rules:
-            with stats.time_rule(rule.__class__):
-                self.type.apply(rule, self.args)
-
 
 @dataclass(frozen=True, slots=True)
 class ComplianceCheckerEventRule:
@@ -138,14 +133,230 @@ class ComplianceCheckerEventRule:
 
 
 @dataclass
+class AbstractRunner(Generic[T]):
+    stats: ValidationStats
+    counter: int = field(init=False, default=0)
+    events: list[T] = field(init=False, default_factory=list)
+    context: Ar.Context = field(init=False, default_factory=lambda: Ar.GetResolver().GetCurrentContext())
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return False
+
+    def map(self, event_rule: ComplianceCheckerEventRule) -> T:
+        return cast(T, event_rule)
+
+    def pop(self) -> list[T]:
+        events: list[T] = self.events
+        self.events = []
+        return events
+
+
+@dataclass
+class AbstractSyncRunner(AbstractRunner[T]):
+    def submit(self, event_rule: ComplianceCheckerEventRule) -> None:
+        self.events.append(self.map(event_rule))
+        if len(self.events) == MAXIMUM_BATCH_SIZE:
+            self.flush()
+
+    def flush(self) -> None: ...
+
+    def close(self) -> None:
+        self.flush()
+
+
+@dataclass
+class AbstractAsyncRunner(AbstractRunner[T]):
+    async def submit_async(self, event_rule: ComplianceCheckerEventRule) -> None:
+        self.events.append(self.map(event_rule))
+        if len(self.events) == MAXIMUM_BATCH_SIZE:
+            await self.flush_async()
+
+    async def flush_async(self) -> None: ...
+
+    async def close_async(self) -> None:
+        await self.flush_async()
+
+
+@dataclass
+class SyncNoopRunner(AbstractSyncRunner[ComplianceCheckerEventRule]):
+    """Counts empty rule-event pairs without running work."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return event_rule.is_empty_task()
+
+    def submit(self, event_rule: ComplianceCheckerEventRule) -> None:
+        self.counter += 1
+
+
+@dataclass
+class SyncInlineRunner(AbstractSyncRunner[ComplianceCheckerEventRule]):
+    """Runs sync events inline on the current thread."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return not event_rule.is_async_task()
+
+    def flush(self) -> None:
+        if not self.events:
+            return
+        with Ar.ResolverContextBinder(self.context):
+            with Ar.ResolverScopedCache():
+                events: list[ComplianceCheckerEventRule] = self.pop()
+                for event in events:
+                    event.apply(self.stats)
+                self.counter += len(events)
+
+
+@dataclass
+class SyncCoroutineRunner(AbstractSyncRunner[Awaitable[None]]):
+    """Runs coroutine events from synchronous code."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return event_rule.is_async_task()
+
+    def map(self, event_rule: ComplianceCheckerEventRule) -> Awaitable[None]:
+        return event_rule.applyAsync(self.stats)
+
+    def flush(self) -> None:
+        if not self.events:
+            return
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(self._flush_async())
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            pool.submit(asyncio.run, self._flush_async()).result()
+
+    async def _flush_async(self) -> None:
+        events: list[Awaitable[None]] = self.pop()
+        await asyncio.gather(*events)
+        self.counter += len(events)
+
+
+@dataclass
+class AsyncNoopRunner(AbstractAsyncRunner[ComplianceCheckerEventRule]):
+    """Counts empty rule-event pairs without running work."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return event_rule.is_empty_task()
+
+    async def submit_async(self, event_rule: ComplianceCheckerEventRule) -> None:
+        self.counter += 1
+
+
+@dataclass
+class AsyncCoroutineRunner(AbstractAsyncRunner[ComplianceCheckerEventRule]):
+    """Runs coroutine events during async flush."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return not event_rule.is_heavy_task() and event_rule.is_async_task()
+
+    async def flush_async(self) -> None:
+        if not self.events:
+            return
+        with Ar.ResolverContextBinder(self.context):
+            with Ar.ResolverScopedCache():
+                events: list[ComplianceCheckerEventRule] = self.pop()
+                for event in events:
+                    await event.applyAsync(self.stats)
+                self.counter += len(events)
+
+
+@dataclass
+class AsyncThreadRunner(AbstractAsyncRunner[ComplianceCheckerEventRule]):
+    """Runs sync events in a thread pool."""
+
+    pool: ThreadPoolExecutor = field(init=False, default_factory=ThreadPoolExecutor)
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return not event_rule.is_async_task() and not event_rule.is_heavy_task()
+
+    def _flush_sync(self) -> None:
+        with Ar.ResolverContextBinder(self.context):
+            with Ar.ResolverScopedCache():
+                events: list[ComplianceCheckerEventRule] = self.pop()
+                for event in events:
+                    event.apply(self.stats)
+                self.counter += len(events)
+
+    async def flush_async(self) -> None:
+        if not self.events:
+            return
+        loop: AbstractEventLoop = asyncio.get_running_loop()
+        ctx: ContextVar = contextvars.copy_context()
+        func: Callable[[], None] = functools.partial(ctx.run, self._flush_sync)
+        await loop.run_in_executor(self.pool, func)
+
+
+@dataclass
+class AsyncCoroutineTaskRunner(AbstractAsyncRunner[asyncio.Task]):
+    """Starts coroutine events during async submit."""
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return event_rule.is_heavy_task() and event_rule.is_async_task()
+
+    async def _run(self, event_rule: ComplianceCheckerEventRule) -> None:
+        with Ar.ResolverContextBinder(self.context):
+            with Ar.ResolverScopedCache():
+                await event_rule.applyAsync(self.stats)
+
+    def map(self, event_rule: ComplianceCheckerEventRule) -> asyncio.Task:
+        return asyncio.create_task(self._run(event_rule))
+
+    async def flush_async(self) -> None:
+        if not self.events:
+            return
+        tasks: list[asyncio.Task] = self.pop()
+        await asyncio.gather(*tasks)
+        self.counter += len(tasks)
+
+
+@dataclass
+class AsyncThreadTaskRunner(AbstractAsyncRunner[asyncio.Task]):
+    """Starts sync events in a thread during async submit."""
+
+    pool: ThreadPoolExecutor = field(init=False, default_factory=ThreadPoolExecutor)
+
+    def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
+        return event_rule.is_heavy_task() and not event_rule.is_async_task()
+
+    def _run(self, event_rule: ComplianceCheckerEventRule) -> None:
+        with Ar.ResolverContextBinder(self.context):
+            with Ar.ResolverScopedCache():
+                event_rule.apply(self.stats)
+
+    async def _run_async(self, event_rule: ComplianceCheckerEventRule) -> None:
+        loop: AbstractEventLoop = asyncio.get_running_loop()
+        ctx: ContextVar = contextvars.copy_context()
+        func: Callable[[], None] = functools.partial(ctx.run, self._run, event_rule)
+        await loop.run_in_executor(self.pool, func)
+
+    def map(self, event_rule: ComplianceCheckerEventRule) -> asyncio.Task:
+        return asyncio.create_task(self._run_async(event_rule))
+
+    async def flush_async(self) -> None:
+        if not self.events:
+            return
+        tasks: list[asyncio.Task] = self.pop()
+        await asyncio.gather(*tasks)
+        self.counter += len(tasks)
+
+
+@dataclass
 class SyncComplianceCheckerRunner(AbstractContextManager):
     """
     A runner for compliance checker events.
     """
 
     rules: list[BaseRuleChecker]
-    stats: ValidationStats
-    tasks: list[Awaitable[None]] = field(init=False, default_factory=list)
+    stats: InitVar[ValidationStats]
+    runners: list[AbstractSyncRunner[Any]] = field(init=False)
+
+    def __post_init__(self, stats: ValidationStats) -> None:
+        self.runners = [
+            SyncNoopRunner(stats),
+            SyncInlineRunner(stats),
+            SyncCoroutineRunner(stats),
+        ]
 
     def __exit__(self, *_) -> None:
         self.flush()
@@ -156,49 +367,14 @@ class SyncComplianceCheckerRunner(AbstractContextManager):
             return
         for rule in self.rules:
             event_rule = ComplianceCheckerEventRule(event, rule)
-            if event_rule.is_empty_task():
-                continue
-            elif event_rule.is_async_task():
-                self.tasks.append(event_rule.applyAsync(self.stats))
-            else:
-                event_rule.apply(self.stats)
-
-    async def runAsync(self) -> None:
-        await asyncio.gather(*self.tasks)
+            for runner in self.runners:
+                if runner.accepts(event_rule):
+                    runner.submit(event_rule)
+                    break
 
     def flush(self) -> None:
-        if not self.tasks:
-            return
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
-        try:
-            if loop is None:
-                asyncio.run(self.runAsync())
-            else:
-                with ThreadPoolExecutor(max_workers=1) as pool:
-                    future = pool.submit(asyncio.run, self.runAsync())
-                    future.result()
-        finally:
-            self.tasks.clear()
-
-
-@dataclass
-class AsyncBatch(Generic[T]):
-    flush_fn: Callable[[list[T]], Awaitable[None]]
-    items: list[T] = field(init=False, default_factory=list)
-
-    async def append(self, item: T) -> None:
-        self.items.append(item)
-        if len(self.items) == MAXIMUM_BATCH_SIZE:
-            await self.flush()
-
-    async def flush(self) -> None:
-        if self.items:
-            items: list[T] = self.items
-            self.items = []
-            await self.flush_fn(items)
+        for runner in self.runners:
+            runner.flush()
 
 
 @dataclass
@@ -210,23 +386,24 @@ class AsyncComplianceCheckerRunner(AbstractAsyncContextManager):
     """
 
     rules: list[BaseRuleChecker]
-    stats: ValidationStats
-    counter: int = field(init=False, default=0)
-    _sync_batch: AsyncBatch[ComplianceCheckerEventRule] = field(init=False)
-    _async_batch: AsyncBatch[ComplianceCheckerEventRule] = field(init=False)
-    _pool: ThreadPoolExecutor = field(init=False, default_factory=ThreadPoolExecutor)
-    _tasks: set[asyncio.Task] = field(init=False, default_factory=set)
-    _ctx: Ar.Context = field(init=False, default_factory=lambda: Ar.GetResolver().GetCurrentContext())
+    stats: InitVar[ValidationStats]
+    runners: list[AbstractAsyncRunner[Any]] = field(init=False)
 
-    def __post_init__(self) -> None:
-        self._sync_batch = AsyncBatch(functools.partial(self._flush, self._runSync))
-        self._async_batch = AsyncBatch(functools.partial(self._flush, self.runAsync))
+    def __post_init__(self, stats: ValidationStats) -> None:
+        self.runners = [
+            AsyncNoopRunner(stats),
+            AsyncCoroutineRunner(stats),
+            AsyncThreadRunner(stats),
+            AsyncCoroutineTaskRunner(stats),
+            AsyncThreadTaskRunner(stats),
+        ]
+
+    @property
+    def counter(self) -> int:
+        return sum(runner.counter for runner in self.runners)
 
     async def __aexit__(self, *_) -> None:
         await self.flush()
-        await asyncio.gather(*self._tasks)
-        while self._tasks:  # wait callbacks to be executed
-            await asyncio.sleep(0)
 
     async def append(self, event: ComplianceCheckerEvent) -> None:
         """
@@ -240,82 +417,10 @@ class AsyncComplianceCheckerRunner(AbstractAsyncContextManager):
             return
         for rule in self.rules:
             event_rule = ComplianceCheckerEventRule(event, rule)
-            if event_rule.is_empty_task():
-                self.counter += 1
-            elif event_rule.is_heavy_task():
-                await self._trigger(event_rule)
-            else:
-                await self._schedule(event_rule)
-
-    async def _trigger(self, event: ComplianceCheckerEventRule) -> None:
-        """
-        Trigger the event to be executed in a background thread.
-
-        Args:
-            event (ComplianceCheckerEventRule): The event to be executed.
-        """
-
-        def done_callback(task: asyncio.Task) -> None:
-            self._tasks.discard(task)
-            self.counter += 1
-
-        if event.is_async_task():
-            task = asyncio.create_task(self.runAsync([event]))
-        else:
-            task = asyncio.create_task(self._runSync([event]))
-        self._tasks.add(task)
-        task.add_done_callback(done_callback)
-
-    async def _schedule(self, event: ComplianceCheckerEventRule) -> None:
-        """
-        Schedule the event to be executed in a batch.
-
-        Args:
-            event (ComplianceCheckerEventRule): The event to be executed.
-        """
-        if event.is_async_task():
-            await self._async_batch.append(event)
-        else:
-            await self._sync_batch.append(event)
-
-    async def _runSync(self, events: list[ComplianceCheckerEventRule]):
-        """
-        This is the same as asyncio.to_thread, but we use our own pool instead of the default one.
-
-        Args:
-            events (list[ComplianceCheckerEventRule]): The events to be executed.
-        """
-        loop: AbstractEventLoop = asyncio.get_running_loop()
-        ctx: ContextVar = contextvars.copy_context()
-        func: Callable[[], None] = functools.partial(ctx.run, self.run, events)
-        return await loop.run_in_executor(self._pool, func)
-
-    async def _flush(
-        self,
-        run_fn: Callable[[list[ComplianceCheckerEventRule]], Awaitable[None]],
-        events: list[ComplianceCheckerEventRule],
-    ) -> None:
-        """
-        Flush events using the given run function and increment counter.
-
-        Args:
-            run_fn (Callable): The function to run the events (either _runSync or runAsync).
-            events (list[ComplianceCheckerEventRule]): The events to be executed.
-        """
-        await run_fn(events)
-        self.counter += len(events)
+            for runner in self.runners:
+                if runner.accepts(event_rule):
+                    await runner.submit_async(event_rule)
+                    break
 
     async def flush(self) -> None:
-        await asyncio.gather(self._sync_batch.flush(), self._async_batch.flush())
-
-    def run(self, events: list[ComplianceCheckerEventRule]) -> None:
-        with Ar.ResolverContextBinder(self._ctx):
-            with Ar.ResolverScopedCache():
-                for event in events:
-                    event.apply(self.stats)
-
-    async def runAsync(self, events: list[ComplianceCheckerEventRule]) -> None:
-        with Ar.ResolverContextBinder(self._ctx):
-            with Ar.ResolverScopedCache():
-                for event in events:
-                    await event.applyAsync(self.stats)
+        await asyncio.gather(*(runner.flush_async() for runner in self.runners))

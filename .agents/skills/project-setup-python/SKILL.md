@@ -86,16 +86,10 @@ For NumPy acceleration:
 uv add "usd-validation-nvidia[numpy]"
 ```
 
-For profile code generation, use:
+For profile code generation, use the public package:
 
 ```bash
 uv add usd-profiles-nvidia
-```
-
-If `usd-profiles-nvidia` is unavailable, use the legacy package:
-
-```bash
-uv add omniverse-usd-profiles
 ```
 
 ## Setup with pip
@@ -126,19 +120,8 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
-```
-
-If `usd-profiles-nvidia` is unavailable, use the legacy package:
-
-```bash
-uv run \
-  --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
-    --docs-root specs \
-    --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities \
+    --reverse-domain com.nvidia.usd
 ```
 
 ```bash
@@ -157,7 +140,8 @@ uv run `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
     --destination-dir src `
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities `
+    --reverse-domain com.nvidia.usd
 uv run `
   --with . `
   --with examples/python/minimal `
@@ -180,7 +164,6 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 | `usd-validation-nvidia[usd]` | Engine, CLI, built-in validators, and `usd-core` runtime dependency |
 | `usd-validation-nvidia[numpy]` | Optional NumPy acceleration |
 | `usd-profiles-nvidia` | Profile/capability/feature/requirement modeling and code generation package |
-| `omniverse-usd-profiles` | Legacy profile codegen package for package-index fallback |
 | `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
 ## Limitations

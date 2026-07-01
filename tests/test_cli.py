@@ -53,6 +53,7 @@ class ValidationParserTest(unittest.TestCase):
         self.assertIn("--stamp", stdout)
         self.assertIn("--predicate", stdout)
         self.assertIn("--variants", stdout)
+        self.assertIn("--instance-prototypes", stdout)
         self.assertIn("--requirement", stdout)
         self.assertIn("--capability", stdout)
         self.assertIn("--feature", stdout)
@@ -111,6 +112,7 @@ class ValidationParserTest(unittest.TestCase):
         self.assertEqual(args.rule, [])
         self.assertEqual(args.fix, False)
         self.assertEqual(args.variants, True)
+        self.assertEqual(args.instance_prototypes, True)
         self.assertEqual(args.predicate, None)
         self.assertEqual(args.requirement, [])
         self.assertEqual(args.capability, [])
@@ -362,6 +364,16 @@ class ValidationParserTest(unittest.TestCase):
         args = parser.parse_args(["--no-variants", "asset.usda"])
         self.assertEqual(args.variants, False)
 
+    def test_instance_prototypes(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["--instance-prototypes", "asset.usda"])
+        self.assertEqual(args.instance_prototypes, True)
+
+    def test_no_instance_prototypes(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["--no-instance-prototypes", "asset.usda"])
+        self.assertEqual(args.instance_prototypes, False)
+
     def test_init_rules(self):
         parser = create_validation_parser()
         args = parser.parse_args(["--init-rules", "asset.usda"])
@@ -457,6 +469,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertEqual(args.group_by, IssueGroupsBy.rule_name())
         self.assertEqual(args.asset, "asset.usda")
         self.assertEqual(args.variants, True)
+        self.assertEqual(args.instance_prototypes, True)
         self.assertEqual(args.fix, False)
         self.assertEqual(args.init_rules, False)
 
@@ -474,6 +487,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertEqual(args.predicate, IssuePredicates.Any())
         self.assertEqual(args.asset, "asset.usda")
         self.assertEqual(args.variants, True)
+        self.assertEqual(args.instance_prototypes, True)
         self.assertEqual(args.fix, False)
         self.assertEqual(args.init_rules, True)
 
@@ -511,6 +525,13 @@ class ValidationArgsTest(unittest.TestCase):
         args = ValidationArgsExec(args)
         engine = args.create_engine()
         self.assertTrue(engine.init_rules)
+
+    def test_create_engine_instance_prototypes(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["--no-instance-prototypes", "asset.usda"])
+        args = ValidationArgsExec(args)
+        engine = args.create_engine()
+        self.assertFalse(engine.instance_prototypes)
 
     def test_create_engine_rule(self):
         parser = create_validation_parser()
@@ -727,6 +748,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertIn("--fix", stdout)
         self.assertIn("--predicate", stdout)
         self.assertIn("--variants", stdout)
+        self.assertIn("--instance-prototypes", stdout)
         self.assertIn("--requirement", stdout)
         self.assertIn("--capability", stdout)
         self.assertIn("--feature", stdout)
@@ -748,6 +770,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertIn("--fix", stdout)
         self.assertIn("--predicate", stdout)
         self.assertIn("--variants", stdout)
+        self.assertIn("--instance-prototypes", stdout)
         self.assertIn("--requirement", stdout)
         self.assertIn("--capability", stdout)
         self.assertIn("--feature", stdout)

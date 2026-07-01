@@ -1,0 +1,44 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+)
+
+def Xform "World"
+{
+    def Mesh "TooFewUniformNormals"
+    {
+        point3f[] points = [
+            (0, 0, 0),
+            (1, 0, 0),
+            (1, 1, 0),
+            (0, 1, 0),
+            (2, 0, 0),
+            (3, 0, 0),
+            (3, 1, 0),
+            (2, 1, 0)
+        ]
+        int[] faceVertexCounts = [4, 4]
+        int[] faceVertexIndices = [0, 1, 2, 3, 4, 5, 6, 7]
+        normal3f[] normals = [(0, 0, 1)] (
+            interpolation = "uniform"
+        )
+        uniform token subdivisionScheme = "none"
+    }
+
+    def Mesh "InvalidIndexedNormals"
+    {
+        point3f[] points = [
+            (0, 0, 0),
+            (1, 0, 0),
+            (1, 1, 0),
+            (0, 1, 0)
+        ]
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] primvars:normals = [(0, 0, 1)] (
+            interpolation = "faceVarying"
+        )
+        int[] primvars:normals:indices = [0, 0, 0, 1]
+        uniform token subdivisionScheme = "none"
+    }
+}

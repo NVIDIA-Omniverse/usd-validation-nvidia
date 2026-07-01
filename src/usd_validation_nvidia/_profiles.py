@@ -5,15 +5,12 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable, Iterable
-from typing import Protocol, runtime_checkable
 
-from ._capabilities import Capability
-from ._deprecate import deprecated
-from ._events import EventListener
+from ._features import FeatureRegistry
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from ._semver import SemVer
-from ._singleton import singleton
+from .capabilities import ProfileProtocol, RequirementRefProtocol
+from .utils import EventListener, SemVer, deprecated, singleton
 
 __all__ = [
     "Profile",
@@ -26,22 +23,8 @@ __all__ = [
 ]
 
 
-@runtime_checkable
-class Profile(Protocol):
-    """
-    A protocol definition of profile.
-
-    Attributes:
-        id: A unique identifier of the profile
-        version: The version of the profile
-        path: The path to the profile
-        capabilities: The capabilities of the profile
-    """
-
-    id: str
-    version: str
-    path: str
-    capabilities: list[Capability]
+Profile = ProfileProtocol
+""" Left for backwards compatibility. """
 
 
 @singleton
@@ -61,6 +44,19 @@ class ProfileRegistry(VersionedRegistry[Profile]):
         """Get all profiles (all versions)."""
         return list(self)
 
+    def get_requirements(self, profile: Profile) -> list[Requirement | RequirementRefProtocol]:
+        """
+        Return requirements owned by a profile's features, feature dependencies, and capabilities.
+        """
+        feature_registry = FeatureRegistry()
+        registry = RequirementsRegistry()
+        requirements: list[Requirement | RequirementRefProtocol] = []
+        for feature in getattr(profile, "features", ()):
+            requirements.extend(feature_registry.get_requirements(feature))
+        for capability in profile.capabilities:
+            requirements.extend(registry.resolve_requirements(capability.requirements))
+        return requirements
+
     def remove(self, profile: Profile) -> None:
         """
         Remove a profile from the registry.
@@ -72,9 +68,11 @@ class ProfileRegistry(VersionedRegistry[Profile]):
             ValueError: If the profile has requirements that are implemented
         """
         registry = RequirementsRegistry()
-        requirements: list[Requirement] = [
-            requirement for capability in profile.capabilities for requirement in capability.requirements
-        ]
+        requirements: list[Requirement | RequirementRefProtocol] = []
+        for feature in getattr(profile, "features", ()):
+            requirements.extend(registry.resolve_requirements(feature.requirements))
+        for capability in profile.capabilities:
+            requirements.extend(registry.resolve_requirements(capability.requirements))
         if registry.get_validators(requirements):
             raise ValueError(f"Profile {profile} has requirements that are implemented")
         super().remove(profile)

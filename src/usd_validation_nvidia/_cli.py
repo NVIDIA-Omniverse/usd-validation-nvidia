@@ -11,13 +11,12 @@ import sys
 from collections import Counter
 from functools import lru_cache
 
-from pxr import Tf
+from pxr import Sdf, Tf
 
 from ._assets import AssetProgress
 from ._base_rule_checker import BaseRuleChecker
 from ._capabilities import Capability, CapabilityRegistry
 from ._categories import CategoryRuleRegistry
-from ._csv_reports import export_csv_file
 from ._engine import ValidationEngine
 from ._features import Feature, FeatureRegistry
 from ._fix import IssueFixer
@@ -30,15 +29,15 @@ from ._issues import (
     IssueSeverity,
     IssuesList,
 )
-from ._json_reports import export_json_file
 from ._parameters import ParameterMapping, UserParameter
 from ._profiles import Profile, ProfileRegistry
 from ._registry import VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
 from ._results import Results, ResultsList
-from ._semver import SemVer
 from ._validation_context import ValidationContext
 from ._version import __version__
+from .reporting import export_csv_file, export_json_file
+from .utils import SemVer
 
 __all__ = [
     "ValidationArgsExec",
@@ -140,6 +139,8 @@ def create_validation_parser() -> argparse.ArgumentParser:
 
     - init-rules/no-init-rules: Optional. Default True. Sets ValidationEngine, init_rules argument.
     - variants/no-variants: Optional. Default True. Sets ValidationEngine, variants argument.
+    - instance-prototypes/no-instance-prototypes: Optional. Default True. Sets ValidationEngine,
+      instance_prototypes argument.
     - rule/disable-rule: Optional. Enables/Disable rules in ValidationEngine.
     - category/disable-category. Optional. Enable/Disable categories in ValidationEngine.
     - asset. Required. The asset in which to perform validation.
@@ -394,6 +395,18 @@ def create_validation_parser() -> argparse.ArgumentParser:
         action=argparse.BooleanOptionalAction,
         help="Whether to set variants. Note: This can be expensive.",
     )
+    # Instance prototypes
+    parser.add_argument(
+        "--instance-prototypes",
+        default=True,
+        action=argparse.BooleanOptionalAction,
+        help=inspect.cleandoc(
+            """
+            Whether to process instance proxy prims for every instance.
+            Disabling this can speed up heavily instanced stages.
+            """
+        ),
+    )
     # CSV Output
     parser.add_argument(
         "--csv-output",
@@ -428,6 +441,14 @@ class ValidationNamespaceExec:
             The `variants` option value.
         """
         return self._namespace.variants
+
+    @property
+    def instance_prototypes(self) -> bool:
+        """
+        Returns:
+            The `instance-prototypes` option value.
+        """
+        return self._namespace.instance_prototypes
 
     @property
     def stamp(self) -> bool:
@@ -658,7 +679,11 @@ class ValidationNamespaceExec:
         return dict(self._namespace.parameter)
 
     def _create_engine(self) -> ValidationEngine:
-        return ValidationEngine(init_rules=self.init_rules, variants=self.variants)
+        return ValidationEngine(
+            init_rules=self.init_rules,
+            variants=self.variants,
+            instance_prototypes=self.instance_prototypes,
+        )
 
     def _populate_engine(self, engine: ValidationEngine) -> None:
         for rule in self.rules:
@@ -879,8 +904,10 @@ class ValidationNamespaceExec:
             if engine.enabled_profiles:
                 saved = 0
                 for result in results:
-                    layer = engine.stamp_asset(result.asset, result)
-                    if layer and not layer.anonymous:
+                    layer: Sdf.Layer | None = engine.stamp_asset(result.asset, result)
+                    if layer is None:
+                        logger.warning("Skipping stamp: validation has failures.")
+                    elif not layer.anonymous:
                         try:
                             layer.Save()
                             saved += 1

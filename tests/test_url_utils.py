@@ -8,6 +8,7 @@ import unittest
 from usd_validation_nvidia import (
     LocalUriResolver,
     UriResolver,
+    make_absolute_url_if_possible,
     make_relative_url_if_possible,
     normalize_url,
 )
@@ -81,6 +82,26 @@ class LocalUriResolverTests(unittest.TestCase):
 
 
 class UrlUtilsTests(unittest.IsolatedAsyncioTestCase):
+    def test_make_absolute_url_if_possible(self):
+        self.assertEqual(make_absolute_url_if_possible(""), "")
+
+        relative_path = os.path.join("relative_sublayers", "asset.usda")
+        self.assertEqual(make_absolute_url_if_possible(relative_path), os.path.abspath(relative_path))
+
+        absolute_path = os.path.abspath(relative_path)
+        self.assertEqual(make_absolute_url_if_possible(absolute_path), absolute_path)
+
+        if os.name == "nt":
+            drive_path = "c:\\parent\\asset.usda"
+            self.assertEqual(make_absolute_url_if_possible(drive_path), os.path.abspath(drive_path))
+
+        for url in [
+            "file:///C:/parent/asset.usda",
+            "https://localhost/parent/asset.usda",
+            "omniverse://localhost/parent/asset.usda",
+        ]:
+            self.assertEqual(make_absolute_url_if_possible(url), url)
+
     def test_normalize_url(self):
         if os.name == "nt":
             url = normalize_url("c:\\test.usd")

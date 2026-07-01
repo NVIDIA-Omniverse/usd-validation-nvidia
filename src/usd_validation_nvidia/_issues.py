@@ -18,8 +18,6 @@ from typing import (
 
 from pxr import Usd
 
-from ._deprecate import deprecated
-from ._expression import _PatternTree
 from ._identifiers import (
     AtType,
     EditTargetId,
@@ -32,6 +30,8 @@ from ._identifiers import (
     to_identifier,
 )
 from ._requirements import Requirement, RequirementsRegistry
+from .capabilities import RequirementProtocol, RequirementRefProtocol
+from .utils import _PatternTree, deprecated
 
 __all__ = [
     "AssetFix",
@@ -262,13 +262,13 @@ class Issue:
     suggestions: tuple[Suggestion, ...] = ()
     asset: StageId | None = None
     code: str | None = None  # Deprecated, use requirement instead
-    requirement: Requirement | None = None
+    requirement: Requirement | RequirementRefProtocol | None = None
 
     def __post_init__(self):
         if self.requirement is not None:
             if not self.code:
                 object.__setattr__(self, "code", self.requirement.code)
-            if not self.message:
+            if not self.message and isinstance(self.requirement, RequirementProtocol):
                 object.__setattr__(self, "message", self.requirement.message)
 
         if self.message is None:

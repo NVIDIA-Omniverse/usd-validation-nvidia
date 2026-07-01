@@ -4,61 +4,50 @@
 from collections.abc import Sequence
 from enum import Enum
 
-from ._atomic_asset_checker import AnchoredAssetPathsChecker, SupportedFileTypesChecker
 from ._base_rule_checker import BaseRuleChecker
-from ._base_rules import (
+from .rules import (
+    AnchoredAssetPathsChecker,
+    ArticulationChecker,
     ByteAlignmentChecker,
+    ColliderChecker,
     CompressionChecker,
+    DanglingOverPrimChecker,
+    DefaultPrimChecker,
     ExtentsChecker,
+    IndexedPrimvarChecker,
     KindChecker,
+    LayerSpecChecker,
+    ManifoldChecker,
+    MaterialOutOfScopeChecker,
+    MaterialPathChecker,
+    MaterialUsdPreviewSurfaceChecker,
     MissingReferenceChecker,
     NormalMapTextureChecker,
-    PrimEncapsulationChecker,
-    StageMetadataChecker,
-    TextureChecker,
-    TypeChecker,
-)
-from ._deprecate import deprecated
-from ._geometry_checker import (
-    IndexedPrimvarChecker,
-    ManifoldChecker,
     NormalsExistChecker,
     NormalsValidChecker,
     NormalsWindingsChecker,
+    PhysicsJointChecker,
+    PrimEncapsulationChecker,
+    RigidBodyChecker,
+    ShaderImplementationSourceChecker,
+    SkelBindingAPIAppliedChecker,
+    StageMetadataChecker,
     SubdivisionSchemeChecker,
+    SupportedFileTypesChecker,
+    TextureChecker,
+    TypeChecker,
     UnusedMeshTopologyChecker,
     UnusedPrimvarChecker,
+    UsdAsciiPerformanceChecker,
+    UsdDanglingMaterialBinding,
+    UsdGeomSubsetChecker,
+    UsdLuxSchemaChecker,
+    UsdMaterialBindingApi,
     ValidateTopologyChecker,
     WeldChecker,
     ZeroAreaFaceChecker,
 )
-from ._layer_checker import (
-    LayerSpecChecker,
-    UsdAsciiPerformanceChecker,
-)
-from ._layout_checker import (
-    DanglingOverPrimChecker,
-    DefaultPrimChecker,
-)
-from ._material_checker import (
-    MaterialOutOfScopeChecker,
-    MaterialPathChecker,
-    MaterialUsdPreviewSurfaceChecker,
-    ShaderImplementationSourceChecker,
-    UsdDanglingMaterialBinding,
-    UsdMaterialBindingApi,
-)
-from ._misc_checker import (
-    SkelBindingAPIAppliedChecker,
-    UsdGeomSubsetChecker,
-    UsdLuxSchemaChecker,
-)
-from ._physics_checker import (
-    ArticulationChecker,
-    ColliderChecker,
-    PhysicsJointChecker,
-    RigidBodyChecker,
-)
+from .utils import deprecated
 
 __all__ = [
     "DefaultCategoryRules",

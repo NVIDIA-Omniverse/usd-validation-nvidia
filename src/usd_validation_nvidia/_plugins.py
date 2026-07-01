@@ -41,7 +41,7 @@ from functools import cache
 from graphlib import CycleError, TopologicalSorter
 from typing import Protocol, runtime_checkable
 
-from ._singleton import singleton
+from .utils import singleton
 
 DEFAULT_PLUGIN_ENTRYPOINT = "usd_validation_nvidia:DefaultPlugin"
 
@@ -138,11 +138,11 @@ class PluginManager:
         Discovers, loads, and starts all plugins in topologically sorted order.
         This method is idempotent - calling it multiple times has no additional effect.
         """
-        logger.info("Initializing Asset Validator plugin system")
+        logger.debug("Initializing Asset Validator plugin system")
 
         entrypoints = self._discover_entrypoints()
         if not entrypoints:
-            logger.info("No plugins discovered")
+            logger.debug("No plugins discovered")
             return
 
         for ep in entrypoints:
@@ -150,7 +150,7 @@ class PluginManager:
                 self._loaded_plugins.append(plugin)
 
         loaded_names = {p.entrypoint.value for p in self._loaded_plugins}
-        logger.info(f"Plugin system initialized. Loaded plugins: {loaded_names}")
+        logger.debug(f"Plugin system initialized. Loaded plugins: {loaded_names}")
 
     def _discover_entrypoints(self) -> list[importlib.metadata.EntryPoint]:
         """
@@ -172,7 +172,7 @@ class PluginManager:
             discovered = list(by_value.values())
 
             discovered_values = {ep.value for ep in discovered}
-            logger.info(f"Discovered plugins: {discovered_values}")
+            logger.debug(f"Discovered plugins: {discovered_values}")
 
             # Fallback: if the default plugin wasn't discovered (e.g. dev/build
             # mode without pip install), create a synthetic entrypoint so it
@@ -266,7 +266,7 @@ class PluginManager:
         dist_name = entrypoint.dist.name if entrypoint.dist else entrypoint.value
 
         try:
-            logger.info(f"Loading {entrypoint.group} entrypoint: '{entrypoint.value}'")
+            logger.debug(f"Loading {entrypoint.group} entrypoint: '{entrypoint.value}'")
             plugin_instance = entrypoint.load()
         except Exception:
             logger.exception(f"Failed to load plugin '{entrypoint.name}' from '{dist_name}'")
@@ -288,7 +288,7 @@ class PluginManager:
         )
 
         try:
-            logger.info(f"Calling '{entrypoint.value}.on_startup()'")
+            logger.debug(f"Calling '{entrypoint.value}.on_startup()'")
             plugin.instance.on_startup()
             return plugin
         except Exception:
@@ -307,16 +307,16 @@ class PluginManager:
         if not self._loaded_plugins:
             return
 
-        logger.info("Shutting down Asset Validator plugin system")
+        logger.debug("Shutting down Asset Validator plugin system")
 
         for plugin in reversed(self._loaded_plugins):
             try:
-                logger.info(f"Calling '{plugin.entrypoint.value}.on_shutdown()'")
+                logger.debug(f"Calling '{plugin.entrypoint.value}.on_shutdown()'")
                 plugin.instance.on_shutdown()
             except Exception:
                 logger.exception(f"Error shutting down plugin '{plugin.name}' from '{plugin.distribution_name}'")
 
-        logger.info("Plugin system shutdown complete")
+        logger.debug("Plugin system shutdown complete")
         self._loaded_plugins.clear()
 
     @property

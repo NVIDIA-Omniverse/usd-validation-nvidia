@@ -11,8 +11,7 @@ from typing import Any, Generic, TypeVar
 from pxr import Sdf, Usd, UsdGeom
 
 from ._asset_format import FormatDependency
-from ._deprecate import deprecated
-from ._url_utils import normalize_url
+from .utils import deprecated, normalize_url
 
 __all__ = [
     "ANON_VALIDATOR_LAYER_NAME",

@@ -21,8 +21,8 @@ compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python p
 
 `usd-validation-nvidia` extensions are Python plugin packages discovered through entry points.
 This skill shows the smallest useful plugin that registers one rule backed by one requirement.
-The requirement is authored as Markdown and generated with `usd-profiles-nvidia`, falling back to
-`omniverse-usd-profiles` if needed; the rule registration, execution, and CLI filtering stay in `usd-validation-nvidia`.
+The requirement is authored as Markdown and generated with `usd-profiles-nvidia`; the rule registration, execution, and
+CLI filtering stay in `usd-validation-nvidia`.
 
 ## Prerequisites
 
@@ -95,11 +95,9 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
-    --namespace example_requirements
+    --package-name example_requirements \
+    --reverse-domain com.nvidia.usd
 ```
-
-If `usd-profiles-nvidia` is unavailable, use the legacy package `omniverse-usd-profiles` and module
-`omni.usd_profiles.codegen` with the same arguments.
 
 On Windows:
 
@@ -110,11 +108,9 @@ uv run `
   python -m usd_profiles_nvidia.codegen `
     --docs-root examples/python/requirement/specs `
     --destination-dir examples/python/requirement `
-    --namespace example_requirements
+    --package-name example_requirements `
+    --reverse-domain com.nvidia.usd
 ```
-
-If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package `omniverse-usd-profiles` and module
-`omni.usd_profiles.codegen` with the same arguments.
 
 The example package force-includes `example_requirements`, so skipping this step fails during wheel build.
 
@@ -142,7 +138,8 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities \
+    --reverse-domain com.nvidia.usd
 uv run \
   --with . \
   --with examples/python/requirement \
@@ -167,7 +164,8 @@ uv run `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
     --destination-dir src `
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities `
+    --reverse-domain com.nvidia.usd
 uv run `
   --with . `
   --with examples/python/requirement `
@@ -199,7 +197,6 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 |---------|---------|
 | `usd-validation-nvidia[usd]` | Engine, CLI, plugin discovery, and `usd-core` runtime dependency |
 | `usd-profiles-nvidia` | Codegen package for generated requirements |
-| `omniverse-usd-profiles` | Legacy codegen package for package-index fallback |
 
 ## Limitations
 

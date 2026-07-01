@@ -1,6 +1,6 @@
 [project]
 name = "usd-validation-nvidia"
-version = "1.19.3"
+dynamic = ["version"]
 description = "NVIDIA Asset Validator"
 authors = [
     {name = "NVIDIA"},
@@ -9,9 +9,17 @@ license = {text = "Apache-2.0"}
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 
+[project.urls]
+Repository = "https://github.com/NVIDIA-Omniverse/usd-validation-nvidia"
+Changelog = "https://github.com/NVIDIA-Omniverse/usd-validation-nvidia/blob/main/CHANGELOG.md"
+
 [project.optional-dependencies]
 usd = ["usd-core>=22.11"]
 numpy = ["numpy>=1"]
+
+[tool.hatch.version]
+path = "VERSION.md"
+pattern = "^(?P<version>.+)$"
 
 [project.scripts]
 nvidia_usd_validate = "usd_validation_nvidia:cli_main"

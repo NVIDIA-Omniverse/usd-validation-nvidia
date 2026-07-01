@@ -69,8 +69,8 @@ def PhysicsFixedJoint "FixedJoint"
 
 ## Related requirements
 
-- [joint-body-target-exists](/capabilities/physics_bodies/physics_joints/requirements/joint-body-target-exists)
-- [joint-no-multiple-body-targets](/capabilities/physics_bodies/physics_joints/requirements/joint-no-multiple-body-targets)
+- [joint-body-target-exists](/specs/capabilities/physics_bodies/physics_joints/requirements/joint-body-target-exists)
+- [joint-no-multiple-body-targets](/specs/capabilities/physics_bodies/physics_joints/requirements/joint-no-multiple-body-targets)
 
 ## For More Information
 

@@ -23,11 +23,10 @@ from ._assets import (
     AssetValidatedCallback,
 )
 from ._base_rule_checker import BaseRuleChecker
-from ._capabilities import Capability
+from ._capabilities import Capability, CapabilityRegistry
 from ._categories import CategoryRuleRegistry
 from ._compliance_checker import ComplianceChecker
-from ._deprecate import deprecated
-from ._features import Feature
+from ._features import Feature, FeatureRegistry
 from ._issues import Issue, IssuePredicate, IssueSeverity
 from ._parameters import Parameter, ParameterMapping
 from ._plugins import PluginManager
@@ -35,9 +34,10 @@ from ._profiles import Profile, ProfileRegistry
 from ._requirements import Requirement, RequirementsRegistry
 from ._results import Results, ResultsList
 from ._stats import ValidationStats
-from ._url_utils import LocalUriResolver, UriResolver
 from ._validation_context import ValidationContext
 from ._version import __version__
+from .capabilities import RequirementProtocol, RequirementRefProtocol
+from .utils import LocalUriResolver, UriResolver, deprecated
 
 __all__ = [
     "ValidationEngine",
@@ -95,18 +95,21 @@ class ValidationEngine:
             print( engine.validate(stage) )
     """
 
-    def __init__(self, *, init_rules: bool = True, variants: bool = True) -> None:
+    def __init__(self, *, init_rules: bool = True, variants: bool = True, instance_prototypes: bool = True) -> None:
         """
         Args:
             init_rules (bool): Whether to initialize rules from :func:`CategoryRuleRegistry`.
             variants (bool): Whether to process all variants.
+            instance_prototypes (bool): Whether to process instance proxy prims for every instance. Disable to skip
+                repeated instance proxy prims that share the same internal prototype prim.
         """
         self._variants = variants
+        self._instance_prototypes = instance_prototypes
         self._init_rules = init_rules
         self._enabled_rules: list[type[BaseRuleChecker]] = []
         self._disabled_rules: list[type[BaseRuleChecker]] = []
-        self._enabled_requirements: list[Requirement] = []
-        self._disabled_requirements: list[Requirement] = []
+        self._enabled_requirements: list[Requirement | RequirementRefProtocol] = []
+        self._disabled_requirements: list[Requirement | RequirementRefProtocol] = []
         self._enabled_capabilities: list[Capability] = []
         self._disabled_capabilities: list[Capability] = []
         self._enabled_features: list[Feature] = []
@@ -145,6 +148,14 @@ class ValidationEngine:
         """
         return self._variants
 
+    @property
+    def instance_prototypes(self) -> bool:
+        """
+        Returns:
+            Whether to process instance proxy prims for every instance.
+        """
+        return self._instance_prototypes
+
     def add_parameter(self, parameter: Parameter) -> None:
         """
         Adds a custom parameter to the engine.
@@ -159,8 +170,9 @@ class ValidationEngine:
         """
         parameters: ParameterMapping = ParameterMapping()
         for requirement in self.requirements:
-            for parameter in requirement.parameters:
-                parameters.add(parameter)
+            if isinstance(requirement, RequirementProtocol):
+                for parameter in requirement.parameters:
+                    parameters.add(parameter)
         for parameter in self._parameters:
             parameters.add(parameter)
         return parameters
@@ -248,31 +260,28 @@ class ValidationEngine:
     def disabled_rules(self) -> list[type[BaseRuleChecker]]:
         return self._disabled_rules
 
-    def enable_requirement(self, requirement: Requirement) -> None:
+    def enable_requirement(self, requirement: Requirement | RequirementRefProtocol) -> None:
         """
         Enable a given requirement on this engine.
 
         Args:
             requirement (Requirement): A `Requirement` to be enabled
         """
-        rule: type[BaseRuleChecker] | None = RequirementsRegistry().get_validator(requirement)
-        if rule is None:
-            logging.warning(f"No rule registered for requirement {requirement.code}@{requirement.version}")
         self._enabled_requirements.append(requirement)
         with contextlib.suppress(ValueError):
             self._disabled_requirements.remove(requirement)
 
-    def disable_requirement(self, requirement: Requirement) -> None:
+    def disable_requirement(self, requirement: Requirement | RequirementRefProtocol) -> None:
         self._disabled_requirements.append(requirement)
         with contextlib.suppress(ValueError):
             self._enabled_requirements.remove(requirement)
 
     @property
-    def enabled_requirements(self) -> list[Requirement]:
+    def enabled_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         return self._enabled_requirements
 
     @property
-    def disabled_requirements(self) -> list[Requirement]:
+    def disabled_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         return self._disabled_requirements
 
     def enable_capability(self, capability: Capability) -> None:
@@ -388,38 +397,41 @@ class ValidationEngine:
         return list(rules)
 
     @property
-    def _direct_requirements(self) -> list[Requirement]:
+    def _direct_requirements(self) -> list[Requirement | RequirementRefProtocol]:
         """
         Returns:
             A list of requirements that are enabled directly on this engine.
         """
-        requirements: dict[tuple[str, str], Requirement] = {}
+        requirements: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
 
-        for req in self.enabled_requirements:
-            requirements[(req.code, req.version)] = req
+        registry = RequirementsRegistry()
+        capability_registry = CapabilityRegistry()
+        feature_registry = FeatureRegistry()
+        profile_registry = ProfileRegistry()
+
+        insertions: list[Requirement | RequirementRefProtocol] = []
+        insertions.extend(registry.resolve_requirements(self.enabled_requirements))
         for capability in self.enabled_capabilities:
-            for req in capability.requirements:
-                requirements[(req.code, req.version)] = req
+            insertions.extend(capability_registry.get_requirements(capability))
         for feature in self.enabled_features:
-            for req in feature.requirements:
-                requirements[(req.code, req.version)] = req
+            insertions.extend(feature_registry.get_requirements(feature))
         for profile in self.enabled_profiles:
-            for capability in profile.capabilities:
-                for req in capability.requirements:
-                    requirements[(req.code, req.version)] = req
+            insertions.extend(profile_registry.get_requirements(profile))
+        for req in insertions:
+            requirements[(req.code, req.version)] = req
 
-        for req in self.disabled_requirements:
-            requirements.pop((req.code, req.version), None)
+        deletions: list[Requirement | RequirementRefProtocol] = []
+        deletions.extend(registry.resolve_requirements(self.disabled_requirements))
         for capability in self.disabled_capabilities:
-            for req in capability.requirements:
-                requirements.pop((req.code, req.version), None)
+            deletions.extend(capability_registry.get_requirements(capability))
+        # TODO: Fix transitive dependencies issues.
         for feature in self.disabled_features:
-            for req in feature.requirements:
-                requirements.pop((req.code, req.version), None)
+            deletions.extend(feature_registry.get_requirements(feature))
         for profile in self.disabled_profiles:
-            for capability in profile.capabilities:
-                for req in capability.requirements:
-                    requirements.pop((req.code, req.version), None)
+            deletions.extend(profile_registry.get_requirements(profile))
+        for req in deletions:
+            requirements.pop((req.code, req.version), None)
+
         return list(requirements.values())
 
     @property
@@ -433,12 +445,12 @@ class ValidationEngine:
         return list(rules)
 
     @property
-    def requirements(self) -> list[Requirement]:
+    def requirements(self) -> list[Requirement | RequirementRefProtocol]:
         """
         Returns:
             A list of requirements that are enabled on this engine.
         """
-        requirements: dict[tuple[str, str], Requirement] = {
+        requirements: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {
             (req.code, req.version): req for req in self._direct_requirements
         }
         registry: RequirementsRegistry = RequirementsRegistry()
@@ -469,6 +481,25 @@ class ValidationEngine:
             return True
 
         return predicate
+
+    @property
+    def _issues(self) -> list[Issue]:
+        issues: list[Issue] = []
+        if not self.rules:
+            issues.append(Issue(severity=IssueSeverity.ERROR, message="No rules or requirements have been enabled."))
+        elif self.requirements:
+            registry = RequirementsRegistry()
+            for requirement in self.requirements:
+                rule: type[BaseRuleChecker] | None = registry.get_validator(requirement)
+                if rule is None:
+                    issues.append(
+                        Issue(
+                            severity=IssueSeverity.ERROR,
+                            requirement=requirement,
+                            message=f"Requirement ({requirement.code}, {requirement.version}) has not been implemented",
+                        )
+                    )
+        return issues
 
     def validate(self, asset: AssetType) -> Results:
         """
@@ -609,7 +640,7 @@ class ValidationEngine:
         else:
             result = Results.create(
                 asset=asset,
-                issues=checker.GetIssues(),
+                issues=[*checker.GetIssues(), *self._issues],
             ).filter_by(self.predicate)
             return dataclasses.replace(result, context=self.build_context(result))
 
@@ -629,7 +660,7 @@ class ValidationEngine:
     @build_context.register
     def _(self, results: Results) -> ValidationContext | None:
         """Build context for a single asset, collecting failed requirements from its issues."""
-        failed_requirements: dict[tuple[str, str | None], Requirement] = {}
+        failed_requirements: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
         for issue in results.issues:
             if issue.severity not in (IssueSeverity.FAILURE, IssueSeverity.ERROR):
                 continue
@@ -645,7 +676,7 @@ class ValidationEngine:
     @build_context.register
     def _(self, results: ResultsList) -> ValidationContext | None:
         """Build aggregate context for a batch, unioning failed requirements across all assets."""
-        failed_requirements: dict[tuple[str, str | None], Requirement] = {}
+        failed_requirements: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
         for result in results:
             per_context = self.build_context(result)
             if per_context is None:
@@ -681,7 +712,7 @@ class ValidationEngine:
 
         has_failures = any(issue.severity in (IssueSeverity.FAILURE, IssueSeverity.ERROR) for issue in results.issues)
         if has_failures:
-            logger.info("Skipping stamp: validation has failures.")
+            logger.debug("Skipping stamp: validation has failures.")
             return None
 
         if isinstance(asset, Usd.Stage):
@@ -692,7 +723,7 @@ class ValidationEngine:
             layer = None
 
         if layer is None:
-            logger.warning(f"Skipping stamp: could not resolve layer for '{asset}'.")
+            logger.debug(f"Skipping stamp: could not resolve layer for '{asset}'.")
             return None
 
         profiles_data = {p.id: {"profile_version": str(p.version)} for p in self.enabled_profiles}
@@ -710,7 +741,7 @@ class ValidationEngine:
         }
         layer.customLayerData = custom_data
         profile_ids = list(profiles_data.keys())
-        logger.info(f"Stamped asset with profiles {profile_ids}")
+        logger.debug(f"Stamped asset with profiles {profile_ids}")
         return layer
 
     async def _validate_async(self, asset: AssetType, asset_progress_fn: AssetProgressCallback | None) -> Results:
@@ -731,10 +762,12 @@ class ValidationEngine:
 
         try:
             if not checker.rules:
-                message: str = "No rules or requirements have been enabled."
                 return Results.create(
                     asset=asset,
-                    issues=[*checker.GetIssues(), Issue(severity=IssueSeverity.ERROR, message=message)],
+                    issues=[
+                        *checker.GetIssues(),
+                        Issue(severity=IssueSeverity.ERROR, message="No rules or requirements have been enabled."),
+                    ],
                 )
             await checker.check_async(asset, callback=report_progress if asset_progress_fn else None)
         except Exception:
@@ -744,7 +777,10 @@ class ValidationEngine:
                 issues=[*checker.GetIssues(), Issue(severity=IssueSeverity.ERROR, message=message)],
             )
         else:
-            result: Results = Results.create(asset=asset, issues=checker.GetIssues()).filter_by(self.predicate)
+            result = Results.create(
+                asset=asset,
+                issues=[*checker.GetIssues(), *self._issues],
+            ).filter_by(self.predicate)
             return dataclasses.replace(result, context=self.build_context(result))
         finally:
             report_progress(1.0)
@@ -844,6 +880,7 @@ class ValidationEngine:
         checker = ComplianceChecker(
             stats=self.stats,
             skip_variants=not self.variants,
+            instance_prototypes=self.instance_prototypes,
             parameters=self.parameters,
             resolver=self._resolver,
         )

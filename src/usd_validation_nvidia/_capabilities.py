@@ -3,14 +3,11 @@
 #
 import logging
 from collections.abc import Callable, Iterable
-from typing import Protocol, runtime_checkable
 
-from ._deprecate import deprecated
-from ._events import EventListener
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from ._semver import SemVer
-from ._singleton import singleton
+from .capabilities import CapabilityProtocol, RequirementRefProtocol
+from .utils import EventListener, SemVer, deprecated, singleton
 
 __all__ = [
     "Capability",
@@ -23,22 +20,8 @@ __all__ = [
 ]
 
 
-@runtime_checkable
-class Capability(Protocol):
-    """
-    A protocol definition of capability.
-
-    Attributes:
-        id: A unique identifier of the capability
-        version: The version of the capability
-        path: The path to the capability
-        requirements: The requirements of the capability
-    """
-
-    id: str
-    version: str
-    path: str
-    requirements: list[Requirement]
+Capability = CapabilityProtocol
+""" Left for backwards compatibility. """
 
 
 @singleton
@@ -62,6 +45,12 @@ class CapabilityRegistry(VersionedRegistry[Capability]):
     def latest_capabilities(self) -> list[Capability]:
         """Get only the latest version of each capability."""
         return self.latest_values()
+
+    def get_requirements(self, capability: Capability) -> list[Requirement | RequirementRefProtocol]:
+        """
+        Return requirements owned by a capability.
+        """
+        return RequirementsRegistry().resolve_requirements(capability.requirements)
 
     def remove(self, capability: Capability) -> None:
         """

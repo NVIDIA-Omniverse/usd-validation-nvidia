@@ -15,7 +15,7 @@ Repeated occurrences of identically shaped objects should have identical mesh co
 
 When identically shaped and parameterized objects appear multiple times in an asset, all occurrences should have identical mesh connectivity - point positions and connections / edges between the vertices. This enables proper memory de-duplication optimizations and primvar usage (texture coordinates, normals, etc.)
 
-```{figure} /_static/images/identical-meshes.jpg
+```{figure} /specs/_static/images/identical-meshes.jpg
 
 The locks on this toolbox are identical and should have identical mesh connectivity.
 ```

@@ -1,13 +1,12 @@
 # SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-from unittest import IsolatedAsyncioTestCase
+from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, Mock
 
 from pxr import Usd
 
 from usd_validation_nvidia import (
-    AsyncComplianceCheckerRunner,
     BaseRuleChecker,
     ComplianceCheckerEvent,
     ComplianceCheckerEventRule,
@@ -15,6 +14,18 @@ from usd_validation_nvidia import (
     FormatDependency,
     LocalUriResolver,
     ValidationStats,
+)
+from usd_validation_nvidia._compliance_runners import (
+    AsyncComplianceCheckerRunner,
+    AsyncCoroutineRunner,
+    AsyncCoroutineTaskRunner,
+    AsyncNoopRunner,
+    AsyncThreadRunner,
+    AsyncThreadTaskRunner,
+    SyncComplianceCheckerRunner,
+    SyncCoroutineRunner,
+    SyncInlineRunner,
+    SyncNoopRunner,
 )
 
 
@@ -147,99 +158,222 @@ class ComplianceCheckerEventRuleTest(IsolatedAsyncioTestCase):
         # When / Then
         self.assertTrue(event_rule.is_heavy_task())
 
-
-class AsyncComplianceCheckerRunnerTest(IsolatedAsyncioTestCase):
-    async def test_append_empty_ok(self):
-        # Given
-        rule = BaseRuleChecker()
-        stats = ValidationStats()
-        event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.STAGE, value=Mock())
-
-        # When
-        async with AsyncComplianceCheckerRunner(rules=[rule], stats=stats) as runner:
-            await runner.append(event)
-
-        # Then
-        self.assertEqual(runner.counter, 1)
-
-    async def test_append_stage_sync_ok(self):
+    def test_apply_ok(self):
         # Given
         stage = Mock(spec=Usd.Stage)
         func = Mock()
 
-        class _HeavySyncRule(BaseRuleChecker):
+        class _SyncStageRule(BaseRuleChecker):
             def CheckStage(self, stage):
                 func(stage)
 
-        rule = _HeavySyncRule()
-        stats = ValidationStats()
         event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.STAGE, value=stage)
+        event_rule = ComplianceCheckerEventRule(event=event, rule=_SyncStageRule())
 
         # When
-        async with AsyncComplianceCheckerRunner(rules=[rule], stats=stats) as runner:
-            await runner.append(event)
+        event_rule.apply(ValidationStats())
 
         # Then
-        self.assertEqual(runner.counter, 1)
         func.assert_called_once_with(stage)
 
-    async def test_append_prim_sync_ok(self):
-        # Given
-        prim = Mock(spec=Usd.Prim)
-        func = Mock()
-
-        class _LightSyncRule(BaseRuleChecker):
-            def CheckPrim(self, prim):
-                func(prim)
-
-        rule = _LightSyncRule()
-        stats = ValidationStats()
-        event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.PRIM, value=prim)
-
-        # When
-        async with AsyncComplianceCheckerRunner(rules=[rule], stats=stats) as runner:
-            await runner.append(event)
-
-        # Then
-        self.assertEqual(runner.counter, 1)
-        func.assert_called_once_with(prim)
-
-    async def test_append_stage_async_ok(self):
+    async def test_apply_async_ok(self):
         # Given
         stage = Mock(spec=Usd.Stage)
         func = AsyncMock()
 
-        class _HeavyAsyncRule(BaseRuleChecker):
+        class _AsyncStageRule(BaseRuleChecker):
             async def CheckStage(self, stage):
                 await func(stage)
 
-        rule = _HeavyAsyncRule()
-        stats = ValidationStats()
         event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.STAGE, value=stage)
+        event_rule = ComplianceCheckerEventRule(event=event, rule=_AsyncStageRule())
 
         # When
-        async with AsyncComplianceCheckerRunner(rules=[rule], stats=stats) as runner:
-            await runner.append(event)
+        await event_rule.applyAsync(ValidationStats())
 
         # Then
-        self.assertEqual(runner.counter, 1)
         func.assert_awaited_once_with(stage)
 
-    async def test_append_prim_async_ok(self):
+
+class SyncNoopRunnerTest(TestCase):
+    def test_counts_empty_task(self):
+        # Given
+        runner = SyncNoopRunner(ValidationStats())
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_empty_task.return_value = True
+
+        # When
+        runner.submit(event_rule)
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+
+
+class SyncInlineRunnerTest(TestCase):
+    def test_runs_sync_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = SyncInlineRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_async_task.return_value = False
+
+        # When
+        runner.submit(event_rule)
+        runner.flush()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.apply.assert_called_once_with(stats)
+
+
+class SyncCoroutineRunnerTest(TestCase):
+    def test_runs_async_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = SyncCoroutineRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_async_task.return_value = True
+        event_rule.applyAsync = AsyncMock()
+
+        # When
+        runner.submit(event_rule)
+        runner.flush()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.applyAsync.assert_awaited_once_with(stats)
+
+
+class AsyncNoopRunnerTest(IsolatedAsyncioTestCase):
+    async def test_counts_empty_task(self):
+        # Given
+        runner = AsyncNoopRunner(ValidationStats())
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_empty_task.return_value = True
+
+        # When
+        await runner.submit_async(event_rule)
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+
+
+class AsyncCoroutineRunnerTest(IsolatedAsyncioTestCase):
+    async def test_runs_light_async_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = AsyncCoroutineRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_heavy_task.return_value = False
+        event_rule.is_async_task.return_value = True
+        event_rule.applyAsync = AsyncMock()
+
+        # When
+        await runner.submit_async(event_rule)
+        await runner.flush_async()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.applyAsync.assert_awaited_once_with(stats)
+
+
+class AsyncThreadRunnerTest(IsolatedAsyncioTestCase):
+    async def test_runs_light_sync_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = AsyncThreadRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_heavy_task.return_value = False
+        event_rule.is_async_task.return_value = False
+
+        # When
+        await runner.submit_async(event_rule)
+        await runner.flush_async()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.apply.assert_called_once_with(stats)
+
+
+class AsyncCoroutineTaskRunnerTest(IsolatedAsyncioTestCase):
+    async def test_runs_heavy_async_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = AsyncCoroutineTaskRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_heavy_task.return_value = True
+        event_rule.is_async_task.return_value = True
+        event_rule.applyAsync = AsyncMock()
+
+        # When
+        await runner.submit_async(event_rule)
+        await runner.flush_async()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.applyAsync.assert_awaited_once_with(stats)
+
+
+class AsyncThreadTaskRunnerTest(IsolatedAsyncioTestCase):
+    async def test_runs_heavy_sync_event_on_flush(self):
+        # Given
+        stats = ValidationStats()
+        runner = AsyncThreadTaskRunner(stats)
+        event_rule = Mock(spec=ComplianceCheckerEventRule)
+        event_rule.is_heavy_task.return_value = True
+        event_rule.is_async_task.return_value = False
+
+        # When
+        await runner.submit_async(event_rule)
+        await runner.flush_async()
+
+        # Then
+        self.assertTrue(runner.accepts(event_rule))
+        self.assertEqual(runner.counter, 1)
+        event_rule.apply.assert_called_once_with(stats)
+
+
+class SyncComplianceCheckerRunnerTest(TestCase):
+    def test_append_dispatches_event(self):
+        # Given
+        prim = Mock(spec=Usd.Prim)
+        func = Mock()
+
+        class _SyncPrimRule(BaseRuleChecker):
+            def CheckPrim(self, prim):
+                func(prim)
+
+        event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.PRIM, value=prim)
+
+        # When
+        with SyncComplianceCheckerRunner(rules=[_SyncPrimRule()], stats=ValidationStats()) as runner:
+            runner.append(event)
+
+        # Then
+        func.assert_called_once_with(prim)
+
+
+class AsyncComplianceCheckerRunnerTest(IsolatedAsyncioTestCase):
+    async def test_append_dispatches_event(self):
         # Given
         prim = Mock(spec=Usd.Prim)
         func = AsyncMock()
 
-        class _LightAsyncRule(BaseRuleChecker):
+        class _AsyncPrimRule(BaseRuleChecker):
             async def CheckPrim(self, prim):
                 await func(prim)
 
-        rule = _LightAsyncRule()
-        stats = ValidationStats()
         event = ComplianceCheckerEvent(type=ComplianceCheckerEventType.PRIM, value=prim)
 
         # When
-        async with AsyncComplianceCheckerRunner(rules=[rule], stats=stats) as runner:
+        async with AsyncComplianceCheckerRunner(rules=[_AsyncPrimRule()], stats=ValidationStats()) as runner:
             await runner.append(event)
 
         # Then

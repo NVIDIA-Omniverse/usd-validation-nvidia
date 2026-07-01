@@ -1,15 +1,40 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
+import os
+import pathlib
 import unittest
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 from common import get_url
-from pxr import Sdf, Usd, UsdGeom
+from pxr import Ar, Sdf, Usd, UsdGeom
 
 from usd_validation_nvidia import ComplianceChecker
 
 
 class ComplianceCheckerTest(unittest.IsolatedAsyncioTestCase):
+    def test_check_dependencies_makes_relative_asset_path_absolute(self):
+        root = pathlib.Path.cwd()
+        with TemporaryDirectory(dir=root) as directory:
+            asset = pathlib.Path(directory).joinpath("asset.usda")
+            root_layer = Sdf.Layer.CreateAnonymous("asset.usda")
+            root_prim = Sdf.CreatePrimInLayer(root_layer, "/World")
+            root_prim.specifier = Sdf.SpecifierDef
+            root_prim.typeName = "Xform"
+            root_layer.defaultPrim = "World"
+            root_layer.Export(str(asset))
+
+            relative_asset = str(asset.relative_to(root))
+
+            with patch(
+                "usd_validation_nvidia._compliance_checker.UsdUtils.ComputeAllDependencies",
+                return_value=([], [], []),
+            ) as compute_dependencies:
+                ComplianceChecker._check_dependencies(relative_asset, Ar.GetResolver().GetCurrentContext())
+
+            compute_dependencies.assert_called_once_with(Sdf.AssetPath(os.path.abspath(relative_asset)))
+
     def test_create_stage_edit_root_layer_in_memory(self):
         # Given
         stage: Usd.Stage = Usd.Stage.CreateInMemory()

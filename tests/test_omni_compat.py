@@ -20,6 +20,18 @@ class TestOmniAssetValidatorShim(unittest.TestCase):
     def test_from_import(self):
         from omni.asset_validator import ValidationEngine  # noqa: F401
 
+    def test_requirement_ref_protocol_exports(self):
+        from omni.asset_validator import (
+            RequirementRefProtocol as OmniRequirementRefProtocol,
+        )
+        from usd_validation_nvidia import RequirementRefProtocol
+        from usd_validation_nvidia.capabilities import (
+            RequirementRefProtocol as CapRequirementRefProtocol,
+        )
+
+        self.assertIs(RequirementRefProtocol, CapRequirementRefProtocol)
+        self.assertIs(OmniRequirementRefProtocol, RequirementRefProtocol)
+
 
 class TestOmniAssetValidatorTestsShim(unittest.TestCase):
     def test_class_identity(self):

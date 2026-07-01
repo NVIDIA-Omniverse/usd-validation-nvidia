@@ -5,6 +5,7 @@
 import unittest
 from dataclasses import dataclass, field
 from enum import Enum
+from unittest.mock import Mock
 
 from usd_validation_nvidia import (
     BaseRuleChecker,
@@ -14,6 +15,7 @@ from usd_validation_nvidia import (
     register_requirements,
     unregister_requirements,
 )
+from usd_validation_nvidia.capabilities import RequirementRef as RequirementRefDTO
 
 
 class MyRequirement(Enum):
@@ -30,6 +32,7 @@ class MyRequirement(Enum):
         self.tags = tags
         self.version = version
         self.parameters = parameters
+        self.examples = ()
 
 
 class MyRule1(BaseRuleChecker): ...
@@ -107,6 +110,15 @@ class RequirementTests(unittest.TestCase):
         self.assertEqual(RequirementsRegistry().get_requirements(MyRule3), [])
         self.assertEqual(RequirementsRegistry().get_validator(MyRequirement.REQ001), MyRule1)
         self.assertTrue(RequirementsRegistry().is_registered(MyRule1, MyRequirement.REQ001))
+
+    def test_register_requirement_ref_raises(self):
+        requirement_ref = RequirementRefDTO(code="REF.001", version="1.0.0")
+
+        with self.assertRaisesRegex(TypeError, r"register_requirements expects concrete Requirement objects\."):
+            register_requirements(requirement_ref)(MyRule3)
+
+        self.assertEqual(RequirementsRegistry().get_requirements(MyRule3), [])
+        self.assertIsNone(RequirementsRegistry().get_validator(requirement_ref))
 
     def test_register_requirements_override(self):
         registry = RequirementsRegistry()
@@ -186,6 +198,39 @@ class RequirementTests(unittest.TestCase):
         self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
         self.assertNotIn(MyRequirement.REQ001, list(registry))
 
+    def test_delitem_removes_requirement_mappings(self):
+        registry = RequirementsRegistry()
+        key = registry.create_key(MyRequirement.REQ001)
+
+        del registry[key]
+
+        self.assertIsNone(registry.find("001"))
+        self.assertEqual(registry.get_requirements(MyRule1), [])
+        self.assertIsNone(registry.get_validator(MyRequirement.REQ001))
+        self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
+        self.assertNotIn(MyRequirement.REQ001, list(registry))
+
+    def test_delitem_removes_overridden_requirement_mappings(self):
+        registry = RequirementsRegistry()
+
+        @register_requirements(MyRequirement.REQ001, override=True)
+        class MyRule4(MyRule1): ...
+
+        key = registry.create_key(MyRequirement.REQ001)
+
+        try:
+            del registry[key]
+
+            self.assertIsNone(registry.find("001"))
+            self.assertEqual(registry.get_requirements(MyRule1), [])
+            self.assertEqual(registry.get_requirements(MyRule4), [])
+            self.assertIsNone(registry.get_validator(MyRequirement.REQ001))
+            self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
+            self.assertFalse(registry.is_registered(MyRule4, MyRequirement.REQ001))
+            self.assertNotIn(MyRequirement.REQ001, list(registry))
+        finally:
+            unregister_requirements(MyRule4)
+
     def test_unregister_requirements_override(self):
         @register_requirements(MyRequirement.REQ001, override=True)
         class MyRule4(MyRule1): ...
@@ -225,10 +270,11 @@ class RequirementTests(unittest.TestCase):
             path: str | None = None
             tags: tuple[str, ...] = ()
             parameters: tuple[Parameter, ...] = ()
+            examples: tuple = ()
             other: list[int] = field(default_factory=list)  # This field is not hashable
 
         requirement = NonHashableRequirement(
-            "code", "1.0.0", "display_name", "message", "path", ("tag",), (), [1, 2, 3]
+            "code", "1.0.0", "display_name", "message", "path", ("tag",), (), (), [1, 2, 3]
         )
         registry = RequirementsRegistry()
         self.assertEqual(registry.get_validator(requirement), None)
@@ -241,7 +287,7 @@ class RequirementTests(unittest.TestCase):
         self.assertTrue(registry.is_registered(MyRule1, requirement))
 
     def test_add_callback_ok(self):
-        callback = unittest.mock.Mock()
+        callback = Mock()
         _subscription = add_registry_requirement_callback(callback)
         register_requirements(MyRequirement.REQ003)(MyRule3)
         try:

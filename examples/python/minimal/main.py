@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
-
+#
 """Minimal NVIDIA USD Validation plugin example."""
 
 from pxr import Usd
@@ -27,4 +27,6 @@ class Plugin:
 
     def on_shutdown(self) -> None:
         unregister_rule(ExampleDefaultPrimChecker)
+
+
 # [/snippet:plugin-entry-point]

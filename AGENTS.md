@@ -41,19 +41,8 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
-```
-
-If `usd-profiles-nvidia` is unavailable, use the legacy package:
-
-```bash
-uv run \
-  --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
-    --docs-root specs \
-    --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities \
+    --reverse-domain com.nvidia.usd
 ```
 
 Published wheels already include `src/usd_validation_nvidia/capabilities`; fresh source checkouts do not. Skipping this
@@ -105,19 +94,8 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root examples/python/requirement/specs \
     --destination-dir examples/python/requirement \
-    --namespace example_requirements
-```
-
-If `usd-profiles-nvidia` is unavailable, use the legacy package:
-
-```bash
-uv run \
-  --no-project \
-  --with omniverse-usd-profiles \
-  python -m omni.usd_profiles.codegen \
-    --docs-root examples/python/requirement/specs \
-    --destination-dir examples/python/requirement \
-    --namespace example_requirements
+    --package-name example_requirements \
+    --reverse-domain com.nvidia.usd
 ```
 
 On Windows:
@@ -129,19 +107,8 @@ uv run `
   python -m usd_profiles_nvidia.codegen `
     --docs-root examples\python\requirement\specs `
     --destination-dir examples\python\requirement `
-    --namespace example_requirements
-```
-
-If `usd-profiles-nvidia` is unavailable on Windows, use the legacy package:
-
-```powershell
-uv run `
-  --no-project `
-  --with omniverse-usd-profiles `
-  python -m omni.usd_profiles.codegen `
-    --docs-root examples\python\requirement\specs `
-    --destination-dir examples\python\requirement `
-    --namespace example_requirements
+    --package-name example_requirements `
+    --reverse-domain com.nvidia.usd
 ```
 
 After codegen, run the plugin:
@@ -208,7 +175,8 @@ uv run \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities \
+    --reverse-domain com.nvidia.usd
 uv build -o dist
 uv run \
   --no-project \
@@ -227,7 +195,8 @@ uv run `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
     --destination-dir src `
-    --namespace usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities `
+    --reverse-domain com.nvidia.usd
 uv build -o dist
 $wheel = (Get-ChildItem .\dist\usd_validation_nvidia-*.whl | Select-Object -First 1).FullName
 uv run `
@@ -244,6 +213,7 @@ When a request maps to a known validation workflow, go directly to the relevant 
 
 - Python setup and first sample validation: `.agents/skills/project-setup-python/SKILL.md`
 - Project venv build, install, and test setup: `.agents/skills/project-venv-setup/SKILL.md`
+- Requirement and feature reference validation: `.agents/skills/validate-references/SKILL.md`
 - Validate Requirements: `.agents/skills/validate-requirements/SKILL.md`
 
 If multiple skills seem relevant, start with the narrowest skill that matches the user request, then layer in adjacent
@@ -264,5 +234,4 @@ skills only when the workflow needs them.
 ## Notes
 
 - The project is pre-release; behavior, APIs, and packaging details may evolve.
-- `usd-profiles-nvidia` is the intended package for profile/capability code generation. If it is not available in the
-  package registry yet, use the legacy `omniverse-usd-profiles` package and `omni.usd_profiles.codegen` module.
+- Use the public `usd-profiles-nvidia` package for profile/capability code generation.

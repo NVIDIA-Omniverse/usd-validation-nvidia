@@ -16,7 +16,7 @@ The minimal placeable visual feature comprises a list of requirements that enabl
 It additionally provides a list of requirements to ensure that the scale, units and placement of the object may be correctly represented, so that the object can be placed and aggregated with other objects in a scene.
 
 
-```{figure} /_static/minimal_placeable_visual/minimal_placeable_visual.gif
+```{figure} /specs/_static/minimal_placeable_visual/minimal_placeable_visual.gif
 :name: fig-minimal_placeable_visual
 
 Fig 1: Visualization of a simple asset in NVIDIA Omniverse to demonstrate the capabilities of the minimal placeable visual feature.

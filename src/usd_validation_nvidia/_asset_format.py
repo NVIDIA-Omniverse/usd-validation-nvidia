@@ -8,9 +8,13 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Protocol, runtime_checkable
 
-from ._events import EventListener, EventStream, create_event_stream
-from ._singleton import singleton
-from ._url_utils import UriResolver
+from .utils import (
+    EventListener,
+    EventStream,
+    UriResolver,
+    create_event_stream,
+    singleton,
+)
 
 __all__ = [
     "AssetFormat",

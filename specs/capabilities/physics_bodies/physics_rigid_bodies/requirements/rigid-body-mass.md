@@ -29,7 +29,7 @@ Inertia should also be specified for any enabled rigid body or collider that can
 - `physics:diagonalInertia`: Specifies the diagonalized inertia tensor along principal axes (in kg⋅m²).
 - `physics:principalAxes`: Defines the orientation of the inertia tensor's principal axes in the prim's local space.
 
-All units must be consistent with the stage's unit system as defined by [meters-per-unit](/capabilities/core/units/requirements/meters-per-unit) and [kilograms-per-unit](/capabilities/core/units/requirements/kilograms-per-unit).
+All units must be consistent with the stage's unit system as defined by [meters-per-unit](/specs/capabilities/core/units/requirements/meters-per-unit) and [kilograms-per-unit](/specs/capabilities/core/units/requirements/kilograms-per-unit).
 
 ## Why is it required?
 
@@ -137,8 +137,8 @@ def Xform "RobotBody" () {
 
 ## Related Requirements
 
-- [meters-per-unit](/capabilities/core/units/requirements/meters-per-unit)
-- [kilograms-per-unit](/capabilities/core/units/requirements/kilograms-per-unit)
+- [meters-per-unit](/specs/capabilities/core/units/requirements/meters-per-unit)
+- [kilograms-per-unit](/specs/capabilities/core/units/requirements/kilograms-per-unit)
 
 ## For More Information
 

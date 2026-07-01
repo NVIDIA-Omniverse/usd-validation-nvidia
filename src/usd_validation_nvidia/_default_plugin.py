@@ -19,61 +19,55 @@ from pxr import Usd
 from usd_validation_nvidia.capabilities import Capabilities, Features, Profiles
 
 from ._base_rule_checker import BaseRuleChecker
-from ._base_rules import (
-    ByteAlignmentChecker,
-    CompressionChecker,
-    ExtentsChecker,
-    KindChecker,
-    MissingReferenceChecker,
-    NormalMapTextureChecker,
-    PrimEncapsulationChecker,
-    StageMetadataChecker,
-    TextureChecker,
-    TypeChecker,
-    UsdzPackageValidator,
-)
 from ._capabilities import register_capabilities, unregister_capabilities
 from ._categories import CategoryRuleRegistry, register_rule
 from ._features import register_features, unregister_features
-from ._gaussian_splat_checker import GaussianSplatSchemaChecker
-from ._geometry_checker import (
+from ._profiles import register_profiles, unregister_profiles
+from .rules import (
+    ArticulationChecker,
+    ByteAlignmentChecker,
+    ColliderChecker,
+    CompressionChecker,
+    DanglingOverPrimChecker,
+    DefaultPrimChecker,
+    ExtentsChecker,
+    GaussianSplatSchemaChecker,
     IndexedPrimvarChecker,
+    KindChecker,
+    LayerSpecChecker,
     ManifoldChecker,
-    NormalsExistChecker,
-    NormalsValidChecker,
-    NormalsWindingsChecker,
-    SubdivisionSchemeChecker,
-    UnusedMeshTopologyChecker,
-    UnusedPrimvarChecker,
-    ValidateTopologyChecker,
-    WeldChecker,
-    ZeroAreaFaceChecker,
-)
-from ._layer_checker import LayerSpecChecker, UsdAsciiPerformanceChecker
-from ._layout_checker import DanglingOverPrimChecker, DefaultPrimChecker
-from ._material_checker import (
+    MassChecker,
     MaterialOldMdlSchemaChecker,
     MaterialOutOfScopeChecker,
     MaterialPathChecker,
     MaterialUsdPreviewSurfaceChecker,
+    MissingReferenceChecker,
+    NormalMapTextureChecker,
+    NormalsExistChecker,
+    NormalsValidChecker,
+    NormalsWindingsChecker,
+    PhysicsJointChecker,
+    PrimEncapsulationChecker,
+    RigidBodyChecker,
     ShaderImplementationSourceChecker,
-    UsdDanglingMaterialBinding,
-    UsdMaterialBindingApi,
-)
-from ._misc_checker import (
     SkelBindingAPIAppliedChecker,
+    StageMetadataChecker,
+    SubdivisionSchemeChecker,
+    TextureChecker,
+    TypeChecker,
+    UnicodeNameChecker,
+    UnusedMeshTopologyChecker,
+    UnusedPrimvarChecker,
+    UsdAsciiPerformanceChecker,
+    UsdDanglingMaterialBinding,
     UsdGeomSubsetChecker,
     UsdLuxSchemaChecker,
+    UsdMaterialBindingApi,
+    UsdzPackageValidator,
+    ValidateTopologyChecker,
+    WeldChecker,
+    ZeroAreaFaceChecker,
 )
-from ._physics_checker import (
-    ArticulationChecker,
-    ColliderChecker,
-    MassChecker,
-    PhysicsJointChecker,
-    RigidBodyChecker,
-)
-from ._profiles import register_profiles, unregister_profiles
-from ._utf8_checker import UnicodeNameChecker
 
 logger = logging.getLogger(__name__)
 

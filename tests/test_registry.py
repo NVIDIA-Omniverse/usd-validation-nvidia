@@ -115,6 +115,17 @@ class VersionedRegistryTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.registry.remove(self.item_v1)
 
+    def test_delitem_ok(self):
+        key = IdVersion("widget", SemVer("2.0.0"))
+        self.registry.add(self.item_v1)
+        self.registry.add(self.item_v2)
+
+        del self.registry[key]
+
+        self.assertNotIn(self.item_v2, self.registry)
+        self.assertEqual(self.registry.find("widget"), self.item_v1)
+        self.assertEqual(self.registry.latest_values(), [self.item_v1])
+
     # --- find ---
 
     def test_find_latest_ok(self):
@@ -183,4 +194,11 @@ class VersionedRegistryTest(unittest.TestCase):
         callback = unittest.mock.Mock()
         _subscription = self.registry.add_callback(callback)
         self.registry.add(self.item_v1)
+        callback.assert_called_once()
+
+    def test_callback_on_delete_ok(self):
+        callback = unittest.mock.Mock()
+        self.registry.add(self.item_v1)
+        _subscription = self.registry.add_callback(callback)
+        del self.registry[IdVersion("widget", SemVer("1.0.0"))]
         callback.assert_called_once()

@@ -26,11 +26,11 @@ Normals can be represented by the "normals" or the "primvars:normals" attributes
 ````{grid} 1 1 2 2
 
 ```{grid-item-card} Incorrect
-![normals_incorrect](/_static/images/normals_incorrect.jpg)
+![normals_incorrect](/specs/_static/images/normals_incorrect.jpg)
 ```
 
 ```{grid-item-card} Correct
-![normals_correct](/_static/images/normals_correct.jpg)
+![normals_correct](/specs/_static/images/normals_correct.jpg)
 ```
 ````
 

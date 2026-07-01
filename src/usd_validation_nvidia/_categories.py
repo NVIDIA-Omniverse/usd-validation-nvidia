@@ -5,10 +5,8 @@ from collections.abc import Callable, Sequence
 from functools import cache
 
 from ._base_rule_checker import BaseRuleChecker
-from ._deprecate import deprecated
-from ._events import EventListener
 from ._registry import Registry
-from ._singleton import singleton
+from .utils import EventListener, deprecated, singleton
 
 __all__ = [
     "CategoryRuleRegistry",

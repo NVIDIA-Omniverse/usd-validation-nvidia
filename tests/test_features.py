@@ -5,14 +5,21 @@ import unittest
 from unittest.mock import Mock
 
 from usd_validation_nvidia import (
+    BaseRuleChecker,
     Feature,
     FeatureRegistry,
+    RequirementsRegistry,
     add_registry_feature_callback,
     register_feature,
     register_features,
+    register_requirements,
     unregister_feature,
     unregister_features,
+    unregister_requirements,
 )
+from usd_validation_nvidia.capabilities import Feature as FeatureDTO
+from usd_validation_nvidia.capabilities import FeatureRef as FeatureRefDTO
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 
 
 class FeaturesRegistryTest(unittest.TestCase):
@@ -68,6 +75,83 @@ class FeaturesRegistryTest(unittest.TestCase):
         register_features([self.mock_feature])
         unregister_features([self.mock_feature])
         self.assertNotIn(self.mock_feature, self.registry)
+
+    def test_get_requirements_includes_dependencies(self):
+        feature_requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        dependency_requirement = RequirementDTO(code="DEPENDENCY.REQ", version="1.0.0")
+        dependency_feature = FeatureDTO(
+            id="dependency_feature",
+            version="1.0.0",
+            path="",
+            requirements=[dependency_requirement],
+        )
+        feature = FeatureDTO(
+            id="feature",
+            version="1.0.0",
+            path="",
+            requirements=[feature_requirement],
+            dependencies=[dependency_feature],
+        )
+
+        self.assertEqual(self.registry.get_requirements(feature), [feature_requirement, dependency_requirement])
+
+    def test_get_requirements_deduplicates_resolved_feature_refs(self):
+        requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        dependency = FeatureDTO(
+            id="dependency_feature",
+            version="1.0.0",
+            path="",
+            requirements=[requirement],
+        )
+        feature = FeatureDTO(
+            id="feature",
+            version="1.0.0",
+            path="",
+            requirements=[],
+            dependencies=[
+                dependency,
+                FeatureRefDTO(id=dependency.id),
+            ],
+        )
+        register_feature(dependency)
+
+        try:
+            self.assertEqual(self.registry.get_requirements(feature), [requirement])
+        finally:
+            unregister_feature(dependency)
+
+    def test_unregister_feature_ignores_dependency_requirements(self):
+        requirement = RequirementDTO(code="DEPENDENCY.REMOVE.REQ", version="1.0.0")
+        dependency = FeatureDTO(
+            id="dependency_remove_feature",
+            version="1.0.0",
+            path="",
+            requirements=[requirement],
+        )
+        feature = FeatureDTO(
+            id="feature_without_requirements",
+            version="1.0.0",
+            path="",
+            requirements=[],
+            dependencies=[dependency],
+        )
+
+        class DependencyRule(BaseRuleChecker):
+            pass
+
+        register_feature(dependency)
+        register_feature(feature)
+        register_requirements(requirement)(DependencyRule)
+
+        try:
+            unregister_feature(feature)
+
+            self.assertNotIn(feature, self.registry)
+            self.assertIn(dependency, self.registry)
+            self.assertEqual(RequirementsRegistry().get_validator(requirement), DependencyRule)
+        finally:
+            unregister_requirements(DependencyRule)
+            unregister_feature(dependency)
 
     def test_add_callback_ok(self):
         callback = unittest.mock.Mock()

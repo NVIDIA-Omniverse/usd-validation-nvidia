@@ -49,7 +49,7 @@ The stage must have a valid metersPerUnit value specified to define the linear u
 
 ## Related Requirements
 
-- [corrective-transforms](/capabilities/core/units/requirements/corrective-transforms)
+- [corrective-transforms](/specs/capabilities/core/units/requirements/corrective-transforms)
 
 ## For More Information
 

@@ -5,3 +5,4 @@ _*/
 dist
 src/usd_validation_nvidia/capabilities/
 examples/python/requirement/example_requirements/
+examples/python/validate-references/example_validate_references/

@@ -42,11 +42,12 @@ Generate the capabilities package with `usd-profiles-nvidia`, then build the whe
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia==1.15.0 \
+  --with usd-profiles-nvidia \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
     --destination-dir src \
-    --package-name usd_validation_nvidia.capabilities
+    --package-name usd_validation_nvidia.capabilities \
+    --reverse-domain com.nvidia.usd
 
 uv build -o dist
 ```
@@ -72,8 +73,8 @@ for result in fix_results:
 fixer.save()
 ```
 
-The `ValidationEngine` also supports selecting specific rules with `enableRule()` / `disableRule()`
-and filtering by category with `enableCategory()`.
+The `ValidationEngine` also supports selecting specific rules with `enable_rule()` / `disable_rule()`.
+To filter by category in Python, enable the rules returned by `CategoryRuleRegistry().get_rules(category)`.
 
 ## Command Line Interface
 
@@ -102,11 +103,6 @@ nvidia_usd_validate --csv-output results.csv asset.usda
 nvidia_usd_validate --help
 ```
 
-## AI Coding Agents
-
-The [AGENTS.md](AGENTS.md) file and [.agents/skills](.agents/skills/) directory contain structured guidance for AI coding
-agents. Start there for Python project setup, local venv setup, and generated requirement validation workflows.
-
 ## Documentation
 
 - [Full Documentation](https://docs.omniverse.nvidia.com/kit/docs/asset-validator)
@@ -121,3 +117,10 @@ agents. Start there for Python project setup, local venv setup, and generated re
 ## License
 
 Apache-2.0
+
+## AI Coding Agents
+
+The [AGENTS.md](https://github.com/NVIDIA-Omniverse/usd-validation-nvidia/blob/main/AGENTS.md) file and
+[.agents/skills](https://github.com/NVIDIA-Omniverse/usd-validation-nvidia/tree/main/.agents/skills) directory contain
+structured guidance for AI coding agents. Start there for Python project setup, local venv setup, and generated
+requirement validation workflows.

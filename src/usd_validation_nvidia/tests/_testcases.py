@@ -7,14 +7,16 @@ from pxr import Sdf, Usd
 from .._assets import AssetType
 from .._base_rule_checker import BaseRuleChecker
 from .._capabilities import Capability
-from .._deprecate import deprecated
 from .._engine import ValidationEngine
 from .._examples import ExampleResult
+from .._features import Feature
 from .._fix import FixStatus, IssueFixer
-from .._issues import IssuePredicate
+from .._issues import Issue, IssuePredicate
 from .._parameters import ParameterMapping, UserParameter
+from .._profiles import Profile
 from .._requirements import Requirement
 from .._results import Results
+from ..utils import deprecated
 from ._assertions import IsAFailure, IsAnAsset, IsAnIssue
 
 __all__ = [
@@ -23,7 +25,25 @@ __all__ = [
 ]
 
 
-class ValidationTestCaseMixin:
+class ValidationAssertionsMixin:
+    def assertEqualIssues(self, asserts: list[IsAnIssue], issues: list[Issue]) -> None:
+        self.assertEqual(
+            len(issues),
+            len(asserts),
+            f"Different number of actual and expected issues. Expected {len(asserts)}, got {len(issues)}.",
+        )
+
+        remaining: list[Issue] = list(issues)
+        for assertion in asserts:
+            for index, issue in enumerate(remaining):
+                if assertion == issue:
+                    del remaining[index]
+                    break
+            else:
+                self.fail(f"Expected {assertion} was not found. Remaining issues: {remaining}")
+
+
+class ValidationTestCaseMixin(ValidationAssertionsMixin):
     """
     A mixin for test cases to simplify testing of individual Validation Rules.
 
@@ -54,6 +74,8 @@ class ValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
     ) -> Results:
         """
         Validate the asset using the rule.
@@ -72,6 +94,10 @@ class ValidationTestCaseMixin:
             engine.enable_requirement(requirement)
         elif capability:
             engine.enable_capability(capability)
+        elif feature:
+            engine.enable_feature(feature)
+        elif profile:
+            engine.enable_profile(profile)
         return engine.validate(asset)
 
     def assertIssues(
@@ -81,6 +107,8 @@ class ValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         asserts: list[IsAnIssue],
     ) -> None:
         """Assert issues from validating one asset using either a rule, requirement or capability.
@@ -96,11 +124,11 @@ class ValidationTestCaseMixin:
             rule: Either a BaseRuleChecker derived class or the str class name of such a class
             asserts: A list of assertions.
         """
-        result: Results = self.validate(asset=asset, rule=rule, requirement=requirement, capability=capability)
+        result: Results = self.validate(
+            asset=asset, rule=rule, requirement=requirement, capability=capability, feature=feature, profile=profile
+        )
         self.assertEqual(IsAnAsset(asset), result.asset)
-        self.assertEqual(len(result.issues()), len(asserts), "Different number of actual and expected issues.")
-        for assertion, issue in zip(asserts, result.issues()):
-            self.assertEqual(assertion, issue, f"Expected {assertion} but got {issue}.")
+        self.assertEqualIssues(asserts, result.issues())
 
     def assertRule(
         self,
@@ -132,6 +160,26 @@ class ValidationTestCaseMixin:
         """Assert issues from validating one asset using one capability"""
         self.assertIssues(asset=asset, capability=capability, asserts=asserts)
 
+    def assertFeature(
+        self,
+        *,
+        asset: AssetType,
+        feature: Feature,
+        asserts: list[IsAnIssue],
+    ) -> None:
+        """Assert issues from validating one asset using one feature"""
+        self.assertIssues(asset=asset, feature=feature, asserts=asserts)
+
+    def assertProfile(
+        self,
+        *,
+        asset: AssetType,
+        profile: Profile,
+        asserts: list[IsAnIssue],
+    ) -> None:
+        """Assert issues from validating one asset using one profile"""
+        self.assertIssues(asset=asset, profile=profile, asserts=asserts)
+
     def assertSuccess(
         self,
         *,
@@ -139,12 +187,16 @@ class ValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         predicate: IssuePredicate | None = None,
     ) -> None:
         """
         Assert that the asset is validated successfully.
         """
-        result: Results = self.validate(asset=asset, rule=rule, requirement=requirement, capability=capability)
+        result: Results = self.validate(
+            asset=asset, rule=rule, requirement=requirement, capability=capability, feature=feature, profile=profile
+        )
         self.assertEqual(IsAnAsset(asset), result.asset)
         self.assertFalse(result.issues(predicate), "There are issues found in the asset.")
 
@@ -155,12 +207,16 @@ class ValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         predicate: IssuePredicate | None = None,
     ) -> None:
         """
         Assert that the asset is validated with failures.
         """
-        result: Results = self.validate(asset=asset, rule=rule, requirement=requirement, capability=capability)
+        result: Results = self.validate(
+            asset=asset, rule=rule, requirement=requirement, capability=capability, feature=feature, profile=profile
+        )
         self.assertEqual(IsAnAsset(asset), result.asset)
         self.assertTrue(result.issues(predicate), "There are no issues found in the asset.")
 
@@ -245,7 +301,7 @@ class ValidationTestCaseMixin:
                 self.assertFailure(asset=stage, requirement=requirement)
 
 
-class AsyncioValidationTestCaseMixin:
+class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
     """
     A mixin for asyncio test cases to simplify testing of individual Validation Rules.
 
@@ -276,6 +332,8 @@ class AsyncioValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         parameters: dict[str, int | float | bool | str] | None = None,
     ) -> Results:
         """
@@ -284,10 +342,14 @@ class AsyncioValidationTestCaseMixin:
         engine = ValidationEngine(init_rules=False)
         if rule:
             engine.enable_rule(rule)
-        if requirement:
+        elif requirement:
             engine.enable_requirement(requirement)
-        if capability:
+        elif capability:
             engine.enable_capability(capability)
+        elif feature:
+            engine.enable_feature(feature)
+        elif profile:
+            engine.enable_profile(profile)
         if parameters:
             engine_parameters: ParameterMapping = engine.parameters
             for name, value in parameters.items():
@@ -303,18 +365,23 @@ class AsyncioValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         asserts: list[IsAnIssue],
     ) -> None:
         """
         Same as assertIssues, but for async tests.
         """
         result: Results = await self.validateAsync(
-            asset=asset, rule=rule, requirement=requirement, capability=capability
+            asset=asset,
+            rule=rule,
+            requirement=requirement,
+            capability=capability,
+            feature=feature,
+            profile=profile,
         )
         self.assertEqual(IsAnAsset(asset), result.asset)
-        self.assertEqual(len(result.issues()), len(asserts), "Different number of actual and expected issues.")
-        for assertion, issue in zip(asserts, result.issues()):
-            self.assertEqual(assertion, issue, f"Expected {assertion} but got {issue}.")
+        self.assertEqualIssues(asserts, result.issues())
 
     async def assertRuleAsync(
         self,
@@ -348,6 +415,26 @@ class AsyncioValidationTestCaseMixin:
         """Same as assertCapability, but for async tests."""
         await self.assertIssuesAsync(asset=asset, capability=capability, asserts=asserts)
 
+    async def assertFeatureAsync(
+        self,
+        *,
+        asset: AssetType,
+        feature: Feature,
+        asserts: list[IsAnIssue],
+    ) -> None:
+        """Same as assertFeature, but for async tests."""
+        await self.assertIssuesAsync(asset=asset, feature=feature, asserts=asserts)
+
+    async def assertProfileAsync(
+        self,
+        *,
+        asset: AssetType,
+        profile: Profile,
+        asserts: list[IsAnIssue],
+    ) -> None:
+        """Same as assertProfile, but for async tests."""
+        await self.assertIssuesAsync(asset=asset, profile=profile, asserts=asserts)
+
     async def assertSuccessAsync(
         self,
         *,
@@ -355,6 +442,8 @@ class AsyncioValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         predicate: IssuePredicate | None = None,
         parameters: dict[str, int | float | bool | str] | None = None,
     ) -> None:
@@ -362,7 +451,13 @@ class AsyncioValidationTestCaseMixin:
         Same as assertSuccess, but for async tests.
         """
         result: Results = await self.validateAsync(
-            asset=asset, rule=rule, requirement=requirement, capability=capability, parameters=parameters
+            asset=asset,
+            rule=rule,
+            requirement=requirement,
+            capability=capability,
+            feature=feature,
+            profile=profile,
+            parameters=parameters,
         )
         self.assertEqual(IsAnAsset(asset), result.asset)
         self.assertFalse(result.issues(predicate), "There are issues found in the asset.")
@@ -374,13 +469,15 @@ class AsyncioValidationTestCaseMixin:
         rule: type[BaseRuleChecker] | None = None,
         requirement: Requirement | None = None,
         capability: Capability | None = None,
+        feature: Feature | None = None,
+        profile: Profile | None = None,
         predicate: IssuePredicate | None = None,
     ) -> None:
         """
         Same as assertFailure, but for async tests.
         """
         result: Results = await self.validateAsync(
-            asset=asset, rule=rule, requirement=requirement, capability=capability
+            asset=asset, rule=rule, requirement=requirement, capability=capability, feature=feature, profile=profile
         )
         self.assertEqual(IsAnAsset(asset), result.asset)
         self.assertTrue(result.issues(predicate), "There are no issues found in the asset.")

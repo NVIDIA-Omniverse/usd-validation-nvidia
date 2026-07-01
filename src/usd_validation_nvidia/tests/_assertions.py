@@ -10,10 +10,11 @@ from pxr import Sdf, Usd
 
 from .._assets import AssetType
 from .._base_rule_checker import BaseRuleChecker
-from .._deprecate import deprecated
 from .._identifiers import Identifier
 from .._issues import Issue, IssueSeverity
 from .._requirements import Requirement
+from ..capabilities import RequirementRefProtocol
+from ..utils import deprecated
 
 __all__ = [
     "Failure",
@@ -43,7 +44,7 @@ class IsAnIssue:
     at: str | Sdf.Path | pathlib.Path | None = None
     code: str | None = None
     rule: type[BaseRuleChecker] | None = None
-    requirement: Requirement | None = None
+    requirement: Requirement | RequirementRefProtocol | None = None
     severity: IssueSeverity = IssueSeverity.INFO
 
     @singledispatchmethod
@@ -90,18 +91,16 @@ class IsAnIssue:
         return False
 
     @classmethod
-    def requirement_cmp(cls, lh: Requirement | None, rh: Requirement | None) -> bool:
+    def requirement_cmp(
+        cls,
+        lh: Requirement | RequirementRefProtocol | None,
+        rh: Requirement | RequirementRefProtocol | None,
+    ) -> bool:
         if lh is None and rh is None:
             return True
         if lh is None or rh is None:
             return False
-        return (
-            lh.code == rh.code
-            and lh.display_name == rh.display_name
-            and lh.message == rh.message
-            and lh.path == rh.path
-            and lh.tags == rh.tags
-        )
+        return lh.code == rh.code and lh.version == rh.version
 
     def __eq__(self, other: Issue) -> bool:
         return (

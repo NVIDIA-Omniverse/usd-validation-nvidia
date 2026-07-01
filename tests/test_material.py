@@ -492,9 +492,7 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
         MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.clear()
         # The checker uses ``GetShaderNodeNames`` on USD 25.08+ and ``GetNodeNames`` before
         # that; patch whichever this runtime exposes so the cache stays empty.
-        registry_method = (
-            "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
-        )
+        registry_method = "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
         try:
             with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
                 await self.assertRuleAsync(

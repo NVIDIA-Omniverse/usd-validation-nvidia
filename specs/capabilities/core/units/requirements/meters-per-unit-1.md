@@ -49,7 +49,7 @@ The stage must have metersPerUnit set to 1.0 to define the linear unit scale for
 
 ## Related Requirements
 
-- [corrective-transforms](/capabilities/core/units/requirements/corrective-transforms)
+- [corrective-transforms](/specs/capabilities/core/units/requirements/corrective-transforms)
 
 ## For More Information
 

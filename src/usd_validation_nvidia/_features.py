@@ -5,13 +5,11 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable, Iterable
-from typing import Protocol, runtime_checkable
 
-from ._events import EventListener
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from ._semver import SemVer
-from ._singleton import singleton
+from .capabilities import FeatureProtocol, FeatureRefProtocol, RequirementRefProtocol
+from .utils import EventListener, SemVer, singleton
 
 __all__ = [
     "Feature",
@@ -24,22 +22,8 @@ __all__ = [
 ]
 
 
-@runtime_checkable
-class Feature(Protocol):
-    """
-    A protocol definition of feature.
-
-    Attributes:
-        id: A unique identifier of the feature
-        version: The version of the feature
-        path: The path to the feature
-        requirements: The requirements of the feature
-    """
-
-    id: str
-    version: str
-    path: str
-    requirements: list[Requirement]
+Feature = FeatureProtocol
+""" Left for backwards compatibility. """
 
 
 @singleton
@@ -63,6 +47,33 @@ class FeatureRegistry(VersionedRegistry[Feature]):
     def latest_features(self) -> list[Feature]:
         """Get only the latest version of each feature."""
         return self.latest_values()
+
+    def get_requirements(self, feature: Feature | FeatureRefProtocol) -> list[Requirement | RequirementRefProtocol]:
+        """
+        Return requirements owned by a feature and its resolved feature dependencies.
+        """
+        registry = RequirementsRegistry()
+        requirements: list[Requirement | RequirementRefProtocol] = []
+        queue: list[FeatureProtocol | FeatureRefProtocol] = [feature]
+        seen: set[tuple[str, str | None]] = set()
+        while queue:
+            current: FeatureProtocol | FeatureRefProtocol = queue.pop()
+            if (current.id, current.version) in seen:
+                continue
+            if not hasattr(current, "requirements"):
+                resolved: Feature = self.find(current.id, current.version)
+                if resolved is None:
+                    continue
+                current = resolved
+            key: tuple[str, str | None] = (current.id, current.version)
+            if key in seen:
+                continue
+            seen.add(key)
+            requirements.extend(registry.resolve_requirements(current.requirements))
+            dependencies = getattr(current, "dependencies", [])
+            if isinstance(dependencies, Iterable):
+                queue.extend(dependencies)
+        return requirements
 
     def remove(self, feature: Feature) -> None:
         """

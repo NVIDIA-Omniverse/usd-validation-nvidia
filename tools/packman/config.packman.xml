@@ -1,7 +1,0 @@
-<config remotes="external">
-    <remote2 name="external">
-        <transport actions="download" protocol="https"
-            packageLocation="ov-artifactory.westus2.cloudapp.azure.com/artifactory/ct-omniverse-ext-generic/${name}/${name}@${version}"
-            packageExtensions="7z zip tar.gz cab" />
-    </remote2>
-</config>

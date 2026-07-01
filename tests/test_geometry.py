@@ -416,6 +416,52 @@ class NormalsWindingsCheckerTest(AsyncioValidationTestCase):
             ],
         )
 
+    async def test_missing_normals_topology_is_skipped(self):
+        await self.assertRuleAsync(
+            asset=get_url("subdivisionNoneNoNormals.usda"),
+            rule=NormalsWindingsChecker,
+            asserts=[],
+        )
+
+    async def test_malformed_normals_topology_is_skipped_like_missing_normals(self):
+        await self.assertRuleAsync(
+            asset=get_url("Geometry/malformedNormalsWindings.usda"),
+            rule=NormalsWindingsChecker,
+            asserts=[],
+        )
+
+    async def test_malformed_normals_topology_is_reported_by_owning_rules(self):
+        asset = get_url("Geometry/malformedNormalsWindings.usda")
+
+        await self.assertRuleAsync(
+            asset=asset,
+            rule=NormalsValidChecker,
+            asserts=[
+                IsAFailure(
+                    "Mesh '/World/TooFewUniformNormals' normals have 1 elements but expected 2 for 'uniform' interpolation."
+                ),
+            ],
+        )
+        await self.assertRuleAsync(
+            asset=asset,
+            rule=IndexedPrimvarChecker,
+            asserts=[
+                IsAnError(
+                    "Primvar indices out of bounds", at=Sdf.Path("/World/InvalidIndexedNormals.primvars:normals")
+                ),
+            ],
+        )
+        await self.assertRuleAsync(
+            asset=asset,
+            rule=UnusedPrimvarChecker,
+            asserts=[
+                IsAWarning(
+                    "primvars:normals contains invalid indices that are above the number of values.*",
+                    at=Sdf.Path("/World/InvalidIndexedNormals.primvars:normals"),
+                ),
+            ],
+        )
+
 
 @unittest.skipUnless(
     GaussianSplatSchemaChecker.is_implemented(), "OpenUSD 26.03+ required for VG.035 / GaussianSplatSchemaChecker"

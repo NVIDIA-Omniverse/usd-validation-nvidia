@@ -50,7 +50,7 @@ If there are physics objects in the stage, the stage must have a valid kilograms
 
 ## Related Requirements
 
-- [physics-rigid-bodies](/capabilities/physics_bodies/physics_bodies.md)
+- [physics-rigid-bodies](/specs/capabilities/physics_bodies/physics_bodies.md)
 
 ## For More Information
 
