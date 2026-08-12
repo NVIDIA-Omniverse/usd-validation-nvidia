@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="_static/modal-table.js"></script>
-    <script src="_static/documentation_options.js?v=aa52d2d4"></script>
+    <script src="_static/documentation_options.js?v=b894eece"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.21.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,13 +68,13 @@
 
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="docs/installation.html" />
+    <link rel="next" title="Installation" href="validation/docs/installation.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Jul 01, 2026"/>
+    <meta name="docbuild:last-update" content="Aug 12, 2026"/>
   
     
     <script src="_static/searchtools.js"></script>
@@ -480,17 +480,17 @@
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Technical Documentation</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="docs/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/api.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/api.html">Python API</a></li>
 
 
-<li class="toctree-l1"><a class="reference internal" href="docs/cli.html">Command Line Interface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/authoring.html">Authoring Rules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/migration.html">Migrating from omniverse-asset-validator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/categories.html">Categories</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/rules.html">Rules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/requirements.html">Requirements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="docs/testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/cli.html">Command Line Interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/authoring.html">Authoring Rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/migration.html">Migrating from omniverse-asset-validator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/categories.html">Categories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/rules.html">Rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation/docs/testing.html">Testing</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Requirements</span></p>
 <ul class="nav bd-sidenav">
@@ -557,6 +557,7 @@
 <p>An extensible framework to validate <a class="reference external" href="https://openusd.org">OpenUSD</a> assets.
 Inspired by Pixar’s <a class="reference external" href="https://graphics.pixar.com/usd/release/toolset.html#usdchecker">usdchecker</a>,
 this library extends validation capabilities with additional rules and provides automatic issue fixing.</p>
+<p>It is the standalone successor to <a class="reference external" href="https://pypi.org/project/omniverse-asset-validator/"><code class="docutils literal notranslate"><span class="pre">omniverse-asset-validator</span></code></a> and is intended for use in any USD pipeline.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -588,19 +589,31 @@ pip<span class="w"> </span>install<span class="w"> </span>usd-validation-nvidia<
 </pre></div>
 </div>
 </section>
+<section id="repository-layout-and-releases">
+<h2>Repository Layout and Releases<a class="headerlink" href="#repository-layout-and-releases" title="Link to this heading">#</a></h2>
+<p>This repository is the single source repository for the shared NSPECT release and publishes
+two Python packages from the same commit, both versioned from the shared <code class="docutils literal notranslate"><span class="pre">VERSION.md</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">usd-validation-nvidia</span></code> — the validation engine (source under <code class="docutils literal notranslate"><span class="pre">validation/src/</span></code>, with package docs,
+examples, and tests under <code class="docutils literal notranslate"><span class="pre">validation/</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">usd-profiles-nvidia</span></code> — profile/spec definitions and code generation tooling (<code class="docutils literal notranslate"><span class="pre">profiles/</span></code>
+directory, a <code class="docutils literal notranslate"><span class="pre">uv</span></code> workspace member; formerly a standalone repository)</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">build</span> <span class="pre">--all-packages</span></code> produces wheels and sdists for both packages.</p>
+</section>
 <section id="build-from-source">
 <h2>Build from Source<a class="headerlink" href="#build-from-source" title="Link to this heading">#</a></h2>
-<p>Generate the capabilities package with <code class="docutils literal notranslate"><span class="pre">usd-profiles-nvidia</span></code>, then build the wheel:</p>
+<p>Generate the capabilities package with the in-repo <code class="docutils literal notranslate"><span class="pre">profiles/</span></code> member (<code class="docutils literal notranslate"><span class="pre">usd-profiles-nvidia</span></code>), then build the wheel:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--no-project<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--with<span class="w"> </span>usd-profiles-nvidia<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--with<span class="w"> </span>./profiles<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>usd_profiles_nvidia.codegen<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--docs-root<span class="w"> </span>specs<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--destination-dir<span class="w"> </span>src<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--destination-dir<span class="w"> </span>validation/src<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--package-name<span class="w"> </span>usd_validation_nvidia.capabilities<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--reverse-domain<span class="w"> </span>com.nvidia.usd
 
-uv<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>dist
+uv<span class="w"> </span>build<span class="w"> </span>--all-packages<span class="w"> </span>-o<span class="w"> </span>dist
 </pre></div>
 </div>
 </section>
@@ -656,21 +669,21 @@ nvidia_usd_validate<span class="w"> </span>--help
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://docs.omniverse.nvidia.com/kit/docs/asset-validator">Full Documentation</a></p></li>
-<li><p><a class="reference external" href="https://docs.omniverse.nvidia.com/kit/docs/asset-validator/latest/source/python/docs/api.html">API Reference</a></p></li>
-<li><p><a class="reference external" href="https://docs.omniverse.nvidia.com/kit/docs/asset-validator/latest/source/python/docs/rules.html">Available Rules</a></p></li>
+<li><p><a class="reference external" href="https://nvidia-omniverse.github.io/usd-validation-nvidia/">Full Documentation</a></p></li>
+<li><p><a class="reference external" href="https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/api.html">API Reference</a></p></li>
+<li><p><a class="reference external" href="https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/rules.html">Available Rules</a></p></li>
 </ul>
 </section>
 <section id="requirements">
 <h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Python 3.10 - 3.12</p></li>
-<li><p>OpenUSD 22.11 or later</p></li>
+<li><p>Python 3.10 - 3.13 with OpenUSD 23.11 or later</p></li>
+<li><p>Python 3.14 with OpenUSD 26.08</p></li>
 </ul>
 </section>
 <section id="license">
 <h2>License<a class="headerlink" href="#license" title="Link to this heading">#</a></h2>
-<p>Apache-2.0</p>
+<p>Apache-2.0 AND CC-BY-4.0</p>
 </section>
 </section>
 <div class="toctree-wrapper compound">
@@ -697,7 +710,7 @@ nvidia_usd_validate<span class="w"> </span>--help
                   
 <div class="prev-next-area">
     <a class="right-next"
-       href="docs/installation.html"
+       href="validation/docs/installation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
@@ -730,6 +743,7 @@ nvidia_usd_validate<span class="w"> </span>--help
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-layout-and-releases">Repository Layout and Releases</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-from-source">Build from Source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command Line Interface</a></li>
@@ -787,7 +801,7 @@ nvidia_usd_validate<span class="w"> </span>--help
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Jul 01, 2026.
+  Last updated on Aug 12, 2026.
   <br/>
 </p></div>
       

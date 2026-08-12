@@ -1,0 +1,20 @@
+{
+    "profile": {
+        "id": "example",
+        "version": "1.0.0",
+        "name": "Example",
+        "description": "Minimal profile with one feature.",
+        "requirements": [],
+        "capabilities": [],
+        "features": [
+            {
+                "feature": "example@1.0.0",
+                "optional": false
+            }
+        ],
+        "metadata": {
+            "path": "profiles/examples/python/minimal/specs/profiles/profile-example.html",
+            "internal_path": "profiles/examples/python/minimal/specs/profiles/profile-example.md"
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "profile": {
+        "id": "name",
+        "version": "1.0.0",
+        "name": "Name",
+        "description": "Description",
+        "requirements": [],
+        "capabilities": [],
+        "features": [
+            {
+                "feature": "simple@1.0.0",
+                "optional": false
+            },
+            {
+                "feature": "complex@1.0.0",
+                "optional": false
+            }
+        ],
+        "metadata": {
+            "path": "profiles/tests/resources/simple-profile/profile-simple.html",
+            "internal_path": "profiles/tests/resources/simple-profile/profile-simple.md"
+        }
+    }
+}

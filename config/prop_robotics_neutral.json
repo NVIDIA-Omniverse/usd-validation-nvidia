@@ -1,0 +1,20 @@
+{
+    "profile": {
+        "id": "prop_robotics_neutral",
+        "version": "1.0.0",
+        "name": "prop-robotics-neutral",
+        "description": "Minimal profile with one feature.",
+        "requirements": [],
+        "capabilities": [],
+        "features": [
+            {
+                "feature": "rigid_body_physics@1.0.0",
+                "optional": false
+            }
+        ],
+        "metadata": {
+            "path": "profiles/tests/resources/namespace-spec/profiles/profile-prop-robotics-neutral.html",
+            "internal_path": "profiles/tests/resources/namespace-spec/profiles/profile-prop-robotics-neutral.md"
+        }
+    }
+}
