@@ -1,0 +1,56 @@
+[project]
+name = "usd-profiles-nvidia"
+dynamic = ["version"]
+description = "USD Profiles NVIDIA"
+authors = [
+    {name = "NVIDIA"},
+]
+license = {text = "Apache-2.0 AND CC-BY-4.0"}
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "jinja2>=3.1.5",
+    "markdown-it-py>=3.0.0",
+    "tomli>=2.0.0; python_version < '3.11'",
+]
+
+[project.optional-dependencies]
+sphinx = [
+    "sphinx>=7.2.6",
+    "myst-parser>=4.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/NVIDIA-Omniverse/usd-validation-nvidia"
+Changelog = "https://github.com/NVIDIA-Omniverse/usd-validation-nvidia/blob/main/profiles/CHANGELOG.md"
+Homepage = "https://nvidia-omniverse.github.io/usd-validation-nvidia/specs/index.html"
+Documentation = "https://nvidia-omniverse.github.io/usd-validation-nvidia/specs/index.html"
+
+# Intentionally workspace-relative: both wheels version from the repository's
+# shared VERSION.md. This package builds as a uv workspace member (or from its
+# sdist, which embeds a static version in PKG-INFO); it is not meant to be
+# built from a bare copy of this directory alone.
+[tool.hatch.version]
+path = "../VERSION.md"
+pattern = "^(?P<version>.+)$"
+
+# Applies to sdist and wheel. The standalone repo re-included these gitignored
+# files via a .gitignore negation at its root; as a workspace member the sdist
+# needs the explicit include so the wheel built from it keeps the CSS.
+[tool.hatch.build]
+artifacts = [
+    "src/usd_profiles_nvidia/sphinx/static/_static/**/*",
+]
+
+[tool.hatch.build.targets.sdist.force-include]
+"../LICENSE" = "LICENSE"
+"../THIRD_PARTY_NOTICES.md" = "THIRD_PARTY_NOTICES.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/usd_profiles_nvidia", "src/omni"]
+
+[build-system]
+requires = ["hatchling"] # SWIPAT filed under: http://nvbugs/5866335
+build-backend = "hatchling.build"

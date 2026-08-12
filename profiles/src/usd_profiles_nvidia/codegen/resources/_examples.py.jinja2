@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+from enum import Enum
+
+from ._api import Example, ExampleResult, ExampleSnippet, ExampleSnippetLanguage
+
+
+class Examples(Example, Enum):
+    """
+    An enumeration of all examples.
+    """
+    {%- for partition, example in examples.partition() %}
+    {{ example.enum_name }} = (
+        ExampleSnippet(language={{ example.snippet.language }}, path="{{ partition }}/{{ example.snippet.filename }}"),
+        {{ example.display_name | tojson }},
+        {{ example.result }},
+    )
+    {%- endfor %}

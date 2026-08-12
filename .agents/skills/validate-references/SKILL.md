@@ -1,20 +1,20 @@
 ---
 name: validate-references
-version: "1.20.0"
-license: Apache-2.0
+license: Apache-2.0 AND CC-BY-4.0
 description: "Create USD Validation features with RequirementRef and feature dependencies. Do NOT use for authoring new requirements."
 metadata:
-  author: NVIDIA
+  version: "1.20.0"
+  author: "NVIDIA <info@nvidia.com>"
   tags:
     - usd-validation
     - features
     - requirements
     - references
-compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
+compatibility: "Requires Python 3.10-3.14, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0 -->
 
 # Validate References
 
@@ -31,7 +31,7 @@ generated feature composition.
 
 ## Prerequisites
 
-- Python 3.10-3.12.
+- Python 3.10-3.14.
 - `uv` or `pip` with package-index access.
 - The package that implements the referenced requirements must be installed in the same environment as the feature
   plugin.
@@ -48,13 +48,13 @@ my-usd-validation-plugin/
       ex_002.md
 ```
 
-Use `examples/python/validate-references` as the working example for this pattern.
+Use `validation/examples/python/validate-references` as the working example for this pattern.
 
 ## Verify Python Version
 
-This skill requires Python 3.10-3.12. Before setup, run `uv run --python 3.11 python --version` or
-`py -3.11 --version` on Windows; use `3.10` or `3.12` instead if that is the supported interpreter. If no supported
-interpreter is available, stop with: "This skill requires Python 3.10-3.12. Install a supported interpreter, then
+This skill requires Python 3.10-3.14. Before setup, run `uv run --python 3.11 python --version` or
+`py -3.11 --version` on Windows; use `3.10`, `3.12`, `3.13`, or `3.14` instead if that is the supported interpreter. If no supported
+interpreter is available, stop with: "This skill requires Python 3.10-3.14. Install a supported interpreter, then
 rerun." For uv workflows, install one with `uv python install 3.11`.
 
 ## Setup with uv (Recommended)
@@ -85,21 +85,24 @@ pip install "usd-validation-nvidia[usd]>=1.20.0"
 pip install -e .
 ```
 
-## Minimal Reference Features
+## Examples
 
-> **Source:** `examples/python/validate-references/pyproject.toml`
+### Minimal Reference Features
+
+> **Source:** `validation/examples/python/validate-references/pyproject.toml`
 >
-> **Source:** `examples/python/validate-references/specs/features/ex_001.md`
+> **Source:** `validation/examples/python/validate-references/specs/features/ex_001.md`
 >
-> Followed by: `examples/python/validate-references/specs/features/ex_002.md`
+> Followed by: `validation/examples/python/validate-references/specs/features/ex_002.md`
 
 The feature spec references `com.nvidia.usd.HI.004@1.0.0`, which is implemented by the built-in `DefaultPrimChecker`.
 The dependent feature declares `Dependencies | ex_001 @ 1.0.0`, so selecting `com.example.usd.ex_002` also evaluates
 the requirement referenced by `com.example.usd.ex_001`. It also references built-in `com.nvidia.usd.UN.001@1.0.0`
 directly so the generated dependent feature is concrete; that requirement passes on the example asset.
 
-Use `usd-profiles-nvidia>=1.16.0` so generated features preserve external requirement references and feature
-dependencies as reference objects.
+Use the in-repo `profiles/` member (`--with ./profiles`) so generated features preserve external
+requirement references and feature dependencies as reference objects (requires usd-profiles-nvidia >= 1.16.0;
+the in-repo member satisfies this).
 
 ### Generate
 
@@ -108,10 +111,10 @@ From the repository root:
 ```bash
 uv run \
   --no-project \
-  --with "usd-profiles-nvidia>=1.16.0" \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
-    --docs-root examples/python/validate-references/specs \
-    --destination-dir examples/python/validate-references \
+    --docs-root validation/examples/python/validate-references/specs \
+    --destination-dir validation/examples/python/validate-references \
     --package-name example_validate_references \
     --reverse-domain com.example.usd
 ```
@@ -121,23 +124,23 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with "usd-profiles-nvidia>=1.16.0" `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
-    --docs-root examples/python/validate-references/specs `
-    --destination-dir examples/python/validate-references `
+    --docs-root validation/examples/python/validate-references/specs `
+    --destination-dir validation/examples/python/validate-references `
     --package-name example_validate_references `
     --reverse-domain com.example.usd
 ```
 
 The example package force-includes `example_validate_references`, so skipping this step fails during wheel build.
 
-## Minimal main.py
+### Minimal main.py
 
-> **Source:** `examples/python/validate-references/main.py` snippet `referenced-features`
+> **Source:** `validation/examples/python/validate-references/main.py` snippet `referenced-features`
 >
-> Followed by: `examples/python/validate-references/main.py` snippet `plugin-entry-point`
+> Followed by: `validation/examples/python/validate-references/main.py` snippet `plugin-entry-point`
 >
-> **Asset:** `examples/assets/asset-missing-default-prim.usda`
+> **Asset:** `validation/examples/assets/asset-missing-default-prim.usda`
 
 Import the generated `Features` enum and register both generated features with `register_features(...)`; unregister them
 during shutdown. Do not register a new rule when another installed package already implements the referenced
@@ -153,9 +156,9 @@ registered concrete requirements. If validation fails with `AttributeError: 'Req
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/validate-references \
-  nvidia_usd_validate --feature com.example.usd.ex_002 examples/assets/asset-missing-default-prim.usda
+  --with ./validation \
+  --with validation/examples/python/validate-references \
+  nvidia_usd_validate --feature com.example.usd.ex_002 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 This failure run is expected to exit non-zero and report `com.nvidia.usd.HI.004`, even though validation selected
@@ -166,9 +169,9 @@ On Windows:
 
 ```powershell
 uv run `
-  --with . `
-  --with examples/python/validate-references `
-  nvidia_usd_validate --feature com.example.usd.ex_002 examples/assets/asset-missing-default-prim.usda
+  --with ./validation `
+  --with validation/examples/python/validate-references `
+  nvidia_usd_validate --feature com.example.usd.ex_002 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 ## Key Types / Functions

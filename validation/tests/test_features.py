@@ -1,0 +1,170 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+import unittest
+from unittest.mock import Mock
+
+from usd_validation_nvidia import (
+    BaseRuleChecker,
+    Feature,
+    FeatureRegistry,
+    RequirementsRegistry,
+    add_registry_feature_callback,
+    register_feature,
+    register_features,
+    register_requirements,
+    unregister_feature,
+    unregister_features,
+    unregister_requirements,
+)
+from usd_validation_nvidia.capabilities import Feature as FeatureDTO
+from usd_validation_nvidia.capabilities import FeatureRef as FeatureRefDTO
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
+
+
+class FeaturesRegistryTest(unittest.TestCase):
+    def setUp(self):
+        self.registry = FeatureRegistry()
+        self.mock_feature = Mock(spec=Feature)
+        self.mock_feature.id = "test_feature"
+        self.mock_feature.version = "1.0.0"
+        self.mock_feature.path = "/path/test_feature"
+        self.mock_feature.requirements = []
+
+    def tearDown(self):
+        try:
+            unregister_feature(self.mock_feature)
+        except ValueError:
+            pass
+
+    def test_add(self):
+        self.registry.add(self.mock_feature)
+
+        self.assertIn(self.mock_feature, self.registry)
+
+    def test_find(self):
+        self.registry.add(self.mock_feature)
+
+        self.assertEqual(self.registry.find("test_feature"), self.mock_feature)
+
+    def test_find_nonexistent_feature(self):
+        self.assertIsNone(self.registry.find("nonexistent"))
+
+    def test_register_feature_ok(self):
+        register_feature(self.mock_feature)
+
+        try:
+            self.assertIn(self.mock_feature, self.registry)
+        finally:
+            unregister_feature(self.mock_feature)
+
+    def test_unregister_feature_ok(self):
+        register_feature(self.mock_feature)
+        unregister_feature(self.mock_feature)
+
+        self.assertNotIn(self.mock_feature, self.registry)
+
+    def test_register_features(self):
+        self.assertTrue(register_features([self.mock_feature]))
+        try:
+            self.assertIn(self.mock_feature, self.registry)
+        finally:
+            unregister_features([self.mock_feature])
+
+    def test_register_features_duplicate_returns_false(self):
+        register_feature(self.mock_feature)
+        try:
+            self.assertFalse(register_features([self.mock_feature]))
+        finally:
+            unregister_feature(self.mock_feature)
+
+    def test_unregister_features(self):
+        register_features([self.mock_feature])
+        self.assertTrue(unregister_features([self.mock_feature]))
+        self.assertNotIn(self.mock_feature, self.registry)
+
+    def test_get_requirements_includes_dependencies(self):
+        feature_requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        dependency_requirement = RequirementDTO(code="DEPENDENCY.REQ", version="1.0.0")
+        dependency_feature = FeatureDTO(
+            id="dependency_feature",
+            version="1.0.0",
+            path="",
+            requirements=[dependency_requirement],
+        )
+        feature = FeatureDTO(
+            id="feature",
+            version="1.0.0",
+            path="",
+            requirements=[feature_requirement],
+            dependencies=[dependency_feature],
+        )
+
+        self.assertEqual(self.registry.get_requirements(feature), [feature_requirement, dependency_requirement])
+
+    def test_get_requirements_deduplicates_resolved_feature_refs(self):
+        requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        dependency = FeatureDTO(
+            id="dependency_feature",
+            version="1.0.0",
+            path="",
+            requirements=[requirement],
+        )
+        feature = FeatureDTO(
+            id="feature",
+            version="1.0.0",
+            path="",
+            requirements=[],
+            dependencies=[
+                dependency,
+                FeatureRefDTO(id=dependency.id),
+            ],
+        )
+        register_feature(dependency)
+
+        try:
+            self.assertEqual(self.registry.get_requirements(feature), [requirement])
+        finally:
+            unregister_feature(dependency)
+
+    def test_unregister_feature_ignores_dependency_requirements(self):
+        requirement = RequirementDTO(code="DEPENDENCY.REMOVE.REQ", version="1.0.0")
+        dependency = FeatureDTO(
+            id="dependency_remove_feature",
+            version="1.0.0",
+            path="",
+            requirements=[requirement],
+        )
+        feature = FeatureDTO(
+            id="feature_without_requirements",
+            version="1.0.0",
+            path="",
+            requirements=[],
+            dependencies=[dependency],
+        )
+
+        class DependencyRule(BaseRuleChecker):
+            pass
+
+        register_feature(dependency)
+        register_feature(feature)
+        register_requirements(requirement)(DependencyRule)
+
+        try:
+            unregister_feature(feature)
+
+            self.assertNotIn(feature, self.registry)
+            self.assertIn(dependency, self.registry)
+            self.assertEqual(RequirementsRegistry().get_validator(requirement), DependencyRule)
+        finally:
+            unregister_requirements(DependencyRule)
+            unregister_feature(dependency)
+
+    def test_add_callback_ok(self):
+        callback = unittest.mock.Mock()
+        _subscription = add_registry_feature_callback(callback)
+        register_feature(self.mock_feature)
+        try:
+            callback.assert_called_once()
+        finally:
+            unregister_feature(self.mock_feature)

@@ -1,0 +1,71 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+from enum import Enum
+
+from ._api import Capability
+from ._requirements import Requirement, Requirements
+from ._parameters import Parameters
+
+
+{% for capability in capabilities %}
+class {{ capability.class_name }}Requirements(Requirement, Enum):
+    """
+    An enumeration of all requirements for the {{ capability.class_name }} capability.
+
+    .. deprecated:: 0.2.0
+        Use :class:`Requirements` instead.
+    """
+    # Validators are Sphinx-only metadata today; generated enums intentionally keep validator as None.
+    {%- for requirement in capability.requirements %}
+    {{ requirement.enum_id }} = (
+        {{ requirement.namespaced_id | tojson }},
+        {{ (requirement.version or '0.1.0') | string | tojson }},
+        {{ requirement.display_name | tojson }},
+        {{ requirement.message | tojson }},
+        {{ requirement.html_path | tojson if requirement.html_path else 'None' }},
+        {{ requirement.compatibility | tojson if requirement.compatibility else 'None' }},
+        None,
+        {%- if requirement.tags %}
+        (
+            {%- for tag in requirement.tags %}
+            {{ tag | tojson }},
+            {%- endfor %}
+        ),
+        {%- else %}
+        (),
+        {%- endif %}
+        {%- if requirement.parameters %}
+        (
+            {%- for param in requirement.parameters %}
+            Parameters.{{ param.enum_name }},
+            {%- endfor %}
+        ),
+        {%- else %}
+        (),
+        {%- endif %}
+    )
+    {% endfor %}
+{% endfor %}
+
+class Capabilities(Capability, Enum):
+    """
+    An enumeration of all capabilities.
+    """
+    {%- for capability in capabilities %}
+    {{ capability.enum_id_version }} = (
+        {{ capability.namespaced_id | tojson }},
+        {{ capability.version | tojson if capability.version else 'None' }},
+        {{ capability.html_path | tojson if capability.html_path else 'None' }},
+        [
+            {%- for requirement in capability.requirements %}
+            Requirements.{{ requirement.enum_id_version }},
+            {%- endfor %}
+        ],
+    )
+    {%- endfor %}
+    # Aliases for latest values
+    {%- for capability in capabilities.latest_values() if capability.enum_id != capability.enum_id_version %}
+    {{ capability.enum_id }} = {{ capability.enum_id_version }}
+    {%- endfor %}

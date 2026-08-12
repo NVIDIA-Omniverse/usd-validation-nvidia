@@ -26,7 +26,7 @@ Each subdirectory contains a single `SKILL.md` file with YAML frontmatter:
 ---
 name: skill-name
 version: "1.0.0"
-license: Apache-2.0
+license: Apache-2.0 AND CC-BY-4.0
 description: "What this skill covers. Use when user asks to [trigger phrases]."
 metadata:
   author: NVIDIA
@@ -35,7 +35,7 @@ metadata:
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0 -->
 
 # Skill Title
 
@@ -73,7 +73,7 @@ Names are kebab-case and unique within each file.
 Replace inline code blocks with a blockquote directive:
 
 ```markdown
-> **Source:** `examples/python/minimal/main.py` snippet `custom-rule`
+> **Source:** `validation/examples/python/minimal/main.py` snippet `custom-rule`
 ```
 
 Agents read the referenced file between the `# [snippet:name]` and `# [/snippet:name]` markers to get the current code.

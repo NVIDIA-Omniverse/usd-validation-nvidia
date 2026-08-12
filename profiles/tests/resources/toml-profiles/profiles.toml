@@ -1,0 +1,16 @@
+[Prop-Robotics-Neutral]
+"1.0.0" = {features = [
+    {"FET001_BASE_NEUTRAL" = {version = "0.1.0"}},
+    {"FET003_BASE_NEUTRAL" = {version = "0.1.0"}},
+]}
+"2.0.0" = {features = [
+    {"FET001_BASE_NEUTRAL" = {version = "1.0.0"}},
+    {"FET003_BASE_NEUTRAL" = {version = "0.1.0"}},
+]}
+
+[Robot-Body-Isaac]
+"1.0.0" = {features = [
+    {"FET001_BASE_NEUTRAL" = {version = "0.1.0"}},
+    {"FET004_ROBOT_PHYSX" = {version = "0.2.0"}},
+    {"FET021_ROBOT_CORE_ISAAC" = {version = "0.2.0"}},
+]}

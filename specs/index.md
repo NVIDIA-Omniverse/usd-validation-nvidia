@@ -3,7 +3,7 @@
 This documentation is a collection of guidelines and requirements for OpenUSD content. It provides a framework to author OpenUSD content that is suitable for use cases such as rendering, simulation and AI training. Not all OpenUSD assets need to comply with all requirements, and users are expected to determine which requirements are relevant for their particular use case.
 Requirements are organized into categories which are refered to as "capabilities".
 
-The [Asset Validator](https://docs.omniverse.nvidia.com/kit/docs/asset-validator/latest/index.html) supports validation of many listed requirements.
+[USD Validation NVIDIA](../validation/docs/requirements.rst) supports validation of many listed requirements.
 
 Note that this documentation is a work in progress and will be updated over time with additional requirements and features. 
 

@@ -1,19 +1,19 @@
 ---
 name: validate-requirements
-version: "1.19.1"
-license: Apache-2.0
+license: Apache-2.0 AND CC-BY-4.0
 description: "Author and validate USD Validation requirements: Markdown specs, codegen, rule mapping, --requirement CLI. Do NOT use for basic plugins."
 metadata:
-  author: NVIDIA
+  version: "1.19.1"
+  author: "NVIDIA <info@nvidia.com>"
   tags:
     - usd-validation
     - requirements
     - codegen
-compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
+compatibility: "Requires Python 3.10-3.14, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0 -->
 
 # Validate Requirements
 
@@ -26,7 +26,7 @@ CLI filtering stay in `usd-validation-nvidia`.
 
 ## Prerequisites
 
-- Python 3.10-3.12.
+- Python 3.10-3.14.
 - `uv` or `pip` with package-index access.
 
 ## Project Structure
@@ -46,9 +46,9 @@ After `uv init`, create `main.py`, `specs/`, and the Markdown spec files manuall
 
 ## Verify Python Version
 
-This skill requires Python 3.10-3.12. Before setup, run `uv run --python 3.11 python --version` or
-`py -3.11 --version` on Windows; use `3.10` or `3.12` instead if that is the supported interpreter. If no supported
-interpreter is available, stop with: "This skill requires Python 3.10-3.12. Install a supported interpreter, then
+This skill requires Python 3.10-3.14. Before setup, run `uv run --python 3.11 python --version` or
+`py -3.11 --version` on Windows; use `3.10`, `3.12`, `3.13`, or `3.14` instead if that is the supported interpreter. If no supported
+interpreter is available, stop with: "This skill requires Python 3.10-3.14. Install a supported interpreter, then
 rerun." For uv workflows, install one with `uv python install 3.11`.
 
 ## Setup with uv (Recommended)
@@ -76,13 +76,15 @@ pip install "usd-validation-nvidia[usd]"
 pip install -e .
 ```
 
-## Minimal Requirement
+## Examples
 
-> **Source:** `examples/python/requirement/pyproject.toml`
+### Minimal Requirement
+
+> **Source:** `validation/examples/python/requirement/pyproject.toml`
 >
-> **Source:** `examples/python/requirement/specs/capabilities/requirements/default-prim.md`
+> **Source:** `validation/examples/python/requirement/specs/capabilities/requirements/default-prim.md`
 >
-> Followed by: `examples/python/requirement/specs/capabilities/capability-example.md`
+> Followed by: `validation/examples/python/requirement/specs/capabilities/capability-example.md`
 
 ### Generate
 
@@ -91,10 +93,10 @@ From the repository root:
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
-    --docs-root examples/python/requirement/specs \
-    --destination-dir examples/python/requirement \
+    --docs-root validation/examples/python/requirement/specs \
+    --destination-dir validation/examples/python/requirement \
     --package-name example_requirements \
     --reverse-domain com.nvidia.usd
 ```
@@ -104,25 +106,25 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
-    --docs-root examples/python/requirement/specs `
-    --destination-dir examples/python/requirement `
+    --docs-root validation/examples/python/requirement/specs `
+    --destination-dir validation/examples/python/requirement `
     --package-name example_requirements `
     --reverse-domain com.nvidia.usd
 ```
 
 The example package force-includes `example_requirements`, so skipping this step fails during wheel build.
 
-## Minimal main.py
+### Minimal main.py
 
-> **Source:** `examples/python/requirement/main.py` snippet `custom-requirement`
+> **Source:** `validation/examples/python/requirement/main.py` snippet `custom-requirement`
 >
-> Followed by: `examples/python/requirement/main.py` snippet `custom-rule`
+> Followed by: `validation/examples/python/requirement/main.py` snippet `custom-rule`
 >
-> Followed by: `examples/python/requirement/main.py` snippet `plugin-entry-point`
+> Followed by: `validation/examples/python/requirement/main.py` snippet `plugin-entry-point`
 >
-> **Asset:** `examples/assets/asset.usda`
+> **Asset:** `validation/examples/assets/asset.usda`
 
 Use `requirement=...` when reporting the issue so `--requirement` filtering can connect the rule failure back to the
 generated requirement.
@@ -134,25 +136,25 @@ From the repository root:
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
-    --destination-dir src \
+    --destination-dir validation/src \
     --package-name usd_validation_nvidia.capabilities \
     --reverse-domain com.nvidia.usd
 uv run \
-  --with . \
-  --with examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
+  --with ./validation \
+  --with validation/examples/python/requirement \
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see the requirement-mapped failure:
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset-missing-default-prim.usda
+  --with ./validation \
+  --with validation/examples/python/requirement \
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 On Windows:
@@ -160,28 +162,28 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
-    --destination-dir src `
+    --destination-dir validation/src `
     --package-name usd_validation_nvidia.capabilities `
     --reverse-domain com.nvidia.usd
 uv run `
-  --with . `
-  --with examples/python/requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
+  --with ./validation `
+  --with validation/examples/python/requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see the requirement-mapped failure on Windows:
 
 ```powershell
 uv run `
-  --with . `
-  --with examples/python/requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset-missing-default-prim.usda
+  --with ./validation `
+  --with validation/examples/python/requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
-Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
+Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use the public build.
 
 ## Key Types / Functions
 
@@ -207,9 +209,9 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 
 - Install the plugin package into the same environment as `usd-validation-nvidia`.
 - Use the `usd_validation_nvidia` entry-point group for new plugins.
-- In a fresh source checkout, generate `src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
-  usd-profiles-nvidia python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo
-  with `--with .`.
+- In a fresh source checkout, generate `validation/src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
+  ./profiles python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo
+  with `--with ./validation`.
 - Generate `example_requirements` before installing or running the example plugin.
 - Requirements must live under a capability; an otherwise minimal capability Markdown file is enough for this example.
 - Register requirements and rules in `on_startup()`, and unregister them in `on_shutdown()`.

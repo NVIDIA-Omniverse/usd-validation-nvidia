@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+from enum import Enum
+
+from ._api import Feature, FeatureRef, RequirementRef
+from ._requirements import Requirements
+
+
+class Features(Feature, Enum):
+    """
+    An enumeration of all features.
+    """
+    {%- for feature in features %}
+    {{ feature.enum_id_version }} = (
+        "{{ feature.namespaced_id }}",
+        "{{ feature.version }}", 
+        {{ feature.html_path | tojson if feature.html_path else 'None' }},
+        [
+            {%- for requirement in requirements.find_all(features.resolve_requirements(feature)) %}
+            {%- if requirements.is_requirement_ref(requirement) %}
+            RequirementRef(
+                {{ requirement.code | tojson }},
+                {{ requirement.version | tojson if requirement.version else 'None' }},
+            ),
+            {%- else %}
+            Requirements.{{ requirement.enum_id_version }},
+            {%- endif %}
+            {%- endfor %}
+        ],
+    )
+    {%- endfor %}
+    # Aliases for latest values
+    {%- for feature in features.latest_values() if feature.enum_id != feature.enum_id_version %}
+    {{ feature.enum_id }} = {{ feature.enum_id_version }}
+    {%- endfor %}
+
+
+# Feature is frozen, so dependencies are populated by mutating the existing list.
+{%- for feature in features %}
+{%- set dependencies = features.find_dependencies(feature) %}
+{%- if dependencies %}
+Features.{{ feature.enum_id_version }}.dependencies.extend(
+    [
+        {%- for dependency in dependencies %}
+        {%- if features.is_feature_ref(dependency) %}
+        FeatureRef(
+            {{ dependency.id | tojson }},
+            {{ dependency.version | tojson if dependency.version else 'None' }},
+        ),
+        {%- else %}
+        Features.{{ dependency.enum_id_version }},
+        {%- endif %}
+        {%- endfor %}
+    ]
+)
+{%- endif %}
+{%- endfor %}

@@ -1,19 +1,19 @@
 ---
 name: project-setup-python
-version: "1.19.1"
-license: Apache-2.0
+license: Apache-2.0 AND CC-BY-4.0
 description: "Set up Python NVIDIA USD Validation plugins: entry points, custom rules, uv/pip install, first CLI run. Do NOT use for requirements."
 metadata:
-  author: NVIDIA
+  version: "1.19.1"
+  author: "NVIDIA <info@nvidia.com>"
   tags:
     - usd-validation
     - python
     - plugin-setup
-compatibility: "Requires Python 3.10-3.12, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
+compatibility: "Requires Python 3.10-3.14, uv or pip, network access to Python package indexes, and Linux/macOS shell or Windows PowerShell command syntax."
 ---
 
 <!-- SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0 -->
 
 # Project Setup and First Validation (Python)
 
@@ -24,7 +24,7 @@ project and run its first validation command.
 
 ## Prerequisites
 
-- Python 3.10-3.12.
+- Python 3.10-3.14.
 - `uv` or `pip` with package-index access.
 
 ## Project Structure
@@ -39,9 +39,9 @@ After `uv init`, create `main.py` and update `pyproject.toml` to match the struc
 
 ## Verify Python Version
 
-This skill requires Python 3.10-3.12. Before setup, run `uv run --python 3.11 python --version` or
-`py -3.11 --version` on Windows; use `3.10` or `3.12` instead if that is the supported interpreter. If no supported
-interpreter is available, stop with: "This skill requires Python 3.10-3.12. Install a supported interpreter, then
+This skill requires Python 3.10-3.14. Before setup, run `uv run --python 3.11 python --version` or
+`py -3.11 --version` on Windows; use `3.10`, `3.12`, `3.13`, or `3.14` instead if that is the supported interpreter. If no supported
+interpreter is available, stop with: "This skill requires Python 3.10-3.14. Install a supported interpreter, then
 rerun." For uv workflows, install one with `uv python install 3.11`.
 
 ## Setup with uv (Recommended)
@@ -62,7 +62,7 @@ This creates a `pyproject.toml` and `uv.lock`. The minimal example uses:
 name = "usd-validation-minimal-plugin"
 version = "0.1.0"
 description = "Minimal NVIDIA USD Validation plugin example"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.15"
 dependencies = [
     "usd-validation-nvidia[usd]",
 ]
@@ -99,15 +99,17 @@ pip install "usd-validation-nvidia[usd]"
 pip install -e .
 ```
 
-## Minimal main.py
+## Examples
 
-> **Source:** `examples/python/minimal/pyproject.toml`
+### Minimal main.py
+
+> **Source:** `validation/examples/python/minimal/pyproject.toml`
 >
-> **Source:** `examples/python/minimal/main.py` snippet `custom-rule`
+> **Source:** `validation/examples/python/minimal/main.py` snippet `custom-rule`
 >
-> Followed by: `examples/python/minimal/main.py` snippet `plugin-entry-point`
+> Followed by: `validation/examples/python/minimal/main.py` snippet `plugin-entry-point`
 >
-> **Asset:** `examples/assets/asset.usda`
+> **Asset:** `validation/examples/assets/asset.usda`
 
 ### Run
 
@@ -116,19 +118,19 @@ From the repository root:
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
-    --destination-dir src \
+    --destination-dir validation/src \
     --package-name usd_validation_nvidia.capabilities \
     --reverse-domain com.nvidia.usd
 ```
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/minimal \
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
+  --with ./validation \
+  --with validation/examples/python/minimal \
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker validation/examples/assets/asset.usda
 ```
 
 On Windows:
@@ -136,19 +138,19 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
-    --destination-dir src `
+    --destination-dir validation/src `
     --package-name usd_validation_nvidia.capabilities `
     --reverse-domain com.nvidia.usd
 uv run `
-  --with . `
-  --with examples/python/minimal `
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
+  --with ./validation `
+  --with validation/examples/python/minimal `
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker validation/examples/assets/asset.usda
 ```
 
-Note: replace `--with .` with `--with usd-validation-nvidia` to use the public build.
+Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use the public build.
 
 ## Key Types / Functions
 
@@ -173,11 +175,11 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 
 ## Common Pitfalls
 
-- `usd-validation-nvidia` requires Python 3.10-3.12.
+- `usd-validation-nvidia` requires Python 3.10-3.14. Python 3.14 requires OpenUSD 26.08 when installing the `[usd]` extra.
 - Install the plugin package into the same environment as `usd-validation-nvidia`.
-- In a fresh source checkout, generate `src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
-  usd-profiles-nvidia python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo
-  with `--with .`.
+- In a fresh source checkout, generate `validation/src/usd_validation_nvidia/capabilities` with `uv run --no-project --with
+  ./profiles python -m usd_profiles_nvidia.codegen ...` before commands that install the local repo
+  with `--with ./validation`.
 - Point the entry point at `main:Plugin` when the package exposes a `Plugin` class.
 - Confirm the custom rule appears in `nvidia_usd_validate --help` before debugging validation output.
 - Project-specific profiles such as `Prop-Robotics-Neutral` must be installed and registered before use.
@@ -186,5 +188,5 @@ Note: replace `--with .` with `--with usd-validation-nvidia` to use the public b
 
 - If `nvidia_usd_validate --help` does not list the custom rule, confirm the plugin is installed in the same
   environment and the entry point targets `main:Plugin`.
-- If local source installation fails because `capabilities` is missing, generate `src/usd_validation_nvidia/capabilities`
-  from `specs/` before using `--with .`.
+- If local source installation fails because `capabilities` is missing, generate
+  `validation/src/usd_validation_nvidia/capabilities` from `specs/` before using `--with ./validation`.

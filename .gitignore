@@ -2,7 +2,8 @@
 .venv
 **/__pycache__/
 _*/
+!profiles/src/usd_profiles_nvidia/sphinx/static/_static/
 dist
-src/usd_validation_nvidia/capabilities/
-examples/python/requirement/example_requirements/
-examples/python/validate-references/example_validate_references/
+validation/src/usd_validation_nvidia/capabilities/
+validation/examples/python/requirement/example_requirements/
+validation/examples/python/validate-references/example_validate_references/

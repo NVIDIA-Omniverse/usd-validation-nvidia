@@ -6,8 +6,9 @@
 # Shell scripts must have LF endings even on Windows
 *.sh text eol=lf
 # Test data and spec assets go into Git LFS
-tests/data/** filter=lfs diff=lfs merge=lfs -text
+validation/tests/data/** filter=lfs diff=lfs merge=lfs -text
 specs/_static/** filter=lfs diff=lfs merge=lfs -text
+specs/_static/**/*.py text eol=lf -filter -diff -merge
 **/*.png filter=lfs diff=lfs merge=lfs -text
 **/*.jpg filter=lfs diff=lfs merge=lfs -text
 **/*.gif filter=lfs diff=lfs merge=lfs -text

@@ -1,4 +1,4 @@
-.. mdinclude:: README.md
+.. mdinclude:: validation/README.md
    :end-before: ## AI Coding Agents
 
 .. toctree::
@@ -6,15 +6,15 @@
    :maxdepth: 2
    :hidden:
 
-   Installation <docs/installation>
-   API <docs/api>
-   Command Line Interface <docs/cli>
-   Authoring Rules <docs/authoring>
-   Migrating from omniverse-asset-validator <docs/migration>
-   Categories <docs/categories>
-   Rules <docs/rules>
-   Requirements <docs/requirements>
-   Testing <docs/testing>
+   Installation <validation/docs/installation>
+   API <validation/docs/api>
+   Command Line Interface <validation/docs/cli>
+   Authoring Rules <validation/docs/authoring>
+   Migrating from omniverse-asset-validator <validation/docs/migration>
+   Categories <validation/docs/categories>
+   Rules <validation/docs/rules>
+   Requirements <validation/docs/requirements>
+   Testing <validation/docs/testing>
 
 .. toctree::
    :caption: Requirements

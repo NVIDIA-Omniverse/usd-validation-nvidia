@@ -1,0 +1,4 @@
+[Example]
+"1.0.0" = {features = [
+    {"example" = {version = "1.0.0"}},
+]}

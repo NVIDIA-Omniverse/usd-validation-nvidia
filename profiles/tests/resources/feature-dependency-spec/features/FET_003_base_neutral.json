@@ -1,0 +1,9 @@
+{
+  "id": "FET003_BASE_NEUTRAL",
+  "version": "0.1.0",
+  "display_name": "Neutral Base",
+  "path": "features/FET_001_base_neutral.html",
+  "requirements": [
+    "COL.000"
+  ]
+}

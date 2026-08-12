@@ -1,5 +1,5 @@
 [Code Owners]
-* @akaufman @miguelh @mkuruc @jjebens
+* @rozhang @miguelh @mkuruc @jjebens
 
 ^[Optional Reviewers]
-* @tylerm @bchunghoon @rozhang @mwatt
+* @tylerm @bchunghoon @akaufman @mwatt

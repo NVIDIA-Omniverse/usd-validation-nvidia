@@ -2,8 +2,8 @@
 
 ## Developer Certificate of Origin
 
-The act of submitting a pull request (with or without an explicit Signed-off-by tag) will be understood as an
-affirmation of the following [Developer's Certificate of Origin (DCO)](https://developercertificate.org/).
+By contributing to this project, you certify the following
+[Developer's Certificate of Origin (DCO)](https://developercertificate.org/):
 
 ```txt
 Developer Certificate of Origin
@@ -40,4 +40,24 @@ By making a contribution to this project, I certify that:
     personal information I submit with it, including my sign-off) is
     maintained indefinitely and may be redistributed consistent with
     this project or the open source license(s) involved.
+```
+
+## Signing Your Work
+
+We require that all contributors "sign-off" on their commits.
+This certifies that the contribution is your original work,
+or you have rights to submit it under the same license, or a compatible license.
+
+> Any contribution which contains commits that are not Signed-Off will not be accepted.
+
+To sign off on a commit you simply use the `--signoff` (or `-s`) option when committing your changes:
+
+```bash
+$ git commit -s -m "Add cool feature."
+```
+
+This will append the following to your commit message:
+
+```
+Signed-off-by: Your Name <your@email.com>
 ```

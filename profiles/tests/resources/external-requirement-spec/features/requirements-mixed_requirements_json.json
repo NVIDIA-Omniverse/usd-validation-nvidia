@@ -1,0 +1,14 @@
+{
+    "id": "mixed_requirements_json",
+    "version": "1.0.0",
+    "name": "mixed-requirements-json",
+    "description": "Feature with local and external requirement references loaded from JSON.",
+    "path": "features/feature-mixed-requirements-json.html",
+    "requirements": [
+        "REQ.001",
+        "com.nvidia.usd.REQ.002",
+        "com.nvidia.usd.REQ.003@1.0.0",
+        "com.nvidia.usd.REQ.004@1.0.0",
+        "com.nvidia.simready.REQ.001@1.0.0"
+    ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "FET004_BASE_STRING_DEP",
+  "version": "0.1.0",
+  "display_name": "String Dependency",
+  "path": "features/FET_004-string_dependency.html",
+  "dependencies": [
+    "FET003_BASE_NEUTRAL@0.1.0"
+  ],
+  "requirements": [
+    "COL.002"
+  ]
+}

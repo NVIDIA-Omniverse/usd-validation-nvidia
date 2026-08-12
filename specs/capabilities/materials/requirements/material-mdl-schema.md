@@ -60,7 +60,7 @@ def Material "mtl_test"
 ```
 
 ## How to comply
-- Use the "Asset Validator" extension in NVIDIA Omniverse to update existing assets. See [Asset Validator](https://docs.omniverse.nvidia.com/kit/docs/asset-validator/latest/source/extensions/omni.asset_validator.core/docs/rules.html#omni.asset_validator.core.ShaderImplementationSourceChecker) for more information.
+- Use USD Validation NVIDIA's `MaterialOldMdlSchemaChecker` to identify existing assets that still use the deprecated schema.
 - Update to use `info:implementationSource = "sourceAsset"`
 - Use `info:mdl:sourceAsset` instead of `module`
 - Use `info:mdl:materialType` instead of `name`

@@ -1,12 +1,14 @@
 # USD Validation NVIDIA Notices
 
-## Apache 2.0 License
+## Project License
 
-The USD Validation NVIDIA python module is provided under the [Apache License, Version 2.0](LICENSE).
+USD Validation NVIDIA is provided under the [Apache License, Version 2.0 and Creative Commons Attribution 4.0
+International Public License](LICENSE).
 
 ## Runtime License Notices
 
-These licenses pertain to the USD Validation NVIDIA Python package.
+These licenses pertain to the USD Validation NVIDIA Python packages built from this
+repository.
 
 OpenUSD uses many 3rd Party OSS to build and at runtime. Most of these are isolated to individual modules
 (USD plugins). Many are only relevant to a rendering context (e.g. via Hydra) and do not apply to a 3D scene
@@ -18,14 +20,19 @@ therefore link to the upstream projects directly.
 - [USD Validation NVIDIA](#usd-validation-nvidia-license)
 - [OpenUSD / usd-core](#openusd--usd-core-license)
 - [NumPy](#numpy-license)
+- [USD Profiles NVIDIA](#usd-profiles-nvidia-license)
+- [Jinja2](#jinja2-license)
+- [markdown-it-py](#markdown-it-py-license)
+- [Tomli](#tomli-license)
 - [Python](#python-license)
 - [Sphinx](#sphinx-license)
+- [MyST-Parser](#myst-parser-license)
 
 ## Individual Licenses
 
 ### USD Validation NVIDIA License
 
-- [Apache License, Version 2.0](LICENSE)
+- [Apache License, Version 2.0 and Creative Commons Attribution 4.0 International Public License](LICENSE)
 
 ### OpenUSD / usd-core License
 
@@ -35,6 +42,22 @@ therefore link to the upstream projects directly.
 
 - [BSD-3-Clause](https://numpy.org/doc/stable/license.html)
 
+### USD Profiles NVIDIA License
+
+- [Apache License, Version 2.0 and Creative Commons Attribution 4.0 International Public License](LICENSE)
+
+### Jinja2 License
+
+- [BSD-3-Clause](https://github.com/pallets/jinja/blob/main/LICENSE.txt)
+
+### markdown-it-py License
+
+- [MIT](https://github.com/executablebooks/markdown-it-py/blob/master/LICENSE)
+
+### Tomli License
+
+- [MIT](https://github.com/hukkin/tomli/blob/master/LICENSE)
+
 ### Python License
 
 - [Python Software Foundation License](https://docs.python.org/3/license.html)
@@ -42,6 +65,10 @@ therefore link to the upstream projects directly.
 ### Sphinx License
 
 - [BSD-2-Clause](https://github.com/sphinx-doc/sphinx/blob/master/LICENSE.rst)
+
+### MyST-Parser License
+
+- [MIT](https://github.com/executablebooks/MyST-Parser/blob/master/LICENSE)
 
 ## Source Attributions
 

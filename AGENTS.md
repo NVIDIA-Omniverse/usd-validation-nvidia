@@ -1,5 +1,5 @@
 <!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: Apache-2.0 AND CC-BY-4.0 -->
 
 # AGENTS.md - AI Agent Guide for USD Validation NVIDIA
 
@@ -10,7 +10,7 @@ starting map, then go to `.agents/skills/` for task-level validation guidance.
 
 `usd-validation-nvidia` is a Python validation engine for OpenUSD assets. It provides:
 
-- A Python package under `src/usd_validation_nvidia/`
+- A Python package under `validation/src/usd_validation_nvidia/`
 - A command line validator, `nvidia_usd_validate`
 - Rule, requirement, capability, feature, and profile registries
 - JSON and CSV reporting for automation
@@ -22,7 +22,7 @@ entry points are discovered.
 
 ## Start Here
 
-- Read `README.md` for package installation and basic CLI/API examples.
+- Read `validation/README.md` for validation package installation and basic CLI/API examples.
 - Read `.agents/skills/README.md` to understand the skill format and available task guides.
 - For agents that do not automatically load `.agents/skills/`, such as Claude in some setups or Codex CLI when skills are not
   auto-discovered, explicitly read `AGENTS.md`, `.agents/skills/README.md`, and then the relevant `.agents/skills/*/SKILL.md` file
@@ -32,31 +32,36 @@ entry points are discovered.
 
 ## Fresh Checkout Prerequisite
 
-When running this repository from source with `--with .`, generate the ignored capabilities package first:
+When running the validation package from source with `--with ./validation`, generate the ignored capabilities package
+first:
 
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
-    --destination-dir src \
+    --destination-dir validation/src \
     --package-name usd_validation_nvidia.capabilities \
     --reverse-domain com.nvidia.usd
 ```
 
-Published wheels already include `src/usd_validation_nvidia/capabilities`; fresh source checkouts do not. Skipping this
-step causes a hatchling `Forced include not found: .../capabilities` error when building or installing the local source
-with `--with .`.
+Published wheels already include `validation/src/usd_validation_nvidia/capabilities`; fresh source checkouts do not.
+Skipping this step causes a hatchling `Forced include not found: .../capabilities` error when building or installing
+the local validation source with `--with ./validation`. Codegen uses the in-repo `profiles/` workspace member, so no
+network fetch of `usd-profiles-nvidia` is required.
 
 ## Repo Layout (High Level)
 
-- `src/usd_validation_nvidia/` - Python package source
-- `src/omni/asset_validator/` - compatibility namespace for legacy `omni.asset_validator` imports
+- `validation/src/usd_validation_nvidia/` - validation package source
+- `validation/src/omni/asset_validator/` - compatibility namespace for legacy `omni.asset_validator` imports
+- `validation/pyproject.toml` - `usd-validation-nvidia` package metadata
+- `profiles/` - `usd-profiles-nvidia` package source (uv workspace member, published as its own wheel)
+- `validation/docs/` - validation package documentation
 - `specs/` - source Markdown specs for capabilities, features, and requirements
-- `examples/` - runnable examples referenced by skill files
-- `src/usd_validation_nvidia/capabilities/` - generated package from `specs/`; do not edit by hand
-- `tests/` - unit and CLI tests
+- `validation/examples/` - runnable examples referenced by skill files
+- `validation/src/usd_validation_nvidia/capabilities/` - generated package from `specs/`; do not edit by hand
+- `validation/tests/` - unit and CLI tests
 - `.agents/skills/` - task-oriented agent skills (`*/SKILL.md`)
 
 ## Common Workflows
@@ -68,18 +73,18 @@ asset:
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/minimal \
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples/assets/asset.usda
+  --with ./validation \
+  --with validation/examples/python/minimal \
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker validation/examples/assets/asset.usda
 ```
 
 On Windows:
 
 ```powershell
 uv run `
-  --with . `
-  --with examples\python\minimal `
-  nvidia_usd_validate --rule ExampleDefaultPrimChecker examples\assets\asset.usda
+  --with ./validation `
+  --with validation\examples\python\minimal `
+  nvidia_usd_validate --rule ExampleDefaultPrimChecker validation\examples\assets\asset.usda
 ```
 
 ### Requirement-Backed Plugin Example
@@ -90,10 +95,10 @@ and JSON mapping:
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
-    --docs-root examples/python/requirement/specs \
-    --destination-dir examples/python/requirement \
+    --docs-root validation/examples/python/requirement/specs \
+    --destination-dir validation/examples/python/requirement \
     --package-name example_requirements \
     --reverse-domain com.nvidia.usd
 ```
@@ -103,10 +108,10 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
-    --docs-root examples\python\requirement\specs `
-    --destination-dir examples\python\requirement `
+    --docs-root validation\examples\python\requirement\specs `
+    --destination-dir validation\examples\python\requirement `
     --package-name example_requirements `
     --reverse-domain com.nvidia.usd
 ```
@@ -115,36 +120,36 @@ After codegen, run the plugin:
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset.usda
+  --with ./validation \
+  --with validation/examples/python/requirement \
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see a requirement-mapped failure:
 
 ```bash
 uv run \
-  --with . \
-  --with examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 examples/assets/asset-missing-default-prim.usda
+  --with ./validation \
+  --with validation/examples/python/requirement \
+  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 On Windows:
 
 ```powershell
 uv run `
-  --with . `
-  --with examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset.usda
+  --with ./validation `
+  --with validation\examples\python\requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 validation\examples\assets\asset.usda
 ```
 
 To see a requirement-mapped failure on Windows:
 
 ```powershell
 uv run `
-  --with . `
-  --with examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 examples\assets\asset-missing-default-prim.usda
+  --with ./validation `
+  --with validation\examples\python\requirement `
+  nvidia_usd_validate --requirement EXAMPLE.001 validation\examples\assets\asset-missing-default-prim.usda
 ```
 
 ### CLI Example
@@ -152,16 +157,16 @@ uv run `
 Discover registered validation scopes in the active environment:
 
 ```bash
-uv run nvidia_usd_validate --help
+uv run --with ./validation nvidia_usd_validate --help
 ```
 
 Run a smoke validation and write JSON:
 
 ```bash
 mkdir -p reports
-uv run nvidia_usd_validate \
+uv run --with ./validation nvidia_usd_validate \
   --json-output reports/asset.validation.json \
-  examples/assets/asset.usda
+  validation/examples/assets/asset.usda
 ```
 
 ### Tests
@@ -171,19 +176,19 @@ For CI parity, build the wheel and run tests against the wheel rather than the e
 ```bash
 uv run \
   --no-project \
-  --with usd-profiles-nvidia \
+  --with ./profiles \
   python -m usd_profiles_nvidia.codegen \
     --docs-root specs \
-    --destination-dir src \
+    --destination-dir validation/src \
     --package-name usd_validation_nvidia.capabilities \
     --reverse-domain com.nvidia.usd
-uv build -o dist
+uv build --all-packages -o dist
 uv run \
   --no-project \
   --with ./dist/usd_validation_nvidia-*.whl \
   --with usd-core==25.11 \
   --with numpy==2.2 \
-  python -m unittest discover -s tests
+  python -m unittest discover -s validation/tests
 ```
 
 On Windows:
@@ -191,20 +196,20 @@ On Windows:
 ```powershell
 uv run `
   --no-project `
-  --with usd-profiles-nvidia `
+  --with ./profiles `
   python -m usd_profiles_nvidia.codegen `
     --docs-root specs `
-    --destination-dir src `
+    --destination-dir validation/src `
     --package-name usd_validation_nvidia.capabilities `
     --reverse-domain com.nvidia.usd
-uv build -o dist
+uv build --all-packages -o dist
 $wheel = (Get-ChildItem .\dist\usd_validation_nvidia-*.whl | Select-Object -First 1).FullName
 uv run `
   --no-project `
   --with $wheel `
   --with usd-core==25.11 `
   --with numpy==2.2 `
-  python -m unittest discover -s tests
+  python -m unittest discover -s validation/tests
 ```
 
 ## Use Skills for Task-Specific Work
@@ -222,10 +227,10 @@ skills only when the workflow needs them.
 ## Agent Expectations
 
 - Prefer small, targeted edits over broad refactors unless requested.
-- Do not edit generated files under `src/usd_validation_nvidia/capabilities/` directly. Update `specs/` and
+- Do not edit generated files under `validation/src/usd_validation_nvidia/capabilities/` directly. Update `specs/` and
   regenerate instead.
-- Keep `README.md`, `AGENTS.md`, and `.agents/skills/` in sync when CLI flags, package names, profile behavior, or JSON output
-  change.
+- Keep `validation/README.md`, `AGENTS.md`, and `.agents/skills/` in sync when CLI flags, package names, profile
+  behavior, or JSON output change.
 - Preserve licensing headers in source files where present.
 - Use `--json-output` for machine-readable validation results in automation.
 - Treat profile names as case-sensitive and environment-dependent; verify available profiles with
@@ -234,4 +239,4 @@ skills only when the workflow needs them.
 ## Notes
 
 - The project is pre-release; behavior, APIs, and packaging details may evolve.
-- Use the public `usd-profiles-nvidia` package for profile/capability code generation.
+- Profile/capability code generation uses the in-repo `profiles/` member (`usd_profiles_nvidia`); the same code is published as the `usd-profiles-nvidia` wheel.

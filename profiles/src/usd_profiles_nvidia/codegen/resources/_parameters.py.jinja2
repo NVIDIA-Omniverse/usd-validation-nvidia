@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+#
+
+from enum import Enum
+
+from ._api import Parameter, ParameterType
+
+
+class Parameters(Parameter, Enum):
+    """
+    An enumeration of all unique parameters used across requirements.
+    Each enum value is a tuple of (display_name, type, assigned_value, enum_values) that corresponds to a Parameter.
+    """
+    {%- for param in parameters %}
+    {{ param.enum_name }} = (
+        "{{ param.display_name }}",
+        ParameterType.{{ param.type.name }},
+        {%- if param.assigned_value is sameas true %}
+        True,
+        {%- elif param.assigned_value is sameas false %}
+        False,
+        {%- elif param.assigned_value is none %}
+        None,
+        {%- else %}
+        {{ param.assigned_value|tojson }},
+        {%- endif %}
+        {%- if param.enum_values %}
+        ({{ param.enum_values|map('tojson')|join(', ') }}{{ ',' if param.enum_values|length == 1 else '' }}),
+        {%- else %}
+        None,
+        {%- endif %}
+    )
+    {%- endfor %}
+

@@ -62,7 +62,7 @@ def Mesh "SimpleCube" {
 - Fix in source application
 
 ## Validation
-The Omniverse Asset Validator has a check that warns of meshes where the subdivisionScheme is undefined, as the default value of subdivisionScheme is catmullClark which may not be intended.
+USD Validation NVIDIA includes a check that warns when meshes leave `subdivisionScheme` undefined, because the default value is `catmullClark` and may not be intended.
 
 ## For More Information
 - [UsdGeom Mesh Documentation](https://openusd.org/release/api/class_usd_geom_mesh.html)
