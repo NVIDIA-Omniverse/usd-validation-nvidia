@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "mixed_requirements_json",
+        "version": "1.0.0",
+        "name": "mixed-requirements-json",
+        "description": "Feature with local and external requirement references loaded from JSON.",
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "features/feature-mixed-requirements-json.html",
+            "internal_path": "features/feature-mixed-requirements-json.md"
+        }
+    }
+}

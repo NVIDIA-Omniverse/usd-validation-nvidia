@@ -1,0 +1,20 @@
+{
+    "profile": {
+        "id": "Factory-Asset",
+        "version": "1.0.0",
+        "name": null,
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [
+            {
+                "feature": "factory_bounds@1.0.0",
+                "optional": false
+            }
+        ],
+        "metadata": {
+            "path": "profiles/examples/factory-bounds/specs/profiles/profiles.html",
+            "internal_path": "profiles/examples/factory-bounds/specs/profiles/profiles.md"
+        }
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "factory_bounds",
+        "version": "1.0.0",
+        "name": null,
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "profiles/examples/factory-bounds/specs/features/factory_bounds.html",
+            "internal_path": "profiles/examples/factory-bounds/specs/features/factory_bounds.md"
+        }
+    }
+}

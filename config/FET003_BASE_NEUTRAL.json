@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "FET003_BASE_NEUTRAL",
+        "version": "0.1.0",
+        "name": "Neutral Base",
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "features/FET_001_base_neutral.html",
+            "internal_path": "features/FET_001_base_neutral.md"
+        }
+    }
+}

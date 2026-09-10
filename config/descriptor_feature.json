@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "descriptor_feature",
+        "version": "1.0.0",
+        "name": null,
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "profiles/tests/resources/simple-spec/features/descriptor_feature.html",
+            "internal_path": "profiles/tests/resources/simple-spec/features/descriptor_feature.md"
+        }
+    }
+}

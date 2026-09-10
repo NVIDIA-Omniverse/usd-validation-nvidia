@@ -1,0 +1,28 @@
+{
+    "profile": {
+        "id": "Robot-Body-Isaac",
+        "version": "1.0.0",
+        "name": null,
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [
+            {
+                "feature": "FET001_BASE_NEUTRAL@0.1.0",
+                "optional": false
+            },
+            {
+                "feature": "FET004_ROBOT_PHYSX@0.2.0",
+                "optional": false
+            },
+            {
+                "feature": "FET021_ROBOT_CORE_ISAAC@0.2.0",
+                "optional": false
+            }
+        ],
+        "metadata": {
+            "path": "profiles/tests/resources/toml-profiles/profiles.html",
+            "internal_path": "profiles/tests/resources/toml-profiles/profiles.md"
+        }
+    }
+}

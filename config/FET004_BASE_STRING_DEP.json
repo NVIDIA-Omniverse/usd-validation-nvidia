@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "FET004_BASE_STRING_DEP",
+        "version": "0.1.0",
+        "name": "String Dependency",
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "features/FET_004-string_dependency.html",
+            "internal_path": "features/FET_004-string_dependency.md"
+        }
+    }
+}

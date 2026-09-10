@@ -1,0 +1,15 @@
+{
+    "profile": {
+        "id": "FET003_BASE_PHYSX",
+        "version": "0.1.0",
+        "name": "Rigid Body Physics",
+        "description": null,
+        "requirements": [],
+        "capabilities": [],
+        "features": [],
+        "metadata": {
+            "path": "features/FET_003-rigid_body_physics.html",
+            "internal_path": "features/FET_003-rigid_body_physics.md"
+        }
+    }
+}

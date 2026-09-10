@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=b894eece"></script>
+    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -68,14 +68,14 @@
 
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Migrating from omniverse-asset-validator" href="migration.html" />
+    <link rel="next" title="Categories" href="categories.html" />
     <link rel="prev" title="Command Line Interface" href="cli.html" />
 
 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Aug 12, 2026"/>
+    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -479,51 +479,64 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Table of Contents">
   <p class="bd-links__title" role="heading" aria-level="1">Table of Contents</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Technical Documentation</span></p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Validation</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">Python API</a></li>
 
 
 <li class="toctree-l1"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Authoring Rules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from omniverse-asset-validator</a></li>
 <li class="toctree-l1"><a class="reference internal" href="categories.html">Categories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rules.html">Rules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="requirements.html">Requirements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="migration.html">Migrating from omniverse-asset-validator</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Requirements</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Profiles</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../specs/index.html">Content Guidelines and Requirements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../specs/capabilities/capabilities.html">Requirements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../specs/capabilities/core/core.html">Core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/core/units/capability-units.html">Units</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/core/atomic_asset/capability-atomic_asset.html">Atomic Asset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/api.html">Python API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/requirements.html">Requirements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/capabilities.html">Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../profiles/docs/profiles.html">Profiles</a></li>
 </ul>
-</details></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/geometry/capability-geometry.html">Geometry</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/hierarchy/capability-hierarchy.html">Hierarchy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/materials/capability-materials.html">Materials</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/semantic_labels/capability-semantic_labels.html">Semantic Labels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/dense_captions/capability-dense_captions.html">Dense Captions</a></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../specs/capabilities/nonvisual_sensors/nonvisual_sensors.html">Nonvisual Sensors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/nonvisual_sensors/nonvisual_materials/capability-nonvisual_materials.html">Non-Visual Materials</a></li>
-</ul>
-</details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_bodies.html">Physics Bodies</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_rigid_bodies/capability-physics_rigid_bodies.html">Rigid Bodies and Colliders</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_joints/capability-physics_joints.html">Joints and Articulations</a></li>
-</ul>
-</details></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../specs/features/features.html">Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/features/minimal_placeable_visual.html">Minimal Placeable Visual</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../specs/features/performant_placeable_visual.html">Performant Placeable Visual</a></li>
-</ul>
-</details></li>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Specifications</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../specs/index.html">Overview</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../specs/indexes/requirements_index.html">Requirements Index</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../specs/capabilities/capabilities.html">Requirements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../specs/capabilities/core/core.html">Core</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/core/units/capability-units.html">Units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/core/atomic_asset/capability-atomic_asset.html">Atomic Asset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/capabilities/geometry/capability-geometry.html">Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/capabilities/hierarchy/capability-hierarchy.html">Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/capabilities/materials/capability-materials.html">Materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/capabilities/semantic_labels/capability-semantic_labels.html">Semantic Labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/capabilities/dense_captions/capability-dense_captions.html">Dense Captions</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../specs/capabilities/nonvisual_sensors/nonvisual_sensors.html">Nonvisual Sensors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../specs/capabilities/nonvisual_sensors/nonvisual_materials/capability-nonvisual_materials.html">Non-Visual Materials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../specs/capabilities/nonvisual_sensors/nonvisual_materials/nonvisual_attributes_table.html">Non-Visual Sensor Attributes Table</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_bodies.html">Physics Bodies</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_rigid_bodies/capability-physics_rigid_bodies.html">Rigid Bodies and Colliders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../specs/capabilities/physics_bodies/physics_joints/capability-physics_joints.html">Joints and Articulations</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../specs/features/features.html">Features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/features/minimal_placeable_visual.html">Minimal Placeable Visual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../specs/features/performant_placeable_visual.html">Performant Placeable Visual</a></li>
 </ul>
 </details></li>
 </ul>
@@ -706,6 +719,36 @@ as a rule:</p>
 </pre></div>
 </div>
 </section>
+<section id="running-a-callback-in-a-process-pool">
+<h2>Running a callback in a process pool<a class="headerlink" href="#running-a-callback-in-a-process-pool" title="Link to this heading">#</a></h2>
+<p>By default every rule callback runs in the calling process. Decorate a callback with
+<code class="xref py py-func docutils literal notranslate"><span class="pre">multiprocess_safe()</span></code> to declare it eligible for the
+process pool that <code class="docutils literal notranslate"><span class="pre">--process</span> <span class="pre">COUNT</span></code> enables:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRuleChecker</span><span class="p">,</span> <span class="n">multiprocess_safe</span><span class="p">,</span> <span class="n">register_rule</span>
+
+
+<span class="nd">@register_rule</span><span class="p">(</span><span class="s2">&quot;Basic&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyLayerRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+    <span class="nd">@multiprocess_safe</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">CheckLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>The decorator is a declaration, not a request: marked callbacks run in the pool only
+when process execution is enabled, and behave exactly as before when it is not. This
+feature is experimental.</p>
+<p>A callback is only safe to mark if it holds to both of these:</p>
+<ul class="simple">
+<li><p><strong>Its arguments and results survive pickling.</strong> Work crosses a process boundary, so
+anything the callback receives or reports must be picklable. Validation identifiers
+and layer compliance events already are.</p></li>
+<li><p><strong>It shares no mutable state with the parent process.</strong> Accumulating results on
+<code class="docutils literal notranslate"><span class="pre">self</span></code> across calls does not work — a worker mutates its own copy, and the parent
+never sees it. Report findings through the usual issue helpers instead.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">CheckStage</span></code> and <code class="docutils literal notranslate"><span class="pre">CheckPrim</span></code> callbacks that traverse a live stage are generally not
+safe to mark, because the stage does not cross the process boundary.</p>
+</section>
 <section id="distributing-rules-as-a-plugin">
 <h2>Distributing rules as a plugin<a class="headerlink" href="#distributing-rules-as-a-plugin" title="Link to this heading">#</a></h2>
 <p>Rules register when their module is imported. To ship rules in your own package so they
@@ -721,6 +764,41 @@ the plugin manager discovers it at startup:</p>
 <code class="docutils literal notranslate"><span class="pre">on_shutdown()</span></code> hook. <code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultPlugin</span></code> is the built-in
 reference implementation. The legacy <code class="docutils literal notranslate"><span class="pre">omni.asset_validator</span></code> group is also scanned for
 backward compatibility, but new plugins should use <code class="docutils literal notranslate"><span class="pre">usd_validation_nvidia</span></code>.</p>
+</section>
+<section id="loading-authored-specs-and-loose-rules">
+<h2>Loading authored specs and loose rules<a class="headerlink" href="#loading-authored-specs-and-loose-rules" title="Link to this heading">#</a></h2>
+<p>For applications that load authored profile/specification content at runtime, use
+<code class="docutils literal notranslate"><span class="pre">usd_profiles_nvidia.SpecificationsLoader</span></code> to parse the content and
+<a class="reference internal" href="api.html#usd_validation_nvidia.register_content" title="usd_validation_nvidia.register_content"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_content()</span></code></a> to register its requirement
+definitions, capabilities, features, and profiles. Loose Python validator modules have a
+separate lifecycle token from <a class="reference internal" href="api.html#usd_validation_nvidia.register_validation_modules" title="usd_validation_nvidia.register_validation_modules"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_validation_modules()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">usd_profiles_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpecificationsLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">register_content</span><span class="p">,</span>
+    <span class="n">register_validation_modules</span><span class="p">,</span>
+    <span class="n">unregister_content</span><span class="p">,</span>
+    <span class="n">unregister_validation_modules</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">content</span> <span class="o">=</span> <span class="n">SpecificationsLoader</span><span class="p">(</span>
+    <span class="n">root_dir</span><span class="o">=</span><span class="s2">&quot;specs&quot;</span><span class="p">,</span>
+    <span class="n">reverse_domain</span><span class="o">=</span><span class="s2">&quot;com.example.assets&quot;</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="n">registered_modules</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">register_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="n">registered_modules</span> <span class="o">=</span> <span class="n">register_validation_modules</span><span class="p">([</span><span class="s2">&quot;specs/capabilities/geometry/validation.py&quot;</span><span class="p">])</span>
+    <span class="o">...</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">registered_modules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">unregister_validation_modules</span><span class="p">(</span><span class="n">registered_modules</span><span class="p">)</span>
+    <span class="n">unregister_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The loaded <code class="docutils literal notranslate"><span class="pre">content</span></code> object is the lifecycle token for documentation/specification
+content. The <code class="docutils literal notranslate"><span class="pre">registered_modules</span></code> token owns imported rule modules, so reload and
+shutdown code can unregister exactly what it previously loaded.</p>
 </section>
 </section>
 
@@ -744,11 +822,11 @@ backward compatibility, but new plugins should use <code class="docutils literal
       </div>
     </a>
     <a class="right-next"
-       href="migration.html"
+       href="categories.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Migrating from omniverse-asset-validator</p>
+        <p class="prev-next-title">Categories</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -777,7 +855,9 @@ backward compatibility, but new plugins should use <code class="docutils literal
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-a-rule">Registering a rule</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#providing-an-auto-fix">Providing an auto-fix</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-native-usd-validator">Wrapping a native USD validator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-callback-in-a-process-pool">Running a callback in a process pool</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributing-rules-as-a-plugin">Distributing rules as a plugin</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-authored-specs-and-loose-rules">Loading authored specs and loose rules</a></li>
 </ul>
   </nav></div>
 
@@ -825,7 +905,7 @@ backward compatibility, but new plugins should use <code class="docutils literal
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Aug 12, 2026.
+  Last updated on Sep 10, 2026.
   <br/>
 </p></div>
       
