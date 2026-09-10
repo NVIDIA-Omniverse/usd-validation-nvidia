@@ -3,12 +3,12 @@
 #
 import re
 import unittest
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from common import AsyncioValidationTestCase, get_url
 from pxr import Usd
-
-from usd_validation_nvidia import PrimId, UsdValidatorAdapter
+from usd_validation_nvidia import IssueSeverity, PrimId, UsdValidatorAdapter
 from usd_validation_nvidia.tests import IsAFailure
 
 
@@ -104,11 +104,13 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         error = Mock()
         error.GetMessage.return_value = "message"
         error.GetSites.return_value = [site]
+        error.GetType.return_value = SimpleNamespace(name="Warn")
 
         issues = checker._transform(error)
 
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0].message, "message")
+        self.assertEqual(issues[0].severity, IssueSeverity.WARNING)
         self.assertEqual(issues[0].at, PrimId.from_(prim))
 
     def test_transform_no_sites_ok(self):
@@ -116,9 +118,40 @@ class UsdValidatorAdapterHelperTest(unittest.TestCase):
         error = Mock()
         error.GetMessage.return_value = "message"
         error.GetSites.return_value = []
+        error.GetType.return_value = SimpleNamespace(name="Info")
 
         issues = checker._transform(error)
 
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0].message, "message")
+        self.assertEqual(issues[0].severity, IssueSeverity.INFO)
         self.assertIsNone(issues[0].at)
+
+    def test_get_issue_severity_ok(self):
+        logger_name = "usd_validation_nvidia.rules._usd_validator_adapter"
+        for error, expected_severity, expected_log in (
+            (Mock(GetType=Mock(return_value=SimpleNamespace(name="Error"))), IssueSeverity.FAILURE, None),
+            (Mock(GetType=Mock(return_value=SimpleNamespace(name="Warn"))), IssueSeverity.WARNING, None),
+            (Mock(GetType=Mock(return_value=SimpleNamespace(name="Info"))), IssueSeverity.INFO, None),
+            (Mock(GetType=Mock(return_value=SimpleNamespace(name="None_"))), IssueSeverity.NONE, None),
+            (
+                Mock(GetType=Mock(return_value=SimpleNamespace(name="Unexpected"))),
+                IssueSeverity.FAILURE,
+                "Unexpected native USD validation error severity",
+            ),
+            (
+                Mock(GetType=Mock(return_value=object())),
+                IssueSeverity.FAILURE,
+                "Unable to determine native USD validation error severity",
+            ),
+            (Mock(spec=[]), IssueSeverity.FAILURE, "Unable to determine native USD validation error severity"),
+        ):
+            if expected_log:
+                with self.assertLogs(logger_name, level="WARNING") as captured_logs:
+                    severity = _MissingReferenceValidator._get_issue_severity(error)
+                self.assertIn(expected_log, captured_logs.output[0])
+            else:
+                with self.assertNoLogs(logger_name, level="WARNING"):
+                    severity = _MissingReferenceValidator._get_issue_severity(error)
+
+            self.assertEqual(severity, expected_severity)

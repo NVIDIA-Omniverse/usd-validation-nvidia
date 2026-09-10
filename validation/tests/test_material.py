@@ -12,10 +12,9 @@ from dataclasses import dataclass
 from tempfile import TemporaryDirectory
 from typing import Any
 
-from common import AsyncioValidationTestCase, get_url, is_package_installed
-from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
-
 import usd_validation_nvidia.capabilities as cap
+from common import AsyncioValidationTestCase, get_url
+from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
 from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
@@ -27,8 +26,10 @@ from usd_validation_nvidia import (
     ShaderImplementationSourceChecker,
     UsdDanglingMaterialBinding,
     UsdMaterialBindingApi,
+    UsdShadeSubsetsMaterialBindFamilyChecker,
     ValidationEngine,
     get_sdf_type_for_shader_property,
+    is_package_installed,
     register_requirements,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAWarning
@@ -115,6 +116,63 @@ class UsdMaterialBindingApiChecker(AsyncioValidationTestCase):
             asset=get_url("usdMaterialBindingApiFail.usda"),
             rule=UsdMaterialBindingApi,
             predicate=IssuePredicates.ContainsMessage("MaterialBindingApi"),
+        )
+
+
+class UsdShadeSubsetsMaterialBindFamilyCheckerTest(AsyncioValidationTestCase):
+    async def test_unrestricted_material_bind_family(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/World/Mesh")
+        mesh.CreateFaceVertexCountsAttr([3])
+        UsdGeom.Subset.SetFamilyType(mesh, UsdShade.Tokens.materialBind, UsdGeom.Tokens.unrestricted)
+
+        subset = UsdGeom.Subset.Define(stage, "/World/Mesh/subset")
+        subset.CreateFamilyNameAttr().Set(UsdShade.Tokens.materialBind)
+        subset.CreateElementTypeAttr().Set(UsdGeom.Tokens.face)
+        subset.CreateIndicesAttr().Set([0])
+
+        await self.assertRuleAsync(
+            asset=stage,
+            rule=UsdShadeSubsetsMaterialBindFamilyChecker,
+            asserts=[
+                IsAFailure(
+                    "Imageable prim </World/Mesh> has 'materialBind' subset family with invalid family type "
+                    "'unrestricted'. Family type should be 'nonOverlapping' or 'partition' instead.",
+                    at=Sdf.Path("/World/Mesh"),
+                ),
+            ],
+        )
+
+    async def test_restricted_material_bind_family(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/World/Mesh")
+        mesh.CreateFaceVertexCountsAttr([3])
+        UsdGeom.Subset.SetFamilyType(mesh, UsdShade.Tokens.materialBind, UsdGeom.Tokens.nonOverlapping)
+
+        subset = UsdGeom.Subset.Define(stage, "/World/Mesh/subset")
+        subset.CreateFamilyNameAttr().Set(UsdShade.Tokens.materialBind)
+        subset.CreateElementTypeAttr().Set(UsdGeom.Tokens.face)
+        subset.CreateIndicesAttr().Set([0])
+
+        await self.assertSuccessAsync(
+            asset=stage,
+            rule=UsdShadeSubsetsMaterialBindFamilyChecker,
+        )
+
+    async def test_partition_material_bind_family(self):
+        stage = Usd.Stage.CreateInMemory()
+        mesh = UsdGeom.Mesh.Define(stage, "/World/Mesh")
+        mesh.CreateFaceVertexCountsAttr([3])
+        UsdGeom.Subset.SetFamilyType(mesh, UsdShade.Tokens.materialBind, UsdGeom.Tokens.partition)
+
+        subset = UsdGeom.Subset.Define(stage, "/World/Mesh/subset")
+        subset.CreateFamilyNameAttr().Set(UsdShade.Tokens.materialBind)
+        subset.CreateElementTypeAttr().Set(UsdGeom.Tokens.face)
+        subset.CreateIndicesAttr().Set([0])
+
+        await self.assertSuccessAsync(
+            asset=stage,
+            rule=UsdShadeSubsetsMaterialBindFamilyChecker,
         )
 
 
@@ -273,6 +331,39 @@ class MaterialPathCheckerTest(AsyncioValidationTestCase):
             ],
         )
 
+    async def test_unresolved_material_paths_are_grouped_by_dependency_and_message(self):
+        with TemporaryDirectory() as temp_dir:
+            stage_path = pathlib.Path(temp_dir, "asset.usda")
+            missing_path = pathlib.Path(temp_dir, "missing.mdl")
+
+            stage = Usd.Stage.CreateNew(str(stage_path))
+            for shader_path, asset_path in (
+                ("/Looks/RelativeA/Shader", "./missing.mdl"),
+                ("/Looks/RelativeB/Shader", "./missing.mdl"),
+                ("/Looks/Absolute/Shader", str(missing_path)),
+            ):
+                shader = UsdShade.Shader.Define(stage, shader_path)
+                shader.SetSourceAsset(Sdf.AssetPath(asset_path), "mdl")
+            stage.GetRootLayer().Save()
+
+            await self.assertRuleAsync(
+                asset=str(stage_path),
+                rule=MaterialPathChecker,
+                asserts=[
+                    IsAFailure(
+                        r"The path .*missing\.mdl does not exist\.",
+                        at=Sdf.Path("/Looks/Absolute/Shader.info:mdl:sourceAsset"),
+                    ),
+                    IsAFailure(
+                        "The relative path ./missing.mdl does not exist.",
+                        at=[
+                            Sdf.Path("/Looks/RelativeA/Shader.info:mdl:sourceAsset"),
+                            Sdf.Path("/Looks/RelativeB/Shader.info:mdl:sourceAsset"),
+                        ],
+                    ),
+                ],
+            )
+
 
 class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
     async def test_success(self):
@@ -423,7 +514,7 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
             and (sdf_type == Sdf.ValueTypeNames.Float)
             and (type_name == Sdf.ValueTypeNames.Color3f)
         ):
-            (input_value, connections) = cls.convert_color3f_to_float(input_value, connections)
+            input_value, connections = cls.convert_color3f_to_float(input_value, connections)
             type_name = Sdf.ValueTypeNames.Float
             transformed = True
 
@@ -490,11 +581,10 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
         # Simulate a runtime where ``shaderDefs.usda`` is unavailable: the Sdr Registry
         # returns no ``Usd*`` shader nodes, so the checker has no shaders to validate
         # against and would otherwise silently pass.
-        original = list(MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders)
-        MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.clear()
         # The checker uses ``GetShaderNodeNames`` on USD 25.08+ and ``GetNodeNames`` before
         # that; patch whichever this runtime exposes so the cache stays empty.
         registry_method = "GetShaderNodeNames" if hasattr(Sdr.Registry, "GetShaderNodeNames") else "GetNodeNames"
+        MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.cache_clear()
         try:
             with unittest.mock.patch.object(Sdr.Registry, registry_method, return_value=[]):
                 await self.assertRuleAsync(
@@ -509,7 +599,7 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
                     ],
                 )
         finally:
-            MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders[:] = original
+            MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.cache_clear()
 
     async def test_autofix_suggestions(self):
         await self.assertSuggestionAsync(

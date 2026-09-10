@@ -5,7 +5,6 @@ import unittest
 
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd
-
 from usd_validation_nvidia import LayerId, UnicodeNameChecker
 from usd_validation_nvidia.tests import IsAWarning
 

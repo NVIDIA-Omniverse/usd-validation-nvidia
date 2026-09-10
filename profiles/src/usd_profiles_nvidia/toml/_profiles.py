@@ -6,13 +6,8 @@ import logging
 import os
 from dataclasses import dataclass
 
-from usd_profiles_nvidia.model import (
-    IdVersion,
-    Metadata,
-    Profile,
-    ProfileFeature,
-    Version,
-)
+from usd_profiles_nvidia.api import FeatureRef, Profile, ProfileFeature
+from usd_profiles_nvidia.model import Metadata, Version
 
 PROFILES_TOML = "profiles.toml"
 
@@ -53,7 +48,7 @@ class _TomlProfilesParser:
             raise ValueError(f"Expected exactly one feature key per entry, got: {list(entry.keys())}")
         feature_id, attrs = next(iter(feature_entry.items()))
         version = Version(attrs["version"])
-        return ProfileFeature(IdVersion(feature_id, version), optional=optional)
+        return ProfileFeature(FeatureRef(feature_id, str(version)), optional=optional)
 
     def parse(self) -> list[Profile]:
         """Parse all profiles and versions from the TOML file."""
@@ -90,19 +85,20 @@ class _TomlProfilesParser:
                     raise ValueError(
                         f"Profile '{profile_name}' version '{version_str}' missing required 'features' key"
                     )
-                features: list[ProfileFeature] = []
+                profile_features: list[ProfileFeature] = []
                 for entry in version_data["features"]:
-                    features.append(self._parse_feature_entry(entry))
+                    profile_features.append(self._parse_feature_entry(entry))
                 # Use the raw TOML table name as the profile id (not normalized).
                 # This preserves the original casing (e.g. "Robot-Body-Isaac")
                 # for CLI --profile matching and user-facing output.
                 profiles.append(
                     Profile(
                         id=profile_name,
-                        version=version,
+                        version=str(version),
+                        path=Metadata(path=relpath).path,
                         display_name=profile_name,
-                        features=features,
-                        metadata=Metadata(path=relpath),
+                        features=[profile_feature.feature for profile_feature in profile_features],
+                        profile_features=profile_features,
                     )
                 )
         return profiles

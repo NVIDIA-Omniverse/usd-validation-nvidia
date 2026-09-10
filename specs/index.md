@@ -11,21 +11,13 @@ Note that this documentation is a work in progress and will be updated over time
 
 Requirements are the core building blocks of this documentation. They are organized into categories called "capabilities".
 
-```{toctree}
-:maxdepth: 2
-
-Requirements <capabilities/capabilities>
-```
+[Requirements](capabilities/capabilities.md)
 
 ## Features
 
 Features reference requirements that are related to a specific use case. For example, a feature might be "an asset that can be visualized and placed in a scene".
 
-```{toctree}
-:maxdepth: 2
-
-Features <features/features>
-```
+[Features](features/features.md)
 
 ```{toctree}
 :hidden:

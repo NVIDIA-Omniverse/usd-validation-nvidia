@@ -130,10 +130,10 @@ class CapabilityGraphBuilder:
             )
 
         for profile in specifications.profiles:
-            profile_id = self._qualify_identifier(profile.namespaced_id, graph_namespace)
+            profile_id = self._qualify_identifier(profile.id, graph_namespace)
             predecessors = [
                 self._qualify_identifier(profile_feature.feature.id, graph_namespace)
-                for profile_feature in profile.features
+                for profile_feature in profile.profile_features
             ]
 
             graph.add_node(

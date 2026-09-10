@@ -78,21 +78,6 @@ class FeatureRegistry(VersionedRegistry[Feature]):
                 queue.extend(dependencies)
         return requirements
 
-    def remove(self, feature: Feature) -> None:
-        """
-        Remove a feature from the registry.
-
-        Args:
-            feature: The feature to remove
-
-        Raises:
-            ValueError: If the feature has requirements that are implemented
-        """
-        registry = RequirementsRegistry()
-        if registry.get_validators(feature.requirements):
-            raise ValueError(f"Feature {feature} has requirements that are implemented")
-        super().remove(feature)
-
 
 def register_feature(feature: Feature) -> None:
     """
@@ -136,20 +121,20 @@ def register_features(features: Iterable[Feature]) -> bool:
 
 def unregister_features(features: Iterable[Feature]) -> bool:
     """
-    Unregister multiple features, skipping any still in use.
+    Unregister multiple features by ID and version, skipping any not registered.
 
     Args:
         features: An iterable of features to unregister.
 
     Returns:
-        True if every feature was unregistered, False if any were skipped.
+        True if every feature was unregistered, False if any were missing.
     """
     flag: bool = True
     for feature in features:
         try:
             unregister_feature(feature)
         except ValueError:
-            logger.debug(f"Feature {feature} still in use, skipping")
+            logger.debug(f"Feature {feature} not registered, skipping")
             flag = False
     return flag
 

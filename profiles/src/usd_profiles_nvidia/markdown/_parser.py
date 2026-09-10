@@ -12,7 +12,6 @@ from functools import cache, cached_property, singledispatch
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from markdown_it.tree import SyntaxTreeNode
-
 from usd_profiles_nvidia.model import Naming, Version
 
 from ._model import (

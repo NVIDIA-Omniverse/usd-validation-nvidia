@@ -5,7 +5,6 @@
 from typing import Any
 
 from sphinx.application import Sphinx
-
 from usd_profiles_nvidia.sphinx.static import static_setup, style_setup
 
 

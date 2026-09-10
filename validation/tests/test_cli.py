@@ -11,13 +11,11 @@ import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from unittest import mock
-from unittest import skipIf
-
-from common import get_url
-from pxr import Ar
+from unittest import mock, skipIf
 
 import usd_validation_nvidia.capabilities as cap
+from common import get_url
+from pxr import Ar
 from usd_validation_nvidia import (
     ByteAlignmentChecker,
     CategoryRuleRegistry,
@@ -35,6 +33,7 @@ from usd_validation_nvidia import (
     unregister_profile,
 )
 from usd_validation_nvidia.capabilities import Capability, Profile
+from usd_validation_nvidia.cli._safe import cli_main as safe_cli_main
 
 
 class DummyChecker:
@@ -733,10 +732,10 @@ class ValidationArgsTest(unittest.TestCase):
             with (
                 redirect_stdout(io.StringIO()),
                 mock.patch(
-                    "usd_validation_nvidia._cli.export_csv_file",
+                    "usd_validation_nvidia.cli._validation.export_csv_file",
                     side_effect=OSError(13, "blocked"),
                 ),
-                self.assertLogs("usd_validation_nvidia._cli", level="ERROR"),
+                self.assertLogs("usd_validation_nvidia.cli._validation", level="ERROR"),
             ):
                 parser = create_validation_parser()
                 args = ValidationArgsExec(
@@ -841,6 +840,117 @@ class ValidationArgsTest(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
         self.assertEqual(result.stdout.strip(), __version__)
+
+    def _run_without_pxr(self, args: list[str]) -> subprocess.CompletedProcess:
+        with TemporaryDirectory() as tmp:
+            sitecustomize = pathlib.Path(tmp) / "sitecustomize.py"
+            sitecustomize.write_text("""
+import importlib.abc
+import sys
+
+class BlockPxr(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == "pxr" or fullname.startswith("pxr."):
+            raise ModuleNotFoundError("No module named 'pxr'", name="pxr")
+
+sys.meta_path.insert(0, BlockPxr())
+""".lstrip())
+            return subprocess.run(
+                args,
+                capture_output=True,
+                env={**os.environ, "PYTHONPATH": tmp + os.pathsep + os.environ.get("PYTHONPATH", "")},
+                text=True,
+                timeout=30,
+            )
+
+    def test_module_cli_version_without_usd_ok(self):
+        result = self._run_without_pxr([sys.executable, "-m", "usd_validation_nvidia", "--version"])
+
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stdout.strip(), __version__)
+        self.assertNotIn("Traceback", output)
+        self.assertNotIn("ModuleNotFoundError", output)
+
+    def test_safe_cli_usd_distribution_conflict_ok(self):
+        with (
+            mock.patch(
+                "usd_validation_nvidia.cli._safe.is_usd_distribution_conflict",
+                return_value=True,
+            ),
+            mock.patch("usd_validation_nvidia.cli._safe.is_usd_available") as is_usd_available,
+            redirect_stderr(io.StringIO()) as stderr,
+        ):
+            with self.assertRaises(SystemExit) as cm:
+                safe_cli_main(["--version"])
+
+        self.assertEqual(cm.exception.code, 1)
+        self.assertIn("usd-core and usd-exchange are both installed", stderr.getvalue())
+        is_usd_available.assert_not_called()
+
+    def test_package_import_usd_distribution_conflict_ok(self):
+        with TemporaryDirectory() as tmp:
+            sitecustomize = pathlib.Path(tmp) / "sitecustomize.py"
+            sitecustomize.write_text("""
+import importlib.metadata
+
+_distribution = importlib.metadata.distribution
+
+def distribution(package_name):
+    if package_name in {"usd-core", "usd-exchange"}:
+        return object()
+    return _distribution(package_name)
+
+importlib.metadata.distribution = distribution
+""".lstrip())
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    "from usd_validation_nvidia import ValidationArgsExec",
+                ],
+                capture_output=True,
+                env={**os.environ, "PYTHONPATH": tmp + os.pathsep + os.environ.get("PYTHONPATH", "")},
+                text=True,
+                timeout=30,
+            )
+
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("Cannot import 'ValidationArgsExec'", output)
+        self.assertIn("usd-core and usd-exchange are both installed", output)
+        self.assertIn("install only one USD provider", output)
+
+    def test_cli_malformed_asset_ok(self):
+        with TemporaryDirectory() as tmp:
+            tmp_path = pathlib.Path(tmp) / "malformed.usda"
+            tmp_path.write_text("This is not valid USD syntax!")
+            result = subprocess.run(
+                [sys.executable, "-m", "usd_validation_nvidia", str(tmp_path)],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            output = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 1)
+            self.assertNotIn("See traceback for details", output)
+            self.assertNotIn("Traceback", output)
+
+    def test_cli_non_existent_ok(self):
+        with TemporaryDirectory() as tmp:
+            tmp_path = pathlib.Path(tmp) / "missing.usda"
+            result = subprocess.run(
+                [sys.executable, "-m", "usd_validation_nvidia", str(tmp_path)],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+
+            output = result.stdout + result.stderr
+            self.assertEqual(result.returncode, 1)
+            self.assertNotIn("See traceback for details", output)
+            self.assertNotIn("Traceback", output)
 
     def test_omni_asset_validator_cli(self):
         result = subprocess.run(

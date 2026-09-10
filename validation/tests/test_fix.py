@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 
 from common import get_url
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdShade, Vt
-
 from usd_validation_nvidia import (
     AuthoringLayers,
     BaseRuleChecker,

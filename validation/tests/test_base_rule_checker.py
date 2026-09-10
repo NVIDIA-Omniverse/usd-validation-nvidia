@@ -7,7 +7,6 @@ from unittest.mock import Mock
 
 from common import get_url
 from pxr import Sdf, Usd
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     Issue,

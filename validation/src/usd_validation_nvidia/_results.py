@@ -86,26 +86,22 @@ class Results(Sequence[Issue]):
         tokens = []
         issues = sorted(self.issues(), key=lambda issue: (issue.message, issue.rule.__name__ if issue.rule else None))
         for issue in issues:
-            tokens.append(
-                f"""
+            tokens.append(f"""
                     Issue(
                         message="{issue.message}",
                         severity={issue.severity},
                         rule={issue.rule.__name__ if issue.rule else None},
                         at={issue.at},
                         suggestion={issue.suggestion if issue.suggestion else None}
-                    )"""
-            )
+                    )""")
         text = ",".join(tokens)
-        return inspect.cleandoc(
-            f"""
+        return inspect.cleandoc(f"""
             Results(
                 asset="{self.asset}",
                 issues=[
                     {text.lstrip()}
                 ]
-            )"""
-        )
+            )""")
 
 
 @dataclass(frozen=True)

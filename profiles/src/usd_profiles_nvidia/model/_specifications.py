@@ -5,9 +5,7 @@
 from dataclasses import dataclass
 from functools import cached_property
 
-from usd_profiles_nvidia.api import Capability, Feature, Requirement
-
-from ._profile import Profile
+from usd_profiles_nvidia.api import Capability, Feature, Profile, Requirement
 
 
 @dataclass(frozen=True)

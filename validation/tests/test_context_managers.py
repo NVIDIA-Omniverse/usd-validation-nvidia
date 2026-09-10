@@ -6,7 +6,6 @@ import unittest
 
 from common import get_url
 from pxr import Usd
-
 from usd_validation_nvidia import (
     AsyncBatchRunner,
     AsyncCounter,

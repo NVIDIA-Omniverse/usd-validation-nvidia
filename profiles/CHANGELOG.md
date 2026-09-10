@@ -1,11 +1,35 @@
 # Changelog
 
+## [1.22.0] - 2026-09-10
+### Added
+- Load SimReady-style TOML and JSON profiles through `SpecificationsLoader`, preserving unresolved feature references
+  and per-feature optionality.
+- Promote `SpecificationsLoader` as the public docs-tree parser facade, returning a `LoadedSpecifications` aggregate
+  of public capability, feature, and profile DTOs while preserving lazy references.
+- Load SimReady-style TOML and JSON profiles through `SpecificationsLoader`, preserving unresolved feature references
+  and per-feature optionality. `ProfilesParser` now handles configured profile roots, which returns public `Profile` DTOs containing
+  unresolved `ProfileFeature(FeatureRef(...))` entries.
+
+### Changed
+- Qualify concrete requirement definitions loaded through `SpecificationsLoader` with its configured reverse domain,
+  allowing the facade's `requirements` collection to be registered directly as runtime metadata.
+- Preserve unresolved profile feature references consistently across profile loading, parsing, code generation, and
+  requirement selection.
+- Improve profile descriptor handling with consistent ID and feature-reference qualification plus clearer errors for
+  invalid descriptors.
+
+### Fixed
+- Distinguish direct profile descriptors from version tables by field shape, allowing version-table profile IDs such
+  as `id` and `profile`.
+
 ## [1.21.0] - 2026-08-12
 ### Added
 - Add a public `SpecificationsLoader` API for deterministic Markdown/JSON/TOML feature descriptor loading without
   registry resolution, preserving requirement and feature references plus custom authored data.
 
 ### Changed
+- Route Python code generation through `SpecificationsLoader` and allow public profile feature DTOs and protocols to
+  contain either concrete features or lazy feature references.
 - Delegate configured feature roots from `SpecificationsLoader` to the format-agnostic `FeaturesParser`, with
   reverse-domain qualification as a post-parse descriptor enrichment step.
 - Reuse one lossless feature descriptor decoder across JSON and TOML, and support individual Markdown, JSON, and TOML

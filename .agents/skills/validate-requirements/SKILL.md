@@ -24,6 +24,14 @@ This skill shows the smallest useful plugin that registers one rule backed by on
 The requirement is authored as Markdown and generated with `usd-profiles-nvidia`; the rule registration, execution, and
 CLI filtering stay in `usd-validation-nvidia`.
 
+## Inputs
+
+- Required: target plugin or example path, requirement code and Markdown source, owning capability, rule behavior, and
+  asset path for smoke validation.
+- Optional: package name, reverse-domain, Python version, package-index constraints, failure asset, and whether to use
+  local source (`--with ./validation`) or an installed package.
+- Precedence: explicit user prompt, existing specs and plugin files, agent context, then the examples in this skill.
+
 ## Prerequisites
 
 - Python 3.10-3.14.
@@ -145,7 +153,7 @@ uv run \
 uv run \
   --with ./validation \
   --with validation/examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see the requirement-mapped failure:
@@ -154,7 +162,7 @@ To see the requirement-mapped failure:
 uv run \
   --with ./validation \
   --with validation/examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 On Windows:
@@ -171,7 +179,7 @@ uv run `
 uv run `
   --with ./validation `
   --with validation/examples/python/requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see the requirement-mapped failure on Windows:
@@ -180,7 +188,7 @@ To see the requirement-mapped failure on Windows:
 uv run `
   --with ./validation `
   --with validation/examples/python/requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use the public build.
@@ -190,7 +198,10 @@ Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use t
 - `register_rule("Example")`: registers the rule in the `Example` category; the string argument is the rule category
   shown by the CLI.
 - `register_requirements(...)`: maps a rule class to one or more generated requirements so `--requirement` filtering and
-  reports can connect failures back to requirement IDs.
+  reports can connect failures back to requirement IDs. Calling the returned decorator with `None` registers concrete
+  requirement definitions as metadata without creating a rule binding.
+- `unregister_requirements(...)`: unregisters a rule class, or removes concrete requirement definitions by code and
+  version when passed those definitions directly.
 - `_AddFailedCheck(requirement=...)`: reports a validation failure associated with a generated requirement.
 
 ## Key Dependencies
@@ -215,6 +226,8 @@ Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use t
 - Generate `example_requirements` before installing or running the example plugin.
 - Requirements must live under a capability; an otherwise minimal capability Markdown file is enough for this example.
 - Register requirements and rules in `on_startup()`, and unregister them in `on_shutdown()`.
+- Balance every metadata-only `register_requirements(*requirements)(None)` call with one
+  `unregister_requirements(*requirements)` call.
 - Pass the same requirement object to `register_requirements(...)` and `_AddFailedCheck(requirement=...)`.
 - Confirm the requirement appears in `nvidia_usd_validate --help` before debugging rule behavior.
 
@@ -222,5 +235,5 @@ Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use t
 
 - If installing or running the example fails because `example_requirements` is missing, run requirement codegen before
   building or installing the example plugin.
-- If `--requirement EXAMPLE.001` does not select the custom rule, confirm the requirement package is generated,
+- If `--requirement com.nvidia.usd.EXAMPLE.001` does not select the custom rule, confirm the requirement package is generated,
   installed with the plugin, and registered from `on_startup()`.

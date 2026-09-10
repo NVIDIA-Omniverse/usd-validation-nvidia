@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+import usd_validation_nvidia.capabilities as cap
 from common import AsyncioValidationTestCase
 from pxr import Usd, UsdGeom, UsdLux
-
-import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import HierarchyHasRootChecker
 from usd_validation_nvidia.tests import IsAFailure
 

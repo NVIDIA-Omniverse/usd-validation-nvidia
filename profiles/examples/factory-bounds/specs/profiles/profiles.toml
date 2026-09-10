@@ -1,0 +1,4 @@
+[Factory-Asset]
+"1.0.0" = {features = [
+    {"factory_bounds" = {version = "1.0.0"}},
+]}

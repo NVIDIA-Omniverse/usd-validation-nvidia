@@ -4,7 +4,6 @@
 """Reference-based USD Validation NVIDIA feature plugin example."""
 
 from example_validate_references import Features
-
 from usd_validation_nvidia import register_features, unregister_features
 
 # [snippet:referenced-features]

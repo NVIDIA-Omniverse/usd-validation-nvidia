@@ -10,10 +10,10 @@ import shutil
 from dataclasses import dataclass
 from functools import cache
 
+from usd_profiles_nvidia import SpecificationsLoader
 from usd_profiles_nvidia.graph import CapabilityGraphBuilder
 from usd_profiles_nvidia.json import JsonSerialize
 from usd_profiles_nvidia.model import Specifications
-from usd_profiles_nvidia.parsers import SpecificationsParser
 from usd_profiles_nvidia.store import SpecificationsStore
 
 from ._py_model import PythonStoreView
@@ -136,12 +136,18 @@ class PythonGenerator:
             f.write("\n")
 
     def generate(self) -> None:
-        specifications: Specifications = SpecificationsParser(
+        loaded = SpecificationsLoader(
             root_dir=self.docs_root,
             capabilities_root=self.capabilities_root,
             profiles_root=self.profiles_root,
             features_root=self.features_root,
-        ).parse()
+            reverse_domain=self.reverse_domain,
+        ).load()
+        specifications = Specifications(
+            capabilities=loaded.capabilities,
+            features=loaded.features,
+            profiles=loaded.profiles,
+        )
         store: SpecificationsStore = SpecificationsStore(specifications)
         py_store = PythonStoreView(store, namespace=self.reverse_domain)
 

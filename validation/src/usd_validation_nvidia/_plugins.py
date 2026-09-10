@@ -30,6 +30,7 @@ Example plugin implementation::
 
     plugin_instance = MyValidatorPlugin()
 """
+
 from __future__ import annotations
 
 import importlib.metadata

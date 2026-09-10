@@ -57,8 +57,6 @@ def Mesh "ConsistentWindingOrder"
     normal3f[] normals = [(0, 0, 1)]
     uniform token normalsInterpolation = "faceVarying"
 }
-
-# TODO: Example with 0 length normals, nan no
 ```
 
 ## How to comply

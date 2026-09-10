@@ -190,13 +190,14 @@ class ComplianceChecker:
 
     def check(self, asset: str | Usd.Stage) -> None:
         """Consolidates check_compliance (for files) and check_stage_compliance (for stages)."""
+        context = self.get_dependency_context(asset)
+
         asset_dependencies = None
         if self._rules_check_assets():
-            context = self.get_dependency_context(asset)
             asset_dependencies = self._check_dependencies(asset, context)
 
-        with SyncComplianceCheckerRunner(rules=self._rules, stats=self.stats, processes=self.processes) as runner:
-            for event in self._check_compliance(asset, asset_dependencies=asset_dependencies):
+        with self._create_sync_runner(self._rules, self.stats, context, processes=self.processes) as runner:
+            for event in self._check_compliance(asset, asset_dependencies=asset_dependencies, context=context):
                 runner.append(event)
 
     async def check_async(self, asset: str | Usd.Stage, callback: Callable[[float], None] | None = None) -> None:
@@ -207,10 +208,10 @@ class ComplianceChecker:
             callback (Callable(float): A callable that will be called when a batch of checkers executed.
         """
         num_events: int = 1
+        context = self.get_dependency_context(asset)
 
         asset_dependencies = None
         if self._rules_check_assets():
-            context = self.get_dependency_context(asset)
             asset_dependencies = await to_thread(self._check_dependencies, asset, context)
 
         # Setup _callback
@@ -219,7 +220,7 @@ class ComplianceChecker:
         # iterating all prims of the given asset/stage. Potential a slow process if running on a large asset?
         if callback:
             async with AsyncCounter() as counter:
-                for event in self._check_compliance(asset, asset_dependencies=asset_dependencies):
+                for event in self._check_compliance(asset, asset_dependencies=asset_dependencies, context=context):
                     if event.type is ComplianceCheckerEventType.FLUSH:
                         continue
                     await counter.count(len(self._rules))
@@ -228,21 +229,37 @@ class ComplianceChecker:
         # OMPE-11167: Clean up - make sure we don't have cached data.
         self._checked_packages.clear()
         # Run checkers
-        runner = self._create_async_runner(self._rules, self.stats, processes=self.processes)
+        runner = self._create_async_runner(self._rules, self.stats, context, processes=self.processes)
 
         def progress_callback() -> None:
             callback(round(min(runner.counter / num_events, _MAX_PROGRESS), 2))
 
         async with PeriodicCallback(progress_callback if callback else None):
             async with runner:
-                for event in self._check_compliance(asset, asset_dependencies=asset_dependencies):
+                for event in self._check_compliance(asset, asset_dependencies=asset_dependencies, context=context):
                     await runner.append(event)
 
     @classmethod
+    def _create_sync_runner(
+        cls,
+        rules: list[BaseRuleChecker],
+        stats: ValidationStats,
+        context: Ar.ResolverContext,
+        *,
+        processes: int = 0,
+    ) -> SyncComplianceCheckerRunner:
+        return SyncComplianceCheckerRunner(rules=rules, stats=stats, processes=processes, context=context)
+
+    @classmethod
     def _create_async_runner(
-        cls, rules: list[BaseRuleChecker], stats: ValidationStats, *, processes: int = 0
+        cls,
+        rules: list[BaseRuleChecker],
+        stats: ValidationStats,
+        context: Ar.ResolverContext,
+        *,
+        processes: int = 0,
     ) -> AsyncComplianceCheckerRunner:
-        return AsyncComplianceCheckerRunner(rules=rules, stats=stats, processes=processes)
+        return AsyncComplianceCheckerRunner(rules=rules, stats=stats, processes=processes, context=context)
 
     def _rules_check_assets(self) -> bool:
         """Checks if any of the rules has implemented Asset checks."""
@@ -254,7 +271,7 @@ class ComplianceChecker:
 
     @singledispatchmethod
     @classmethod
-    def _create_stage(cls, asset: AssetType) -> Usd.Stage:
+    def _create_stage(cls, asset: AssetType, context: Ar.ResolverContext | None = None) -> Usd.Stage:
         """
         Creates a stage from asset. If asset is string, it creates a new stage. If asset is an existing stage,
         it creates a copy to avoid possible data interfering.
@@ -269,23 +286,32 @@ class ComplianceChecker:
 
     @_create_stage.register
     @classmethod
-    def _(cls, asset: str) -> Usd.Stage:
-        compliance_layer: Sdf.Layer = Sdf.Layer.CreateAnonymous(ANON_VALIDATOR_LAYER_NAME)
-        stage: Usd.Stage = Usd.Stage.Open(Sdf.Layer.FindOrOpen(asset), compliance_layer)
-        stage.SetEditTarget(stage.GetEditTargetForLocalLayer(compliance_layer))
-        return stage
+    def _(cls, asset: str, context: Ar.ResolverContext | None = None) -> Usd.Stage:
+        if context is None:
+            context = cls.get_dependency_context(asset)
+        with Ar.ResolverContextBinder(context):
+            compliance_layer: Sdf.Layer = Sdf.Layer.CreateAnonymous(ANON_VALIDATOR_LAYER_NAME)
+            root_layer = Sdf.Layer.FindOrOpen(asset)
+            if root_layer is None:
+                raise FileNotFoundError(f'Cannot open root layer "{asset}"')
+            stage: Usd.Stage = Usd.Stage.Open(root_layer, compliance_layer, context)
+            stage.SetEditTarget(stage.GetEditTargetForLocalLayer(compliance_layer))
+            return stage
 
     @_create_stage.register
     @classmethod
-    def _(cls, asset: Usd.Stage) -> Usd.Stage:
-        compliance_layer: Sdf.Layer = Sdf.Layer.CreateAnonymous(ANON_VALIDATOR_LAYER_NAME)
-        compliance_layer.TransferContent(asset.GetSessionLayer())
-        stage: Usd.Stage = Usd.Stage.Open(asset.GetRootLayer(), compliance_layer)
-        mask: Usd.StagePopulationMask = asset.GetPopulationMask()
-        if not mask.IsEmpty():
-            stage.SetPopulationMask(mask)
-        stage.SetEditTarget(stage.GetEditTargetForLocalLayer(compliance_layer))
-        return stage
+    def _(cls, asset: Usd.Stage, context: Ar.ResolverContext | None = None) -> Usd.Stage:
+        if context is None:
+            context = cls.get_dependency_context(asset)
+        with Ar.ResolverContextBinder(context):
+            compliance_layer: Sdf.Layer = Sdf.Layer.CreateAnonymous(ANON_VALIDATOR_LAYER_NAME)
+            compliance_layer.TransferContent(asset.GetSessionLayer())
+            stage: Usd.Stage = Usd.Stage.Open(asset.GetRootLayer(), compliance_layer, context)
+            mask: Usd.StagePopulationMask = asset.GetPopulationMask()
+            if not mask.IsEmpty():
+                stage.SetPopulationMask(mask)
+            stage.SetEditTarget(stage.GetEditTargetForLocalLayer(compliance_layer))
+            return stage
 
     def _create_prims_it(self, root: Usd.Stage | Usd.Prim) -> Iterator[Usd.Prim]:
         """Create a prim iterator for a stage root or prim subtree with the instance-prototype policy."""
@@ -302,7 +328,10 @@ class ComplianceChecker:
         return iter(prim_range)
 
     def _check_compliance(
-        self, asset: str | Usd.Stage, asset_dependencies: tuple[Sdf.Layer, str, str] | None = None
+        self,
+        asset: str | Usd.Stage,
+        asset_dependencies: tuple[Sdf.Layer, str, str] | None = None,
+        context: Ar.ResolverContext | None = None,
     ) -> Iterator[ComplianceCheckerEvent]:
         """Yield ComplianceCheckerEvents for the given asset.
         Args:
@@ -313,12 +342,15 @@ class ComplianceChecker:
                 If this argument is given, this method uses the given asset dependencies instead of calling
                 `UsdUtils.ComputeAllDependencies` on the given asset in order to speed up the process.
         """
+        if context is None:
+            context = self.get_dependency_context(asset)
+
         if isinstance(asset, str) and not Usd.Stage.IsSupportedFile(asset):
-            yield from self._check_asset_format(asset)
+            yield from self._check_asset_format(asset, context)
             return
 
         with DelegateContextManager() as ctx:
-            usd_stage = self._create_stage(asset)
+            usd_stage = self._create_stage(asset, context)
             stage_open_diagnostics = ctx.delegate.TakeUncoalescedDiagnostics()
         yield ComplianceCheckerEvent(ComplianceCheckerEventType.FLUSH, None)  # Pause
 
@@ -329,7 +361,7 @@ class ComplianceChecker:
         with Ar.ResolverContextBinder(usd_stage.GetPathResolverContext()):
             if self._rules_check_assets():
                 all_layers, all_assets, unresolved_paths = asset_dependencies or self._check_dependencies(
-                    asset, self.get_dependency_context(asset)
+                    asset, context
                 )
 
                 # Compute dependencies can be expensive, pause quickly.
@@ -354,38 +386,46 @@ class ComplianceChecker:
                 all_prims_iterator = self._create_prims_it(usd_stage)
                 yield from self._traverse_range(all_prims_iterator, isStageRoot=True)
 
+            yield ComplianceCheckerEvent(ComplianceCheckerEventType.FLUSH, None)
+            yield ComplianceCheckerEvent(ComplianceCheckerEventType.RESET_CACHE, None)
+
     @staticmethod
-    def get_dependency_context(asset: str | Usd.Stage) -> Ar.Context:
+    def get_dependency_context(asset: str | Usd.Stage) -> Ar.ResolverContext:
         if isinstance(asset, Usd.Stage):
             return asset.GetPathResolverContext()
         return Ar.GetResolver().GetCurrentContext()
 
     @classmethod
-    def _check_dependencies(cls, asset: str | Usd.Stage, context: Ar.Context) -> tuple[Sdf.Layer, list[str], list[str]]:
+    def _check_dependencies(
+        cls, asset: str | Usd.Stage, context: Ar.ResolverContext
+    ) -> tuple[Sdf.Layer, list[str], list[str]]:
         """
         Computes the asset dependencies for the given asset.
 
         Args:
             asset (str | Usd.Stage): The asset to compute the dependencies for.
-            context (Ar.Context): The context to use for the resolver.
+            context (Ar.ResolverContext): The context to use for the resolver.
 
         Returns:
             A tuple of (all_layers, all_assets, unresolved_paths).
         """
-        with Ar.ResolverContextBinder(context):
-            with Ar.ResolverScopedCache():
-                if isinstance(asset, str):
-                    root_layer = Sdf.Layer.FindOrOpen(asset)
-                elif isinstance(asset, Usd.Stage):
-                    root_layer = asset.GetRootLayer()
-                else:
-                    raise TypeError(f"Unknown asset of type {type(asset)}")
-                asset_path = make_absolute_url_if_possible(root_layer.realPath or root_layer.identifier)
-                with DelegateContextManager():
-                    asset_dependencies = UsdUtils.ComputeAllDependencies(Sdf.AssetPath(asset_path))
-                    return asset_dependencies
+        with Ar.ResolverContextBinder(context), Ar.ResolverScopedCache():
+            if isinstance(asset, str):
+                root_layer = Sdf.Layer.FindOrOpen(asset)
+            elif isinstance(asset, Usd.Stage):
+                root_layer = asset.GetRootLayer()
+            else:
+                raise TypeError(f"Unknown asset of type {type(asset)}")
+            if root_layer is None:
+                raise FileNotFoundError(f'Cannot open root layer "{asset}"')
+            asset_path = make_absolute_url_if_possible(root_layer.realPath or root_layer.identifier)
+            with DelegateContextManager():
+                asset_dependencies = UsdUtils.ComputeAllDependencies(Sdf.AssetPath(asset_path))
+                return asset_dependencies
 
-    def _check_asset_format(self, asset_path: str) -> Iterator[ComplianceCheckerEvent]:
+    def _check_asset_format(
+        self, asset_path: str, context: Ar.ResolverContext | None = None
+    ) -> Iterator[ComplianceCheckerEvent]:
         """Yield events for each path returned by the matching AssetFormat handler.
 
         USD paths are routed through the normal compliance workflow (CheckStage, CheckLayer, etc.).
@@ -398,7 +438,7 @@ class ComplianceChecker:
             return
         for dependency_path in asset_format.get_dependencies(asset_path, self.resolver):
             if Usd.Stage.IsSupportedFile(dependency_path):
-                yield from self._check_compliance(dependency_path)
+                yield from self._check_compliance(dependency_path, context=context)
             else:
                 format_dependency = FormatDependency(
                     path=dependency_path,

@@ -21,7 +21,9 @@ from usd_validation_nvidia import (
     unregister_requirements,
 )
 from usd_validation_nvidia.capabilities import Feature as FeatureDTO
+from usd_validation_nvidia.capabilities import FeatureRef
 from usd_validation_nvidia.capabilities import Profile as ProfileDTO
+from usd_validation_nvidia.capabilities import ProfileFeature
 from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 
 
@@ -32,6 +34,8 @@ class TestProfileRegistry(unittest.TestCase):
         self.mock_profile.id = "test_profile"
         self.mock_profile.version = "1.0.0"
         self.mock_profile.path = "/path/v1"
+        self.mock_profile.features = []
+        self.mock_profile.profile_features = []
         self.mock_profile.capabilities = []
 
     def tearDown(self):
@@ -88,6 +92,67 @@ class TestProfileRegistry(unittest.TestCase):
             self.registry.get_requirements(profile),
             [feature_requirement, other_feature_requirement],
         )
+
+    def test_get_requirements_uses_legacy_features(self):
+        requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        feature = FeatureDTO(id="feature", version="1.0.0", path="", requirements=[requirement])
+        profile = Mock()
+        profile.features = [feature]
+        profile.profile_features = []
+        profile.capabilities = []
+
+        self.assertEqual(self.registry.get_requirements(profile), [requirement])
+
+    def test_get_requirements_resolves_profile_feature_refs_when_available(self):
+        requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
+        feature = FeatureDTO(id="feature", version="1.1.0", path="", requirements=[requirement])
+        register_feature(feature)
+        self.addCleanup(unregister_feature, feature)
+        profile = ProfileDTO(
+            id="profile-refs",
+            version="1.0.0",
+            path="",
+            profile_features=[ProfileFeature(FeatureRef("feature", "1.0.0"))],
+        )
+
+        self.assertEqual(self.registry.get_requirements(profile), [requirement])
+
+    def test_get_requirements_rejects_unresolved_required_profile_feature_refs(self):
+        profile = ProfileDTO(
+            id="profile-refs",
+            version="1.0.0",
+            path="",
+            profile_features=[ProfileFeature(FeatureRef("unavailable", "1.0.0"))],
+        )
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "Required feature 'unavailable' version '1.0.0'.*profile 'profile-refs' version '1.0.0'",
+        ):
+            self.registry.get_requirements(profile)
+
+    def test_get_requirements_ignores_unresolved_optional_profile_feature_refs(self):
+        profile = ProfileDTO(
+            id="profile-refs",
+            version="1.0.0",
+            path="",
+            profile_features=[ProfileFeature(FeatureRef("unavailable", "1.0.0"), optional=True)],
+        )
+
+        self.assertEqual(self.registry.get_requirements(profile), [])
+
+    def test_unresolved_profile_feature_ref_does_not_prevent_removal(self):
+        profile = ProfileDTO(
+            id="profile-unresolved-removal",
+            version="1.0.0",
+            path="",
+            profile_features=[ProfileFeature(FeatureRef("unavailable", "1.0.0"))],
+        )
+        self.registry.add(profile)
+
+        self.registry.remove(profile)
+
+        self.assertIsNone(self.registry.find(profile.id, profile.version))
 
     def test_singleton(self):
         registry1 = ProfileRegistry()
@@ -162,6 +227,34 @@ class TestProfileRegistry(unittest.TestCase):
         register_profile(self.mock_profile)
         unregister_profile(self.mock_profile)
         self.assertNotIn(self.mock_profile, self.registry)
+
+    def test_unregister_profile_requirement_ok(self):
+        requirement = RequirementDTO(code="PROFILE.REMOVE.REQ", version="1.0.0")
+        feature = FeatureDTO(
+            id="profile_implemented_requirement_feature",
+            version="1.0.0",
+            path="",
+            requirements=[requirement],
+        )
+        profile = ProfileDTO(
+            id="implemented_requirement_profile",
+            version="1.0.0",
+            path="/path/original",
+            features=[feature],
+        )
+
+        class ProfileRule(BaseRuleChecker):
+            pass
+
+        register_requirements(requirement)(ProfileRule)
+        register_profile(profile)
+
+        try:
+            unregister_profile(profile)
+
+            self.assertNotIn(profile, self.registry)
+        finally:
+            unregister_requirements(ProfileRule)
 
     def test_unregister_profile_ignores_feature_dependency_requirements(self):
         requirement = RequirementDTO(code="PROFILE.DEPENDENCY.REMOVE.REQ", version="1.0.0")

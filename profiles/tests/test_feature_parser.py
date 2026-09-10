@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 from usd_profiles_nvidia.api import FeatureRef, RequirementRef
-from usd_profiles_nvidia.descriptors import FeatureDescriptorError
+from usd_profiles_nvidia.descriptors import DescriptorError
 from usd_profiles_nvidia.json import JsonFeaturesParser
 from usd_profiles_nvidia.markdown import FeaturesParser
 from usd_profiles_nvidia.parsers import FeaturesParser as AllFeaturesParser
@@ -48,7 +48,7 @@ REQ.001
             ]
             for parser, source_path in parsers:
                 with self.subTest(source_path=source_path):
-                    with self.assertRaises(FeatureDescriptorError) as context:
+                    with self.assertRaises(DescriptorError) as context:
                         parser.parse()
                     self.assertEqual(context.exception.path, str(source_path))
                     self.assertIn(str(source_path), str(context.exception))

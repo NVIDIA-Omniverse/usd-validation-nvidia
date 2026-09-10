@@ -53,6 +53,8 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
         super().__init__()
         self._req_to_rule: dict[IdVersion, list[type[BaseRuleChecker]]] = defaultdict(list)
         self._rule_to_req: dict[type[BaseRuleChecker], list[Requirement | RequirementRefProtocol]] = defaultdict(list)
+        self._definition_registration_counts: dict[IdVersion, int] = defaultdict(int)
+        self._definition_owned_keys: set[IdVersion] = set()
 
     def create_key(self, value: Requirement | RequirementRefProtocol) -> IdVersion:
         return IdVersion(value.code, SemVer(value.version))
@@ -83,17 +85,30 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
     def clear(self) -> None:
         self._req_to_rule.clear()
         self._rule_to_req.clear()
+        self._definition_registration_counts.clear()
+        self._definition_owned_keys.clear()
         super().clear()
 
-    def _add_requirements(self, requirements: list[Requirement | RequirementRefProtocol]) -> None:
+    def _add_requirements(
+        self,
+        requirements: list[Requirement | RequirementRefProtocol],
+        *,
+        metadata_only: bool = False,
+    ) -> None:
         for requirement in requirements:
             if not isinstance(requirement, RequirementRefProtocol):
                 raise TypeError("register_requirements expects Requirement or RequirementRef objects.")
         with self.event_stream:
             for requirement in requirements:
+                if not isinstance(requirement, _RequirementLikeProtocol):
+                    continue
                 key = self.create_key(requirement)
-                if isinstance(requirement, _RequirementLikeProtocol) and self.get(key) is None:
+                if self.get(key) is None:
                     self.add(requirement)
+                    if metadata_only:
+                        self._definition_owned_keys.add(key)
+                if metadata_only:
+                    self._definition_registration_counts[key] += 1
 
     def _add_validator_requirements(
         self,
@@ -109,9 +124,7 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
                 self._req_to_rule[key].append(rule)
                 self._rule_to_req[rule].append(requirement)
 
-    def _remove_validator_requirements(
-        self, rule: type[BaseRuleChecker]
-    ) -> list[Requirement | RequirementRefProtocol]:
+    def _remove_validator_requirements(self, rule: type[BaseRuleChecker]) -> list[Requirement | RequirementRefProtocol]:
         removed: list[Requirement | RequirementRefProtocol] = []
         with self.event_stream:
             # Iterate the rule's actual registrations (snapshot copy because we mutate
@@ -128,12 +141,49 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
         with self.event_stream:
             for requirement in requirements:
                 key = self.create_key(requirement)
-                if self._req_to_rule.get(key):
+                if not isinstance(requirement, _RequirementLikeProtocol):
+                    if not self._req_to_rule.get(key):
+                        self._req_to_rule.pop(key, None)
+                elif self._definition_registration_counts.get(key):
+                    self._definition_owned_keys.add(key)
+                elif not self._has_concrete_validator_binding(key):
+                    if self.get(key) is not None:
+                        del self[key]
+                    elif not self._req_to_rule.get(key):
+                        self._req_to_rule.pop(key, None)
+
+    def _remove_requirement_definitions(self, requirements: list[Requirement | RequirementRefProtocol]) -> None:
+        """Release metadata registrations while ignoring non-owning references."""
+        for requirement in requirements:
+            if not isinstance(requirement, RequirementRefProtocol):
+                raise TypeError("unregister_requirements expects Requirement or RequirementRef objects.")
+        with self.event_stream:
+            for requirement in requirements:
+                if not isinstance(requirement, _RequirementLikeProtocol):
                     continue
-                if isinstance(requirement, _RequirementLikeProtocol) and self.get(key) is not None:
+                key = self.create_key(requirement)
+                count = self._definition_registration_counts.get(key, 0)
+                if count > 1:
+                    self._definition_registration_counts[key] = count - 1
+                    continue
+                if count == 0:
+                    continue
+                self._definition_registration_counts.pop(key, None)
+                if key not in self._definition_owned_keys:
+                    continue
+                if self._has_concrete_validator_binding(key):
+                    self._definition_owned_keys.discard(key)
+                elif self.get(key) is not None:
                     del self[key]
                 else:
-                    self._req_to_rule.pop(key, None)
+                    self._definition_owned_keys.discard(key)
+
+    def _has_concrete_validator_binding(self, key: IdVersion) -> bool:
+        return any(
+            isinstance(requirement, _RequirementLikeProtocol) and self.create_key(requirement) == key
+            for requirements in self._rule_to_req.values()
+            for requirement in requirements
+        )
 
     def get_requirements(self, rule: type[BaseRuleChecker]) -> list[Requirement | RequirementRefProtocol]:
         """
@@ -272,12 +322,14 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
                 self._rule_to_req.pop(rule)
         if not self._req_to_rule.get(key):
             self._req_to_rule.pop(key, None)
+        self._definition_registration_counts.pop(key, None)
+        self._definition_owned_keys.discard(key)
         super().__delitem__(key)
 
 
 def register_requirements(
     *requirements: Requirement | RequirementRefProtocol, override: bool = False
-) -> Callable[[type[BaseRuleChecker]], type[BaseRuleChecker]]:
+) -> Callable[[type[BaseRuleChecker] | None], type[BaseRuleChecker] | None]:
     """Decorator. Register a new :py:class:`BaseRuleChecker` to a set of requirements.
 
     .. code-block:: python
@@ -293,27 +345,42 @@ def register_requirements(
         @register_requirements(Requirement1, override=True)
         class MyRule(BaseRuleChecker):
             ...
+
+    Pass ``None`` to register concrete requirement definitions without creating
+    validator bindings. Metadata-only registrations are reference-counted and
+    must be balanced with matching calls to :py:func:`unregister_requirements`.
+
+    .. code-block:: python
+
+        register_requirements(Requirement1, Requirement2)(None)
     """
 
-    def _register_requirements(rule_class: type[BaseRuleChecker]) -> type[BaseRuleChecker]:
+    def _register_requirements(rule_class: type[BaseRuleChecker] | None) -> type[BaseRuleChecker] | None:
         registry = RequirementsRegistry()
         requirement_list = list(requirements)
         with registry.event_stream:
-            registry._add_requirements(requirement_list)
-            registry._add_validator_requirements(rule_class, requirement_list, override=override)
+            if rule_class is None:
+                registry._add_requirements(requirement_list, metadata_only=True)
+            else:
+                registry._add_requirements(requirement_list)
+                registry._add_validator_requirements(rule_class, requirement_list, override=override)
         return rule_class
 
     return _register_requirements
 
 
 def unregister_requirements(
-    rule: type[BaseRuleChecker],
+    *requirements_or_rule: Requirement | RequirementRefProtocol | type[BaseRuleChecker],
 ) -> None:
     """
-    Unregister a rule from all requirements.
+    Unregister a rule from all requirements, or release metadata-only requirement
+    registrations by code and version. A definition is removed after its final
+    metadata-only registration is released, unless another registration source
+    still owns it.
 
     Args:
-        rule: The rule to unregister.
+        requirements_or_rule: One rule class, or one or more requirement definitions
+            or references. References are non-owning and are ignored.
 
     Example:
 
@@ -324,11 +391,31 @@ def unregister_requirements(
             ...
 
         unregister_requirements(MyRule)
+
+        register_requirements(Requirement1, Requirement2)(None)
+        unregister_requirements(Requirement1, Requirement2)
     """
+    expected = (
+        "unregister_requirements expects one BaseRuleChecker class or one or more "
+        "Requirement or RequirementRef objects."
+    )
+    if not requirements_or_rule:
+        raise TypeError(expected)
+
     registry = RequirementsRegistry()
-    with registry.event_stream:
-        requirements = registry._remove_validator_requirements(rule)
-        registry._remove_requirements(requirements)
+    candidate = requirements_or_rule[0]
+    if isinstance(candidate, type):
+        # Import lazily because BaseRuleChecker imports Requirement from this module.
+        from ._base_rule_checker import BaseRuleChecker as BaseRuleCheckerType
+
+        if len(requirements_or_rule) != 1 or not issubclass(candidate, BaseRuleCheckerType):
+            raise TypeError(expected)
+        with registry.event_stream:
+            requirements = registry._remove_validator_requirements(candidate)
+            registry._remove_requirements(requirements)
+        return
+
+    registry._remove_requirement_definitions(list(requirements_or_rule))
 
 
 def add_registry_requirement_callback(callback: Callable[[], None]) -> EventListener:

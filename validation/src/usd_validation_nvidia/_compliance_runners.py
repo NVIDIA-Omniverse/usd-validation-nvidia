@@ -69,7 +69,6 @@ class ComplianceCheckerEventType(Enum):
         return ComplianceCheckerEventType.__getitem__, (self.name,)
 
 
-# TODO: Set frozen=True when Python 3.10 support is dropped.
 @dataclass(frozen=False, slots=True)
 class ComplianceCheckerEvent:
     """A compliance checker event."""
@@ -89,7 +88,7 @@ class ComplianceCheckerEvent:
     def __getstate__(self) -> dict[str, Any]:
         return {
             "type": self.type,
-            # TODO: Add serializable state for Tf.Diagnostic and Sdf.ZipFile event payloads.
+            # Event payloads are reduced through validation identifiers for process execution.
             "value": to_identifier(self.value),
         }
 
@@ -156,9 +155,9 @@ class ComplianceCheckerEventRule:
 @dataclass
 class AbstractRunner(Generic[T]):
     stats: ValidationStats
+    context: Ar.ResolverContext = field(default_factory=lambda: Ar.GetResolver().GetCurrentContext())
     counter: int = field(init=False, default=0)
     events: list[T] = field(init=False, default_factory=list)
-    context: Ar.Context = field(init=False, default_factory=lambda: Ar.GetResolver().GetCurrentContext())
 
     def accepts(self, event_rule: ComplianceCheckerEventRule) -> bool:
         return False
@@ -461,22 +460,27 @@ class AsyncThreadTaskRunner(AbstractAsyncRunner[asyncio.Task]):
 
 
 @dataclass
-class SyncComplianceCheckerRunner(AbstractContextManager):
+class AbstractComplianceCheckerRunner:
+    rules: list[BaseRuleChecker]
+    stats: InitVar[ValidationStats]
+    processes: int = 0
+    context: Ar.ResolverContext = field(default_factory=lambda: Ar.GetResolver().GetCurrentContext())
+
+
+@dataclass
+class SyncComplianceCheckerRunner(AbstractComplianceCheckerRunner, AbstractContextManager):
     """
     A runner for compliance checker events.
     """
 
-    rules: list[BaseRuleChecker]
-    stats: InitVar[ValidationStats]
-    processes: int = 0
     runners: list[AbstractSyncRunner[Any]] = field(init=False)
 
     def __post_init__(self, stats: ValidationStats) -> None:
         self.runners = [
-            SyncNoopRunner(stats),
-            SyncProcessRunner(stats, processes=self.processes),
-            SyncInlineRunner(stats),
-            SyncCoroutineRunner(stats),
+            SyncNoopRunner(stats, self.context),
+            SyncProcessRunner(stats, self.context, processes=self.processes),
+            SyncInlineRunner(stats, self.context),
+            SyncCoroutineRunner(stats, self.context),
         ]
 
     def __exit__(self, *_) -> None:
@@ -503,26 +507,23 @@ class SyncComplianceCheckerRunner(AbstractContextManager):
 
 
 @dataclass
-class AsyncComplianceCheckerRunner(AbstractAsyncContextManager):
+class AsyncComplianceCheckerRunner(AbstractComplianceCheckerRunner, AbstractAsyncContextManager):
     """
     A runner for compliance checker events. It has a mixed strategy:
     - Long running events are immediately triggered in a background thread.
     - Short running events are accumulated in a batch and then flushed to the background thread.
     """
 
-    rules: list[BaseRuleChecker]
-    stats: InitVar[ValidationStats]
-    processes: int = 0
     runners: list[AbstractAsyncRunner[Any]] = field(init=False)
 
     def __post_init__(self, stats: ValidationStats) -> None:
         self.runners = [
-            AsyncNoopRunner(stats),
-            AsyncCoroutineRunner(stats),
-            AsyncProcessRunner(stats, processes=self.processes),
-            AsyncThreadRunner(stats),
-            AsyncCoroutineTaskRunner(stats),
-            AsyncThreadTaskRunner(stats),
+            AsyncNoopRunner(stats, self.context),
+            AsyncCoroutineRunner(stats, self.context),
+            AsyncProcessRunner(stats, self.context, processes=self.processes),
+            AsyncThreadRunner(stats, self.context),
+            AsyncCoroutineTaskRunner(stats, self.context),
+            AsyncThreadTaskRunner(stats, self.context),
         ]
 
     @property

@@ -122,7 +122,7 @@ After codegen, run the plugin:
 uv run \
   --with ./validation \
   --with validation/examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset.usda
 ```
 
 To see a requirement-mapped failure:
@@ -131,7 +131,7 @@ To see a requirement-mapped failure:
 uv run \
   --with ./validation \
   --with validation/examples/python/requirement \
-  nvidia_usd_validate --requirement EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation/examples/assets/asset-missing-default-prim.usda
 ```
 
 On Windows:
@@ -140,7 +140,7 @@ On Windows:
 uv run `
   --with ./validation `
   --with validation\examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 validation\examples\assets\asset.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation\examples\assets\asset.usda
 ```
 
 To see a requirement-mapped failure on Windows:
@@ -149,7 +149,7 @@ To see a requirement-mapped failure on Windows:
 uv run `
   --with ./validation `
   --with validation\examples\python\requirement `
-  nvidia_usd_validate --requirement EXAMPLE.001 validation\examples\assets\asset-missing-default-prim.usda
+  nvidia_usd_validate --requirement com.nvidia.usd.EXAMPLE.001 validation\examples\assets\asset-missing-default-prim.usda
 ```
 
 ### CLI Example

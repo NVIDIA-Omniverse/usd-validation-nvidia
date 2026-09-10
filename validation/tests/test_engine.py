@@ -15,8 +15,7 @@ from threading import current_thread, main_thread
 from unittest.mock import ANY, Mock
 
 from common import get_url
-from pxr import Ar, Sdf, Usd, UsdGeom
-
+from pxr import Ar, Sdf, Usd, UsdGeom, UsdShade
 from usd_validation_nvidia import (
     ArticulationChecker,
     AssetLocatedCallback,
@@ -70,8 +69,15 @@ from usd_validation_nvidia import (
     UsdGeomSubsetChecker,
     UsdGeomSubsetFamiliesChecker,
     UsdGeomSubsetParentIsImageableChecker,
+    UsdLuxEncapsulationRulesValidator,
     UsdLuxSchemaChecker,
     UsdMaterialBindingApi,
+    UsdShadeEncapsulationMaterialValidator,
+    UsdShadeMaterialBindingCollectionValidator,
+    UsdShadeMaterialBindingRelationships,
+    UsdShadeShaderSdrCompliance,
+    UsdShadeSubsetsMaterialBindFamilyChecker,
+    UsdValidationAttributeTypeMismatchChecker,
     UsdzPackageValidator,
     UserParameter,
     ValidateTopologyChecker,
@@ -324,17 +330,74 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
 
             await self.assertSuccessAsync(asset=stage, rule=MaterialPathChecker)
 
+    def test_validate_stage_resolver_context_composes_validation_stage(self):
+        class _ResolverContextStageCompositionRule(BaseRuleChecker):
+            def CheckStage(self, usd_stage: Usd.Stage):
+                if not usd_stage.GetPrimAtPath("/World/Scene/PayloadChild").IsValid():
+                    self._AddFailedCheck("The validation stage did not compose the context-resolved payload.")
+
+        with tempfile.TemporaryDirectory() as root_dir, tempfile.TemporaryDirectory() as payload_dir:
+            with DelegateContextManager():
+                payload_file_path = pathlib.Path(payload_dir) / "payload.usda"
+                payload_stage = Usd.Stage.CreateNew(str(payload_file_path))
+                payload_root = payload_stage.DefinePrim("/PayloadRoot", "Xform")
+                payload_stage.DefinePrim("/PayloadRoot/PayloadChild", "Xform")
+                payload_stage.SetDefaultPrim(payload_root)
+                payload_stage.Save()
+
+                root_file_path = pathlib.Path(root_dir) / "root.usda"
+                root_stage = Usd.Stage.CreateNew(str(root_file_path))
+                root = root_stage.DefinePrim("/World", "Xform")
+                scene = root_stage.DefinePrim("/World/Scene", "Xform")
+                scene.GetPayloads().AddPayload("payload.usda")
+                root_stage.SetDefaultPrim(root)
+                root_stage.Save()
+
+            resolver_context = Ar.DefaultResolverContext([payload_dir])
+            stage = Usd.Stage.Open(str(root_file_path), resolver_context)
+            self.assertTrue(stage.GetPrimAtPath("/World/Scene/PayloadChild").IsValid())
+
+            self.assertSuccess(asset=stage, rule=_ResolverContextStageCompositionRule)
+
+    def test_validate_stage_resolver_context_reaches_rules(self):
+        class _ResolverContextRuleCallbackRule(BaseRuleChecker):
+            def CheckPrim(self, prim: Usd.Prim):
+                if prim.IsA(UsdShade.Shader) and not Ar.GetResolver().Resolve("OmniPBR.mdl"):
+                    self._AddFailedCheck("A rule callback could not resolve through the asset's resolver context.")
+
+        url = get_url("materialInScope.usda")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            resolver_context = self._create_mdl_resolver_context(temp_dir)
+            stage = Usd.Stage.Open(url, resolver_context)
+
+            self.assertSuccess(asset=stage, rule=_ResolverContextRuleCallbackRule)
+
+    async def test_validate_async_stage_resolver_context_reaches_rules(self):
+        class _ResolverContextRuleCallbackRule(BaseRuleChecker):
+            def CheckPrim(self, prim: Usd.Prim):
+                if prim.IsA(UsdShade.Shader) and not Ar.GetResolver().Resolve("OmniPBR.mdl"):
+                    self._AddFailedCheck("A rule callback could not resolve through the asset's resolver context.")
+
+        url = get_url("materialInScope.usda")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            resolver_context = self._create_mdl_resolver_context(temp_dir)
+            stage = Usd.Stage.Open(url, resolver_context)
+
+            await self.assertSuccessAsync(asset=stage, rule=_ResolverContextRuleCallbackRule)
+
     async def testExpectedFailure(self):
         self.assertRule(
             asset=get_url("curves.usda"),
-            rule=StageMetadataChecker,
-            asserts=[IsAFailure(message=ANY, rule=StageMetadataChecker)],
+            rule=DefaultPrimChecker,
+            asserts=[IsAFailure(message=ANY, rule=DefaultPrimChecker)],
         )
         await self.assertRuleAsync(
             asset=get_url("curves.usda"),
-            rule=StageMetadataChecker,
+            rule=DefaultPrimChecker,
             asserts=[
-                IsAFailure(message=ANY, rule=StageMetadataChecker),
+                IsAFailure(message=ANY, rule=DefaultPrimChecker),
             ],
         )
 
@@ -611,6 +674,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
     def _create_mock_profile(self, capabilities=None):
         mock_profile = Mock()
         mock_profile.features = []
+        mock_profile.profile_features = []
         mock_profile.capabilities = capabilities or [Capabilities.GEOMETRY]
         return mock_profile
 
@@ -669,6 +733,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = []
         mock_profile.features = []
+        mock_profile.profile_features = []
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)
         engine.enable_rule(EmptyRule)
@@ -688,6 +753,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = [Capabilities.GEOMETRY]
         mock_profile.features = []
+        mock_profile.profile_features = []
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)
         engine.enable_rule(StageMetadataChecker)
@@ -715,6 +781,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = []
         mock_profile.features = []
+        mock_profile.profile_features = []
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)
         engine.enable_rule(EmptyRule)
@@ -742,6 +809,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             mock_profile.version = "1.0.0"
             mock_profile.capabilities = []
             mock_profile.features = []
+            mock_profile.profile_features = []
             engine = ValidationEngine(init_rules=False)
             engine.enable_profile(mock_profile)
             engine.enable_rule(EmptyRule)
@@ -911,22 +979,22 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         test_file = get_url("curves.usda")
         engine = ValidationEngine(init_rules=False)
         engine.enable_rule(EmptyRule)
-        engine.enable_rule(StageMetadataChecker)
+        engine.enable_rule(DefaultPrimChecker)
         result = engine.validate(test_file)
         self.assertEqual(result.asset, test_file)
         self.assertEqual(len(result.issues()), 1)
 
         # Disable rules that cause failures and validate again
-        engine.disable_rule(StageMetadataChecker)
+        engine.disable_rule(DefaultPrimChecker)
         result = engine.validate(test_file)
         self.assertEqual(len(result.issues()), 0)
 
         # We are able to enable and disable the rules again
-        engine.enable_rule(StageMetadataChecker)
+        engine.enable_rule(DefaultPrimChecker)
         result = engine.validate(test_file)
         self.assertEqual(result.asset, test_file)
         self.assertEqual(len(result.issues()), 1)
-        engine.disable_rule(StageMetadataChecker)
+        engine.disable_rule(DefaultPrimChecker)
         result = engine.validate(test_file)
         self.assertEqual(result.asset, test_file)
         self.assertEqual(len(result.issues()), 0)
@@ -1018,11 +1086,11 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         )
         self.assertFailure(
             asset=get_url("curves.usda"),
-            rule=StageMetadataChecker,
+            rule=DefaultPrimChecker,
         )
         await self.assertFailureAsync(
             asset=get_url("curves.usda"),
-            rule=StageMetadataChecker,
+            rule=DefaultPrimChecker,
         )
 
     async def test_validate_with_callbacks(self):
@@ -1195,8 +1263,8 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         self.assertSuccess(asset=Usd.Stage.Open(get_url("helloworld.usda")), rule=StageMetadataChecker)
         self.assertSuccess(asset=get_url("helloworld.usda"), rule=StageMetadataChecker)
 
-        self.assertFailure(asset=Usd.Stage.Open(get_url("curves.usda")), rule=StageMetadataChecker)
-        self.assertFailure(asset=get_url("curves.usda"), rule=StageMetadataChecker)
+        self.assertFailure(asset=Usd.Stage.Open(get_url("curves.usda")), rule=DefaultPrimChecker)
+        self.assertFailure(asset=get_url("curves.usda"), rule=DefaultPrimChecker)
 
     async def testLiveStageAsync(self):
         engine = ValidationEngine(init_rules=False)
@@ -1276,7 +1344,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
     async def testValidationIssuesList(self):
         test_dir: str = get_url()
         engine = ValidationEngine(init_rules=False)
-        engine.enable_rule(StageMetadataChecker)
+        engine.enable_rule(DefaultPrimChecker)
         results: ResultsList = await engine.validate_async(test_dir)
         number_results: int = len(results)
         number_issues: int = sum(len(result) for result in results)
@@ -1290,7 +1358,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         # Group by rule
         groups: list[IssuesList] = issues.group_by(IssueGroupsBy.rule())
         rules = list(map(lambda obj: obj.name, groups))
-        self.assertTrue(StageMetadataChecker in rules)
+        self.assertTrue(DefaultPrimChecker in rules)
         self.assertEqual(sum(len(group) for group in groups), number_issues)
 
         # Group by message
@@ -1340,6 +1408,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             issues = async_result.issues()
             self.assertEqual(len(issues), 1)
             self.assertTrue("Failed to Open" in issues[0].message)
+            self.assertNotIn("Traceback", issues[0].message)
         finally:
             os.unlink(tmp_path)
 
@@ -1375,6 +1444,7 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             ShaderImplementationSourceChecker,
             UsdDanglingMaterialBinding,
             UsdMaterialBindingApi,
+            UsdShadeSubsetsMaterialBindFamilyChecker,
             SkelBindingAPIAppliedChecker,
             UnicodeNameChecker,
             UsdGeomSubsetChecker,
@@ -1387,6 +1457,16 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             PhysicsJointChecker,
             RigidBodyChecker,
         ]
+        for native_rule in (
+            UsdValidationAttributeTypeMismatchChecker,
+            UsdLuxEncapsulationRulesValidator,
+            UsdShadeEncapsulationMaterialValidator,
+            UsdShadeMaterialBindingRelationships,
+            UsdShadeMaterialBindingCollectionValidator,
+            UsdShadeShaderSdrCompliance,
+        ):
+            if native_rule.is_implemented():
+                expected_rules.append(native_rule)
         if UsdzPackageValidator.is_implemented():
             expected_rules.append(UsdzPackageValidator)
         else:
@@ -1638,6 +1718,7 @@ class ValidationContextTest(unittest.TestCase):
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = [cap_pass, cap_fail]
         mock_profile.features = []
+        mock_profile.profile_features = []
 
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)
@@ -1712,6 +1793,7 @@ class ValidationContextTest(unittest.TestCase):
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = [cap_pass, cap_fail]
         mock_profile.features = []
+        mock_profile.profile_features = []
 
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)
@@ -1751,6 +1833,7 @@ class ValidationContextTest(unittest.TestCase):
         mock_profile.version = "1.0.0"
         mock_profile.capabilities = [cap]
         mock_profile.features = []
+        mock_profile.profile_features = []
 
         engine = ValidationEngine(init_rules=False)
         engine.enable_profile(mock_profile)

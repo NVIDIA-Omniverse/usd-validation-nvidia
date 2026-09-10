@@ -4,9 +4,8 @@
 import math
 from collections.abc import Iterator
 
-from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
-
 import usd_validation_nvidia.capabilities as cap
+from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
 
 from .._base_rule_checker import BaseRuleChecker
 from .._categories import register_rule
@@ -14,7 +13,9 @@ from .._issues import Suggestion
 from .._mesh_tools import (
     check_manifold_elements,
     compute_winding_bias,
+    get_non_unit_normal_length,
     has_empty_faces,
+    has_finite_normals,
     has_indexable_values,
     has_invalid_indices,
     has_invalid_primvar_indices,
@@ -773,10 +774,6 @@ class NormalsValidChecker(BaseRuleChecker):
 
     UNIT_LENGTH_TOLERANCE = 1e-3
 
-    @staticmethod
-    def _is_finite_vec3(v: Gf.Vec3f):
-        return all(math.isfinite(c) for c in v)
-
     def CheckPrim(self, prim: Usd.Prim) -> None:
         if not prim.IsA(UsdGeom.Mesh):
             return
@@ -829,24 +826,19 @@ class NormalsValidChecker(BaseRuleChecker):
                 at=prim,
             )
 
-        # Check the actual normal vectors for validity & normalization.
         # For indexed primvars we still validate the value array contents themselves.
-        for n in normals:
-            if not self._is_finite_vec3(n):
-                self._AddError(
-                    requirement=cap.Requirements.VG_028,
-                    message=f"Mesh '{prim.GetPath()}' has non-finite normal components.",
-                    at=prim,
-                )
-                break
-            length = n.GetLength()
-            if abs(length - 1.0) > self.UNIT_LENGTH_TOLERANCE:
-                self._AddWarning(
-                    requirement=cap.Requirements.VG_028,
-                    message=f"Mesh '{prim.GetPath()}' has non-unit normal (length={length:.6f}).",
-                    at=prim,
-                )
-                break
+        if not has_finite_normals(normals):
+            self._AddError(
+                requirement=cap.Requirements.VG_028,
+                message=f"Mesh '{prim.GetPath()}' has non-finite normal components.",
+                at=prim,
+            )
+        elif (length := get_non_unit_normal_length(normals, self.UNIT_LENGTH_TOLERANCE)) is not None:
+            self._AddWarning(
+                requirement=cap.Requirements.VG_028,
+                message=f"Mesh '{prim.GetPath()}' has non-unit normal (length={length:.6f}).",
+                at=prim,
+            )
 
 
 @register_rule("Geometry")

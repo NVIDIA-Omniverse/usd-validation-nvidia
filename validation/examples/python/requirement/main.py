@@ -5,7 +5,6 @@
 
 from example_requirements import Requirements
 from pxr import Usd
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     register_requirements,

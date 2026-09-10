@@ -4,6 +4,8 @@
 from ._atomic_asset import (
     AnchoredAssetPathsChecker,
     SupportedFileTypesChecker,
+    UsdUtilsFileExtensionValidator,
+    UsdUtilsPackageEncapsulationValidator,
     UsdzUdimLimitationChecker,
 )
 from ._basic import (
@@ -18,6 +20,7 @@ from ._basic import (
     StageMetadataChecker,
     TextureChecker,
     TypeChecker,
+    UsdValidationAttributeTypeMismatchChecker,
     UsdzPackageValidator,
 )
 from ._gaussian_splat import GaussianSplatSchemaChecker
@@ -47,12 +50,18 @@ from ._materials import (
     ShaderImplementationSourceChecker,
     UsdDanglingMaterialBinding,
     UsdMaterialBindingApi,
+    UsdShadeEncapsulationMaterialValidator,
+    UsdShadeMaterialBindingCollectionValidator,
+    UsdShadeMaterialBindingRelationships,
+    UsdShadeShaderSdrCompliance,
+    UsdShadeSubsetsMaterialBindFamilyChecker,
 )
 from ._misc import (
     SkelBindingAPIAppliedChecker,
     UsdGeomSubsetChecker,
     UsdGeomSubsetFamiliesChecker,
     UsdGeomSubsetParentIsImageableChecker,
+    UsdLuxEncapsulationRulesValidator,
     UsdLuxSchemaChecker,
 )
 from ._performance import (
@@ -136,8 +145,17 @@ __all__ = [
     "UsdGeomSubsetChecker",
     "UsdGeomSubsetFamiliesChecker",
     "UsdGeomSubsetParentIsImageableChecker",
+    "UsdLuxEncapsulationRulesValidator",
     "UsdLuxSchemaChecker",
     "UsdMaterialBindingApi",
+    "UsdShadeEncapsulationMaterialValidator",
+    "UsdShadeMaterialBindingCollectionValidator",
+    "UsdShadeMaterialBindingRelationships",
+    "UsdShadeShaderSdrCompliance",
+    "UsdShadeSubsetsMaterialBindFamilyChecker",
+    "UsdUtilsFileExtensionValidator",
+    "UsdUtilsPackageEncapsulationValidator",
+    "UsdValidationAttributeTypeMismatchChecker",
     "UsdValidatorAdapter",
     "UsdzPackageValidator",
     "UsdzUdimLimitationChecker",

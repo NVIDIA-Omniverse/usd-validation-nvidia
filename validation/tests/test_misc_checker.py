@@ -4,7 +4,6 @@
 
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd, UsdGeom, UsdShade
-
 from usd_validation_nvidia import (
     IssuePredicates,
     SkelBindingAPIAppliedChecker,

@@ -4,7 +4,6 @@
 import asyncio
 import contextlib
 import logging
-import traceback
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
@@ -395,7 +394,7 @@ class ValidationEngine:
         deletions.extend(registry.resolve_requirements(self.disabled_requirements))
         for capability in self.disabled_capabilities:
             deletions.extend(capability_registry.get_requirements(capability))
-        # TODO: Fix transitive dependencies issues.
+        # Feature requirements include requirements from resolved feature dependencies.
         for feature in self.disabled_features:
             deletions.extend(feature_registry.get_requirements(feature))
         for profile in self.disabled_profiles:
@@ -597,14 +596,18 @@ class ValidationEngine:
         desc: str = self.describe(asset)
         try:
             checker.check(asset)
-        except Exception:
+        except Exception as e:
+            try:
+                message: str = f'Failed to Open "{desc}": {e}'
+            except Exception:
+                message: str = f'Failed to Open "{desc}"'
             return Results.create(
                 asset=asset,
                 issues=[
                     *checker.GetIssues(),
                     Issue(
                         severity=IssueSeverity.ERROR,
-                        message=f'Failed to Open "{desc}". See traceback for details.\n{traceback.format_exc()}',
+                        message=message,
                     ),
                 ],
             )
@@ -741,8 +744,11 @@ class ValidationEngine:
                     ],
                 )
             await checker.check_async(asset, callback=report_progress if asset_progress_fn else None)
-        except Exception:
-            message: str = f'Failed to Open "{asset_describe}". See traceback for details.\n{traceback.format_exc()}'
+        except Exception as e:
+            try:
+                message: str = f'Failed to Open "{asset_describe}": {e}'
+            except Exception:
+                message: str = f'Failed to Open "{asset_describe}"'
             return Results.create(
                 asset=asset,
                 issues=[*checker.GetIssues(), Issue(severity=IssueSeverity.ERROR, message=message)],

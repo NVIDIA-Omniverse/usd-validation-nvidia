@@ -9,7 +9,6 @@ from unittest import IsolatedAsyncioTestCase, TestCase
 from unittest.mock import AsyncMock, Mock
 
 from pxr import Sdf, Usd
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     ComplianceCheckerEvent,

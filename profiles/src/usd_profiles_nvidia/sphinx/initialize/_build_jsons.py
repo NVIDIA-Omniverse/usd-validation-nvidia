@@ -6,9 +6,9 @@ import json
 import logging
 import os
 
-from usd_profiles_nvidia.api import Capability, Feature
+from usd_profiles_nvidia.api import Capability, Feature, Profile
 from usd_profiles_nvidia.json import JsonSerialize
-from usd_profiles_nvidia.model import Profile, Specifications
+from usd_profiles_nvidia.model import Specifications
 
 logger = logging.getLogger(__name__)
 

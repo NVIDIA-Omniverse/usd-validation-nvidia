@@ -8,13 +8,12 @@ import unittest
 
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd
-
 from usd_validation_nvidia import (
-    is_multiprocess_safe,
     LayerId,
     LayerSpecChecker,
     UsdAsciiPerformanceChecker,
     ValidationEngine,
+    is_multiprocess_safe,
 )
 from usd_validation_nvidia.tests import IsAFailure
 

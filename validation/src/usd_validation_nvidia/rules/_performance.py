@@ -3,9 +3,8 @@
 #
 from dataclasses import dataclass
 
-from pxr import Gf, Usd, UsdGeom, Vt
-
 import usd_validation_nvidia.capabilities
+from pxr import Gf, Usd, UsdGeom, Vt
 
 from .._base_rule_checker import BaseRuleChecker
 from .._categories import register_rule
@@ -139,12 +138,9 @@ class BaseBoundsChecker(BaseRuleChecker):
         self.xform_cache.Clear()
 
         # Compute a bbox from the BoundsLimit accounting for metrics differences between the BoundsLimit and Stage
-        # TODO: Store multiple bounds keyed by the Stage they were adjusted to
         self.bounds = self._get_adjusted_bounds(usdStage)
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
-        # TODO: Support validation of world space extents for UsdGeomPointInstancer instances
-
         # Skip non Boundable prims
         boundable: UsdGeom.Boundable = UsdGeom.Boundable(prim)
         if not boundable:

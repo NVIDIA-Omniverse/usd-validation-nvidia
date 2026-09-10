@@ -8,14 +8,14 @@
 
 import os
 import re
+from collections import defaultdict
 from collections.abc import Callable, Generator
 from dataclasses import dataclass
 from itertools import groupby
 from typing import Any
 
-from pxr import Ar, Gf, Kind, Plug, Sdf, Tf, Usd, UsdGeom, UsdLux, UsdShade, UsdSkel, Vt
-
 import usd_validation_nvidia.capabilities as cap
+from pxr import Ar, Gf, Kind, Plug, Sdf, Tf, Usd, UsdGeom, UsdLux, UsdShade, UsdSkel, Vt
 
 from .._base_rule_checker import BaseRuleChecker, Suggestion
 from .._categories import register_rule
@@ -34,6 +34,7 @@ __all__ = [
     "StageMetadataChecker",
     "TextureChecker",
     "TypeChecker",
+    "UsdValidationAttributeTypeMismatchChecker",
     "UsdzPackageValidator",
 ]
 
@@ -51,6 +52,17 @@ class ShaderProps:
     SourceColorSpace = "sourceColorSpace"
     Normal = "normal"
     File = "file"
+
+
+@register_rule("Basic", skip="usdValidation:AttributeTypeMismatch" not in UsdValidatorAdapter)
+class UsdValidationAttributeTypeMismatchChecker(UsdValidatorAdapter):
+    """
+    Validates composed attribute type consistency using OpenUSD's AttributeTypeMismatch validator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdValidation:AttributeTypeMismatch"
 
 
 @register_rule("Basic", skip="usdUtilsValidators:UsdzPackageValidator" not in UsdValidatorAdapter)
@@ -120,7 +132,7 @@ class MissingReferenceChecker(BaseRuleChecker):
     def __init__(self, verbose, consumerLevelChecks, assetLevelChecks):
         super().__init__(verbose, consumerLevelChecks, assetLevelChecks)
         self.stage: Usd.Stage | None = None
-        self.references: set[str] = set()
+        self._references_by_path: defaultdict[str, list[Sdf.Path]] = defaultdict(list)
 
     @classmethod
     def _is_composition_warning(cls, diagnostic: Tf.Warning) -> bool:
@@ -163,14 +175,29 @@ class MissingReferenceChecker(BaseRuleChecker):
         missing_references: list[tuple] = list(map(self._extract_from_commentary, warnings_commentaries))
         missing_references.sort()
         for (message, path, reference), _ in groupby(missing_references):
-            self._AddFailedCheck(message, at=self.stage.GetPrimAtPath(path.GetPrimPath()) if path else None)
-            if reference:
-                self.references.add(reference.path)
+            if path and reference:
+                self._references_by_path[reference.path].append(path.GetPrimPath())
+            else:
+                self._AddFailedCheck(message)
 
     def CheckUnresolvedPaths(self, unresolvedPaths) -> None:
-        paths: set[str] = set(unresolvedPaths)
-        paths -= self.references
-        for unresolved_path in paths:
+        unresolved_paths: set[str] = set(unresolvedPaths)
+        for unresolved_path in unresolved_paths:
+            locations = [
+                prim for path in self._references_by_path[unresolved_path] if (prim := self.stage.GetPrimAtPath(path))
+            ]
+            match locations:
+                case []:
+                    at = None
+                case [single]:
+                    at = single
+                case _:
+                    at = locations
+            self._AddFailedCheck(
+                f"Found unresolvable external dependency '{unresolved_path}'.",
+                at=at,
+            )
+        for unresolved_path in set(self._references_by_path) - unresolved_paths:
             self._AddFailedCheck(f"Found unresolvable external dependency '{unresolved_path}'.")
 
 
@@ -288,9 +315,8 @@ class PortableAssetPathChecker(BaseRuleChecker):
 @register_requirements(cap.Requirements.UN_001, cap.Requirements.UN_002)
 class StageMetadataChecker(BaseRuleChecker):
     """
-    All stages should declare their 'upAxis' and 'metersPerUnit'. Stages that can be consumed as referencable assets
-    should furthermore have a valid 'defaultPrim' declared, and stages meant for consumer-level packaging should
-    always have upAxis set to 'Y'
+    All stages should declare their 'upAxis' and 'metersPerUnit'. Stages meant for consumer-level packaging should
+    always have upAxis set to 'Y'. Default prim validation is handled by DefaultPrimChecker.
     """
 
     def __init__(self, verbose, consumerLevelChecks, assetLevelChecks):
@@ -317,11 +343,6 @@ class StageMetadataChecker(BaseRuleChecker):
                 message="Stage does not specify its linear scale " "in metersPerUnit.",
                 requirement=cap.Requirements.UN_002,
             )
-
-        if self._assetLevelChecks:
-            default_prim = usdStage.GetDefaultPrim()
-            if not default_prim:
-                self._AddFailedCheck("Stage has missing or invalid defaultPrim.")
 
 
 @register_rule("Basic")

@@ -678,7 +678,7 @@ class IssuePredicates:
                 return True
             elif issue.asset is not None and token in issue.asset.as_str():
                 return True
-            elif isinstance(issue.at, tuple) and any(token in loc.as_str() for loc in issue.at):
+            elif isinstance(issue.at, (list, tuple)) and any(token in loc.as_str() for loc in issue.at):
                 return True
             elif isinstance(issue.at, Identifier) and token in issue.at.as_str():
                 return True

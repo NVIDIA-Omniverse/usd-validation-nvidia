@@ -64,6 +64,28 @@ class FeaturesRegistryTest(unittest.TestCase):
 
         self.assertNotIn(self.mock_feature, self.registry)
 
+    def test_unregister_feature_requirement_ok(self):
+        requirement = RequirementDTO(code="FEATURE.REMOVE.REQ", version="1.0.0")
+        feature = FeatureDTO(
+            id="implemented_requirement_feature",
+            version="1.0.0",
+            path="/path/original",
+            requirements=[requirement],
+        )
+
+        class FeatureRule(BaseRuleChecker):
+            pass
+
+        register_requirements(requirement)(FeatureRule)
+        register_feature(feature)
+
+        try:
+            unregister_feature(feature)
+
+            self.assertNotIn(feature, self.registry)
+        finally:
+            unregister_requirements(FeatureRule)
+
     def test_register_features(self):
         self.assertTrue(register_features([self.mock_feature]))
         try:

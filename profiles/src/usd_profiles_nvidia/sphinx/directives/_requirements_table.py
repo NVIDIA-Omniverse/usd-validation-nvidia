@@ -9,7 +9,6 @@ from typing import ClassVar
 from docutils import nodes
 from docutils.statemachine import StringList
 from sphinx.util.docutils import SphinxDirective
-
 from usd_profiles_nvidia.api import Capability, Requirement
 from usd_profiles_nvidia.markdown import CapabilityParser
 from usd_profiles_nvidia.model import tag_priority

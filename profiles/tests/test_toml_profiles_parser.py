@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from shutil import copytree
 
-from usd_profiles_nvidia.model import IdVersion, ProfileFeature, Version
+from usd_profiles_nvidia.api import FeatureRef, Profile, ProfileFeature
 from usd_profiles_nvidia.parsers import ProfilesParser
 from usd_profiles_nvidia.toml import TomlProfilesParser
 
@@ -27,11 +27,15 @@ class TestTomlProfilesParser(unittest.TestCase):
 
     def test_parse_profile_features(self):
         neutral_v1 = next(p for p in self.profiles if p.id == "Prop-Robotics-Neutral" and str(p.version) == "1.0.0")
-        self.assertEqual(len(neutral_v1.features), 2)
-        self.assertEqual(neutral_v1.features[0], ProfileFeature(IdVersion("FET001_BASE_NEUTRAL", Version("0.1.0"))))
-        self.assertEqual(neutral_v1.features[1], ProfileFeature(IdVersion("FET003_BASE_NEUTRAL", Version("0.1.0"))))
-        self.assertFalse(neutral_v1.features[0].optional)
-        self.assertFalse(neutral_v1.features[1].optional)
+        expected_features = [
+            FeatureRef("FET001_BASE_NEUTRAL", "0.1.0"),
+            FeatureRef("FET003_BASE_NEUTRAL", "0.1.0"),
+        ]
+        self.assertEqual(neutral_v1.features, expected_features)
+        self.assertEqual(
+            neutral_v1.profile_features,
+            [ProfileFeature(feature) for feature in expected_features],
+        )
 
     def test_parse_optional_profile_feature(self):
         root_dir = str(Path(__file__).parent / "resources" / "optional-profile-spec" / "profiles")
@@ -40,23 +44,28 @@ class TestTomlProfilesParser(unittest.TestCase):
         profile = next(p for p in profiles if p.id == "Optional-Profile")
         self.assertEqual(
             profile.features,
+            [FeatureRef("required", "1.0.0"), FeatureRef("extra", "1.0.0")],
+        )
+        self.assertEqual(
+            profile.profile_features,
             [
-                ProfileFeature(IdVersion("required", Version("1.0.0"))),
-                ProfileFeature(IdVersion("extra", Version("1.0.0")), optional=True),
+                ProfileFeature(FeatureRef("required", "1.0.0")),
+                ProfileFeature(FeatureRef("extra", "1.0.0"), optional=True),
             ],
         )
 
     def test_parse_multi_version_profile(self):
         neutral_v1 = next(p for p in self.profiles if p.id == "Prop-Robotics-Neutral" and str(p.version) == "1.0.0")
         neutral_v2 = next(p for p in self.profiles if p.id == "Prop-Robotics-Neutral" and str(p.version) == "2.0.0")
-        self.assertEqual(neutral_v1.features[0].feature, IdVersion("FET001_BASE_NEUTRAL", Version("0.1.0")))
-        self.assertEqual(neutral_v2.features[0].feature, IdVersion("FET001_BASE_NEUTRAL", Version("1.0.0")))
+        self.assertEqual(neutral_v1.profile_features[0].feature, FeatureRef("FET001_BASE_NEUTRAL", "0.1.0"))
+        self.assertEqual(neutral_v2.profile_features[0].feature, FeatureRef("FET001_BASE_NEUTRAL", "1.0.0"))
 
     def test_parse_robot_body_isaac(self):
         isaac = next(p for p in self.profiles if p.id == "Robot-Body-Isaac")
         self.assertEqual(isaac.version, "1.0.0")
-        self.assertEqual(len(isaac.features), 3)
-        self.assertEqual(isaac.features[1].feature, IdVersion("FET004_ROBOT_PHYSX", Version("0.2.0")))
+        self.assertIsInstance(isaac.version, str)
+        self.assertEqual(len(isaac.profile_features), 3)
+        self.assertEqual(isaac.profile_features[1].feature, FeatureRef("FET004_ROBOT_PHYSX", "0.2.0"))
 
     def test_parse_without_toml_file(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -138,6 +147,7 @@ class TestProfilesParserTomlFallback(unittest.TestCase):
         profiles = parser.parse()
 
         self.assertEqual(len(profiles), 3)
+        self.assertTrue(all(isinstance(profile, Profile) for profile in profiles))
         profile_ids = {p.id for p in profiles}
         self.assertIn("Prop-Robotics-Neutral", profile_ids)
         self.assertIn("Robot-Body-Isaac", profile_ids)
@@ -149,6 +159,13 @@ class TestProfilesParserTomlFallback(unittest.TestCase):
 
         self.assertGreaterEqual(len(profiles), 1)
         self.assertEqual(profiles[0].id, "name")
+        self.assertEqual(
+            profiles[0].profile_features,
+            [
+                ProfileFeature(profiles[0].features[0]),
+                ProfileFeature(profiles[0].features[1]),
+            ],
+        )
 
     def test_profiles_parser_combines_markdown_and_toml(self):
         source_dir = Path(__file__).parent / "resources" / "simple-profile"

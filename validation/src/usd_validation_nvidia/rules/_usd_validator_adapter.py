@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import logging
 from abc import abstractmethod
 from dataclasses import replace
 from functools import cache, cached_property
@@ -21,6 +22,8 @@ __all__ = [
     "ValidatorErrorSiteProtocol",
     "ValidatorProtocol",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 @runtime_checkable
@@ -46,6 +49,7 @@ class ValidatorErrorProtocol(Protocol):
     def GetName(self) -> str: ...
     def GetMessage(self) -> str: ...
     def GetSites(self) -> list[ValidatorErrorSiteProtocol]: ...
+    def GetType(self) -> Any: ...
 
 
 @runtime_checkable
@@ -180,6 +184,29 @@ class UsdValidatorAdapter(BaseRuleChecker, metaclass=UsdValidatorAdapterMeta):
 
     def _CheckPrim(self, prim: Usd.Prim) -> None: ...
 
+    @staticmethod
+    def _get_issue_severity(error: ValidatorErrorProtocol) -> IssueSeverity:
+        try:
+            error_type_name = error.GetType().name
+        except AttributeError:
+            logger.warning("Unable to determine native USD validation error severity; defaulting to failure.")
+            return IssueSeverity.FAILURE
+
+        match error_type_name:
+            case "Error":
+                return IssueSeverity.FAILURE
+            case "Warn":
+                return IssueSeverity.WARNING
+            case "Info":
+                return IssueSeverity.INFO
+            case "None_":
+                return IssueSeverity.NONE
+            case _:
+                logger.warning(
+                    f"Unexpected native USD validation error severity '{error_type_name}'; defaulting to failure."
+                )
+                return IssueSeverity.FAILURE
+
     @final
     def _transform(self, error: ValidatorErrorProtocol) -> list[Issue]:
         """
@@ -193,7 +220,7 @@ class UsdValidatorAdapter(BaseRuleChecker, metaclass=UsdValidatorAdapterMeta):
         """
         issue: Issue = Issue(
             message=error.GetMessage(),
-            severity=IssueSeverity.FAILURE,
+            severity=self._get_issue_severity(error),
             rule=self.__class__,
             requirement=self._get_requirement(error),
         )

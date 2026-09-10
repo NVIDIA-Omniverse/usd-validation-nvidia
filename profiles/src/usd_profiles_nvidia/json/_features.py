@@ -7,7 +7,8 @@ import os
 from dataclasses import dataclass, replace
 
 from usd_profiles_nvidia.api import Feature
-from usd_profiles_nvidia.descriptors._features import FeatureDescriptorDecoder, feature_descriptor_errors
+from usd_profiles_nvidia.descriptors._errors import DescriptorKind, descriptor_errors
+from usd_profiles_nvidia.descriptors._features import FeatureDescriptorDecoder
 from usd_profiles_nvidia.model import Metadata
 
 
@@ -40,7 +41,7 @@ class JsonFeaturesParser:
         decoder = FeatureDescriptorDecoder()
         features: list[Feature] = []
         for filepath in filepaths:
-            with feature_descriptor_errors(filepath):
+            with descriptor_errors(DescriptorKind.FEATURE, filepath):
                 with open(filepath, encoding="utf-8") as descriptor_file:
                     feature = decoder.decode(json.load(descriptor_file))
             normalized_path = feature.path or Metadata(path=os.path.relpath(filepath, self.root_dir)).path

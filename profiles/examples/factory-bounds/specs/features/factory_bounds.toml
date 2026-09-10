@@ -1,0 +1,8 @@
+id = "factory_bounds"
+version = "1.0.0"
+dependencies = [
+    "com.nvidia.usd.minimal_placeable_visual@1.0.0",
+]
+requirements = [
+    "GEOMETRY.001@1.0.0",
+]

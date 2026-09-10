@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: Copyright (c) 2022-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
+import usd_validation_nvidia.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf
-
-import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
     DanglingOverPrimChecker,
     DefaultPrimChecker,

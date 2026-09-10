@@ -9,8 +9,12 @@ from unittest.mock import patch
 
 from common import get_url
 from pxr import Ar, Sdf, Usd, UsdGeom
-
-from usd_validation_nvidia import ComplianceChecker, LocalUriResolver, ParameterMapping, ValidationStats
+from usd_validation_nvidia import (
+    ComplianceChecker,
+    LocalUriResolver,
+    ParameterMapping,
+    ValidationStats,
+)
 
 
 class ComplianceCheckerTest(unittest.IsolatedAsyncioTestCase):

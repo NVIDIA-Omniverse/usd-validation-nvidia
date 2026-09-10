@@ -1,8 +1,7 @@
 Installation
 ############
 
-``usd-validation-nvidia`` is a pure-Python package. It supports Python 3.10 - 3.13
-with OpenUSD 23.11 or later, plus Python 3.14 with OpenUSD 26.08.
+``usd-validation-nvidia`` is a pure-Python package for validating OpenUSD assets.
 
 From PyPI
 =========
@@ -14,21 +13,30 @@ From PyPI
 Optional dependencies
 =====================
 
-The core package depends only on OpenUSD. Two optional extras are available:
+The core package does not pin a USD provider. Optional extras are available:
 
 .. code-block:: bash
 
     # Bundle usd-core (when OpenUSD is not already provided by your environment)
     pip install usd-validation-nvidia[usd]
 
+    # Bundle usd-exchange (when USD Exchange is not already provided by your environment)
+    pip install usd-validation-nvidia[usdex]
+
     # Add NumPy, used to accelerate some geometry checks
     pip install usd-validation-nvidia[numpy]
 
-    # Both
+    # Both usd and NumPy
     pip install usd-validation-nvidia[usd,numpy]
 
-Use the ``[usd]`` extra when ``usd-core`` (or a full USD build) is not already on your
-``PYTHONPATH``; skip it inside DCCs or runtimes that already provide USD.
+    # Both usdex and NumPy
+    pip install usd-validation-nvidia[usdex,numpy]
+
+Do not install both ``[usd]`` and ``[usdex]`` in the same environment. Skip both
+provider extras inside DCCs or runtimes that already provide USD.
+
+For Python 3.10 - 3.13, use either ``[usd]`` or ``[usdex]``. For Python 3.14,
+use ``[usd]`` because usd-core 26.8 supports Python 3.14.
 
 Verifying the installation
 ==========================

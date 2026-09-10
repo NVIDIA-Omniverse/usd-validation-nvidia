@@ -5,14 +5,19 @@ import unittest
 from unittest.mock import Mock
 
 from usd_validation_nvidia import (
+    BaseRuleChecker,
     Capability,
     CapabilityRegistry,
     add_registry_capability_callback,
     register_capabilities,
     register_capability,
+    register_requirements,
     unregister_capabilities,
     unregister_capability,
+    unregister_requirements,
 )
+from usd_validation_nvidia.capabilities import Capability as CapabilityDTO
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 
 
 class CapabilitiesRegistryTest(unittest.TestCase):
@@ -74,6 +79,28 @@ class CapabilitiesRegistryTest(unittest.TestCase):
         register_capability(self.mock_capability)
         unregister_capability(self.mock_capability)
         self.assertNotIn(self.mock_capability, self.registry)
+
+    def test_unregister_capability_requirement_ok(self):
+        requirement = RequirementDTO(code="CAPABILITY.REMOVE.REQ", version="1.0.0")
+        capability = CapabilityDTO(
+            id="implemented_requirement_capability",
+            version="1.0.0",
+            path="/path/original",
+            requirements=[requirement],
+        )
+
+        class CapabilityRule(BaseRuleChecker):
+            pass
+
+        register_requirements(requirement)(CapabilityRule)
+        register_capability(capability)
+
+        try:
+            unregister_capability(capability)
+
+            self.assertNotIn(capability, self.registry)
+        finally:
+            unregister_requirements(CapabilityRule)
 
     def test_delitem_capability_ok(self):
         register_capability(self.mock_capability)

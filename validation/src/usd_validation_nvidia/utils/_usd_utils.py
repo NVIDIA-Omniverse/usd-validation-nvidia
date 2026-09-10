@@ -17,7 +17,7 @@ def get_sdf_type_for_shader_property(sdr_property: Sdr.ShaderProperty) -> Sdf.Va
             return type_indicator.GetSdfType()
         elif hasattr(type_indicator, "GetSdrType"):
             return Sdf.ValueTypeNames.Find(type_indicator.GetSdrType())
-        elif hasattr(type_indicator, "GetNdrType"):  # TODO: Remove after USD 25.08
+        elif hasattr(type_indicator, "GetNdrType"):  # Valid for <= 25.08
             return Sdf.ValueTypeNames.Find(type_indicator.GetNdrType())
         else:
             return Sdf.ValueTypeNames.Token

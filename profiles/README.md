@@ -35,10 +35,9 @@ pip install usd-profiles-nvidia[sphinx]
 
 ## Basic Usage
 
-### Loading Authored Feature Descriptors
+### Loading Authored Specifications
 
-Load Markdown or SimReady-style JSON/TOML feature descriptors directly into public API
-DTOs without resolving requirements against a runtime registry:
+Load a complete documentation tree into public API DTOs without resolving references against runtime registries:
 
 ```python
 from pathlib import Path
@@ -46,16 +45,47 @@ from pathlib import Path
 from usd_profiles_nvidia import SpecificationsLoader
 
 specifications = SpecificationsLoader(
-    features_roots=[Path("features")],
+    root_dir=Path("specs"),
     reverse_domain="com.nvidia.simready",
 ).load()
 ```
 
-Directories are searched recursively and deterministically by `FeaturesParser`. The loader
-delegates each configured root to that parser, then prefixes requirement codes that do not
-already start with `reverse_domain` as a separate enrichment step. Feature dependencies remain `FeatureRef`
-objects, and additional JSON/TOML fields are available through `Feature.custom_data`.
-Parsing alone preserves requirement codes exactly as authored.
+The facade loads the configured `capabilities`, `features`, and `profiles` roots recursively and deterministically.
+Use `capabilities_root`, `features_root`, or `profiles_root` to override a docs-tree directory, and
+`features_roots` or `profiles_roots` for additional descriptor sources. Feature dependencies remain `FeatureRef`
+objects, and additional JSON/TOML feature fields are available through `Feature.custom_data`. Profile entries retain
+their `optional` flag and do not require referenced features to be registered while loading; runtime requirement
+resolution skips unavailable optional features and reports an error for unavailable required features.
+
+Markdown profiles contain resolved `Feature` objects in `Profile.features` and matching
+`ProfileFeature(Feature(...))` entries in `Profile.profile_features`. JSON and TOML descriptor profiles expose
+unresolved `FeatureRef` objects through both `Profile.features` and `Profile.profile_features` until runtime
+resolution. When `reverse_domain` is configured, the loader qualifies local requirement codes, profile IDs,
+and profile feature references as a separate enrichment step; parsing alone preserves identifiers as authored.
+
+The resulting `LoadedSpecifications` contains public `Capability`, `Feature`, and `Profile` DTOs. Profile features,
+feature dependencies, and externally referenced requirements stay as `FeatureRef` and `RequirementRef` values; the
+loader does not resolve them against registries. `SpecificationsParser` remains available for compatibility, but new
+consumers should use `SpecificationsLoader`.
+
+Register the loaded requirement definitions as metadata without binding them to validator rules, then remove the
+same definitions by code and version when their content lifecycle ends:
+
+```python
+from usd_validation_nvidia import register_requirements, unregister_requirements
+
+register_requirements(*specifications.requirements)(None)
+try:
+    ...
+finally:
+    unregister_requirements(*specifications.requirements)
+```
+
+Rules may bind to `RequirementRef` values independently. Definition-only registration does not promote a
+`RequirementRef` into requirement metadata. Definition-only registrations are reference-counted, so balance each
+registration with one matching unregistration. They do not take ownership of definitions already held by another
+registration source. Mixed definition/reference collections are accepted by both lifecycle calls; non-owning
+references are ignored symmetrically.
 
 ### Code Generation
 

@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: Copyright (c) 2023-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
+import math
 import random
 import unittest
 
 from pxr import Gf, Sdf, Usd, UsdGeom
-
 from usd_validation_nvidia import (
     RepeatedValuesSet,
+    get_non_unit_normal_length,
+    has_finite_normals,
     has_invalid_primvar_indices,
     has_unreferenced_primvar,
     has_weldable_points,
@@ -73,6 +75,22 @@ class MeshToolsTest(unittest.TestCase):
             ]
         )
         self.assertEqual(area, Gf.Vec3f(0.0, 0.0, 0.5))
+
+    def test_has_finite_normals(self):
+        self.assertTrue(has_finite_normals([]))
+        self.assertTrue(has_finite_normals([Gf.Vec3f(0.0, 0.0, 1.0), Gf.Vec3f(1.0, 0.0, 0.0)]))
+        self.assertTrue(has_finite_normals([Gf.Vec3f(0.0, 0.0, 1.002)]))
+        self.assertFalse(has_finite_normals([Gf.Vec3f(float("inf"), 0.0, 0.0)]))
+        self.assertFalse(has_finite_normals([Gf.Vec3f(float("nan"), 0.0, 0.0)]))
+
+    def test_get_non_unit_normal_length(self):
+        self.assertIsNone(get_non_unit_normal_length([]))
+        self.assertIsNone(get_non_unit_normal_length([Gf.Vec3f(0.0, 0.0, 1.0), Gf.Vec3f(1.0, 0.0, 0.0)]))
+        self.assertIsNone(get_non_unit_normal_length([Gf.Vec3f(0.0, 0.0, 1.0005)]))
+        non_unit_normal = Gf.Vec3f(0.0, 0.0, 1.002)
+        self.assertAlmostEqual(get_non_unit_normal_length([non_unit_normal]), non_unit_normal.GetLength())
+        self.assertEqual(get_non_unit_normal_length([Gf.Vec3f(float("inf"), 0.0, 0.0)]), float("inf"))
+        self.assertTrue(math.isnan(get_non_unit_normal_length([Gf.Vec3f(float("nan"), 0.0, 0.0)])))
 
     def test_has_weldable_points(self):
         stage = Usd.Stage.CreateInMemory()

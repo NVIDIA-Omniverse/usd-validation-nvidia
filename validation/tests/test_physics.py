@@ -3,7 +3,6 @@
 #
 from common import AsyncioValidationTestCase
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
-
 from usd_validation_nvidia import (
     ArticulationChecker,
     ColliderChecker,

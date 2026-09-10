@@ -7,7 +7,6 @@ import unittest
 from tempfile import TemporaryDirectory
 
 from common import get_url
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     ColumnCSVTable,

@@ -128,8 +128,7 @@ class FixResultList(Sequence[FixResult]):
     def __str__(self):
         tokens = []
         for item in self.items:
-            tokens.append(
-                f"""
+            tokens.append(f"""
                     FixResult(
                         Issue(
                             message="{item.issue.message}",
@@ -140,17 +139,14 @@ class FixResultList(Sequence[FixResult]):
                         ),
                         status={item.status},
                         exception={item.exception.__class__.__name__ if item.exception else None}
-                    )"""
-            )
+                    )""")
         text = ",".join(tokens)
-        return inspect.cleandoc(
-            f"""
+        return inspect.cleandoc(f"""
             FixResultList(
                 results=[
                     {text.lstrip()}
                 ]
-            )"""
-        )
+            )""")
 
 
 @singledispatch
@@ -251,7 +247,7 @@ def _(at: EditTargetId, stage: Usd.Stage) -> Usd.EditTarget:
 
 @contextmanager
 def _restore_variant_selections(stage: Usd.Stage, issue: Issue):
-    if isinstance(issue.at, tuple):
+    if isinstance(issue.at, (list, tuple)):
         locations = [location for location in issue.at if isinstance(location, VariantIdMixin)]
     elif isinstance(issue.at, VariantIdMixin):
         locations = [issue.at]
@@ -363,7 +359,7 @@ class IssueFixer:
             with _restore_variant_selections(self.asset, issue):
                 # Restore state
                 try:
-                    if isinstance(issue.at, tuple):
+                    if isinstance(issue.at, (list, tuple)):
                         obj = [loc.restore(self.asset) for loc in issue.at]
                     else:
                         obj = issue.at.restore(self.asset)
@@ -424,7 +420,6 @@ class IssueFixer:
         Raises:
             OSError: If writing permissions are not granted.
         """
-        # TODO: Add metadata of the changes.
         # Check the logical model.
         for layer in self.fixed_layers:
             autoptr: Sdf.Layer = Sdf.Layer.FindOrOpen(layer.identifier)

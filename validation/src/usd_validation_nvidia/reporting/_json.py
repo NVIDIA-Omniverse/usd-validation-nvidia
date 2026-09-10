@@ -8,7 +8,6 @@ from functools import singledispatchmethod
 from typing import Any
 
 from pxr import Sdf
-
 from usd_validation_nvidia.capabilities import Requirement as _Requirement
 
 from .._base_rule_checker import BaseRuleChecker

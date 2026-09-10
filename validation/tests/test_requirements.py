@@ -15,6 +15,7 @@ from usd_validation_nvidia import (
     register_requirements,
     unregister_requirements,
 )
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 from usd_validation_nvidia.capabilities import RequirementRef as RequirementRefDTO
 
 
@@ -122,6 +123,154 @@ class RequirementTests(unittest.TestCase):
             self.assertTrue(registry.is_registered(MyRule3, requirement_ref))
             self.assertIsNone(registry.find_requirement(requirement_ref.code, requirement_ref.version))
             self.assertNotIn(requirement_ref, list(registry))
+        finally:
+            unregister_requirements(MyRule3)
+
+    def test_register_requirement_definitions_without_rule_bindings(self):
+        registry = RequirementsRegistry()
+        same_key_definition = RequirementDTO(
+            code=MyRequirement.REQ003.code,
+            version=MyRequirement.REQ003.version,
+            message="Reloaded definition with the same key",
+        )
+
+        result = register_requirements(MyRequirement.REQ003, MyRequirement.REQ004)(None)
+
+        try:
+            self.assertIsNone(result)
+            self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+            self.assertIs(registry.find_requirement("004", "1.0.0"), MyRequirement.REQ004)
+            self.assertIsNone(registry.get_validator(MyRequirement.REQ003))
+            self.assertIsNone(registry.get_validator(MyRequirement.REQ004))
+            self.assertNotIn(None, registry.rules)
+        finally:
+            unregister_requirements(same_key_definition, MyRequirement.REQ004)
+
+        self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+        self.assertIsNone(registry.find_requirement("004", "1.0.0"))
+
+    def test_definition_registration_is_reference_counted(self):
+        registry = RequirementsRegistry()
+        register_requirements(MyRequirement.REQ003)(None)
+        register_requirements(MyRequirement.REQ003)(None)
+
+        try:
+            unregister_requirements(MyRequirement.REQ003)
+
+            self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+
+            unregister_requirements(MyRequirement.REQ003)
+
+            self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+        finally:
+            unregister_requirements(MyRequirement.REQ003)
+
+    def test_definition_lifecycle_does_not_remove_preexisting_rule_registration(self):
+        registry = RequirementsRegistry()
+        duplicate_definition = RequirementDTO(
+            code=MyRequirement.REQ001.code,
+            version=MyRequirement.REQ001.version,
+            message="A different owner",
+        )
+        register_requirements(duplicate_definition)(None)
+
+        unregister_requirements(duplicate_definition)
+
+        self.assertIs(registry.find_requirement("001", "1.0.0"), MyRequirement.REQ001)
+        self.assertEqual(registry.get_validator(MyRequirement.REQ001), MyRule1)
+        self.assertTrue(registry.is_registered(MyRule1, MyRequirement.REQ001))
+
+    def test_definition_ownership_transfers_when_concrete_rule_unregisters_first(self):
+        registry = RequirementsRegistry()
+        register_requirements(MyRequirement.REQ003)(MyRule3)
+        register_requirements(MyRequirement.REQ003)(None)
+
+        unregister_requirements(MyRule3)
+
+        self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+
+        unregister_requirements(MyRequirement.REQ003)
+
+        self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+
+    def test_definition_unregistration_preserves_concrete_rule_binding(self):
+        registry = RequirementsRegistry()
+        register_requirements(MyRequirement.REQ003)(None)
+        register_requirements(MyRequirement.REQ003)(MyRule3)
+
+        try:
+            unregister_requirements(MyRequirement.REQ003)
+
+            self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+            self.assertEqual(registry.get_validator(MyRequirement.REQ003), MyRule3)
+            self.assertTrue(registry.is_registered(MyRule3, MyRequirement.REQ003))
+        finally:
+            unregister_requirements(MyRule3)
+            unregister_requirements(MyRequirement.REQ003)
+
+    def test_definition_ownership_tracks_active_metadata_lifecycle(self):
+        registry = RequirementsRegistry()
+        key = registry.create_key(MyRequirement.REQ003)
+        register_requirements(MyRequirement.REQ003)(None)
+        register_requirements(MyRequirement.REQ003)(MyRule3)
+
+        unregister_requirements(MyRequirement.REQ003)
+
+        self.assertNotIn(key, registry._definition_registration_counts)
+        self.assertNotIn(key, registry._definition_owned_keys)
+
+        register_requirements(MyRequirement.REQ003)(None)
+
+        self.assertEqual(registry._definition_registration_counts[key], 1)
+        self.assertNotIn(key, registry._definition_owned_keys)
+
+        unregister_requirements(MyRule3)
+
+        self.assertIn(key, registry._definition_owned_keys)
+        self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+
+        unregister_requirements(MyRequirement.REQ003)
+
+        self.assertNotIn(key, registry._definition_registration_counts)
+        self.assertNotIn(key, registry._definition_owned_keys)
+        self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+
+    def test_requirement_ref_definition_registration_does_not_create_metadata(self):
+        requirement_ref = RequirementRefDTO(code="REF.001", version="1.0.0")
+        registry = RequirementsRegistry()
+
+        register_requirements(requirement_ref)(None)
+
+        self.assertIsNone(registry.find_requirement(requirement_ref.code, requirement_ref.version))
+        self.assertNotIn(requirement_ref, list(registry))
+        self.assertNotIn(None, registry.rules)
+
+    def test_metadata_lifecycle_skips_requirement_refs_symmetrically(self):
+        requirement_ref = RequirementRefDTO(code="REF.001", version="1.0.0")
+        registry = RequirementsRegistry()
+        register_requirements(MyRequirement.REQ003, requirement_ref)(None)
+
+        unregister_requirements(MyRequirement.REQ003, requirement_ref)
+
+        self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+        self.assertIsNone(registry.find_requirement(requirement_ref.code, requirement_ref.version))
+
+    def test_unregister_definition_preserves_reference_rule_binding(self):
+        requirement_ref = RequirementRefDTO(code=MyRequirement.REQ003.code, version=MyRequirement.REQ003.version)
+        registry = RequirementsRegistry()
+        register_requirements(requirement_ref)(MyRule3)
+        register_requirements(MyRequirement.REQ003)(None)
+
+        try:
+            self.assertIs(registry.find_requirement("003", "1.0.0"), MyRequirement.REQ003)
+            self.assertEqual(registry.get_requirements(MyRule3), [MyRequirement.REQ003])
+
+            unregister_requirements(MyRequirement.REQ003)
+
+            self.assertIsNone(registry.find_requirement("003", "1.0.0"))
+            self.assertEqual(registry.get_requirements(MyRule3), [requirement_ref])
+            self.assertEqual(registry.get_validator(requirement_ref), MyRule3)
+            self.assertTrue(registry.is_registered(MyRule3, requirement_ref))
         finally:
             unregister_requirements(MyRule3)
 
@@ -277,6 +426,18 @@ class RequirementTests(unittest.TestCase):
         self.assertEqual(registry.get_validator(MyRequirement.REQ001), None)
         self.assertFalse(registry.is_registered(MyRule1, MyRequirement.REQ001))
         self.assertNotIn(MyRequirement.REQ001, list(registry))
+
+    def test_unregister_requirements_rejects_empty_arguments(self):
+        with self.assertRaises(TypeError):
+            unregister_requirements()
+
+        self.assertEqual(RequirementsRegistry().get_validator(MyRequirement.REQ001), MyRule1)
+
+    def test_unregister_requirements_rejects_non_rule_class(self):
+        with self.assertRaises(TypeError):
+            unregister_requirements(RequirementDTO)
+
+        self.assertEqual(RequirementsRegistry().get_validator(MyRequirement.REQ001), MyRule1)
 
     def test_delitem_removes_requirement_mappings(self):
         registry = RequirementsRegistry()

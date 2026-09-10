@@ -2,6 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from ._features import FeatureDescriptorError
+from ._errors import DescriptorError, DescriptorKind
 
-__all__ = ["FeatureDescriptorError"]
+__all__ = ["DescriptorError", "DescriptorKind"]

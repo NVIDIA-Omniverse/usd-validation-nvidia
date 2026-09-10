@@ -7,19 +7,43 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from pxr import Ar, Sdf, Usd, UsdShade, UsdUtils
-
 import usd_validation_nvidia.capabilities as cap
+from pxr import Ar, Sdf, Usd, UsdShade, UsdUtils
 
 from .._base_rule_checker import BaseRuleChecker
 from .._categories import register_rule
 from .._requirements import register_requirements
+from ._usd_validator_adapter import UsdValidatorAdapter
 
 __all__ = [
     "AnchoredAssetPathsChecker",
     "SupportedFileTypesChecker",
+    "UsdUtilsFileExtensionValidator",
+    "UsdUtilsPackageEncapsulationValidator",
     "UsdzUdimLimitationChecker",
 ]
+
+
+@register_rule("AtomicAsset", skip=True)
+class UsdUtilsPackageEncapsulationValidator(UsdValidatorAdapter):
+    """
+    Validates USDZ package encapsulation using OpenUSD's PackageEncapsulationValidator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdUtilsValidators:PackageEncapsulationValidator"
+
+
+@register_rule("AtomicAsset", skip=True)
+class UsdUtilsFileExtensionValidator(UsdValidatorAdapter):
+    """
+    Validates USDZ package file extensions using OpenUSD's FileExtensionValidator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdUtilsValidators:FileExtensionValidator"
 
 
 @register_rule("AtomicAsset", skip=True)
@@ -143,12 +167,13 @@ class AnchoredAssetPathsChecker(BaseRuleChecker):
             at=at,
         )
 
-    def _resolve_path(self, asset_path: str, anchor_path: str | Ar.ResolvedPath) -> str:
+    def _resolve_path(self, asset_path: str, layer: Sdf.Layer) -> str:
         """
         Resolve the path to the asset.
         """
-        if isinstance(anchor_path, str):
-            anchor_path = Ar.ResolvedPath(anchor_path)
+        if UsdShade.UdimUtils.IsUdimIdentifier(asset_path):
+            return UsdShade.UdimUtils.ResolveUdimPath(asset_path, layer)
+        anchor_path = Ar.ResolvedPath(layer.realPath)
         resolver = Ar.GetResolver()
         resolved = resolver.Resolve(resolver.CreateIdentifier(asset_path, anchor_path))
         return resolved.GetPathString() if resolved else ""
@@ -162,7 +187,7 @@ class AnchoredAssetPathsChecker(BaseRuleChecker):
     def _check_valid_anchored_path(
         self,
         asset_path: str | Sdf.AssetPath,
-        layer: Sdf.Layer = None,
+        layer: Sdf.Layer,
         prim: Usd.Prim = None,
         dependency_type: str = "",
     ):
@@ -193,7 +218,7 @@ class AnchoredAssetPathsChecker(BaseRuleChecker):
             return
 
         # For paths that cannot be resolved, should be reported from CheckUnresolvedPaths
-        resolved_path = self._resolve_path(asset_path, layer.realPath if layer else None)
+        resolved_path = self._resolve_path(asset_path, layer)
         if not resolved_path:
             self._record_failed_check(message=f"{msg} cannot be resolved.", at=layer)
             return
@@ -281,7 +306,7 @@ class UsdzUdimLimitationChecker(BaseRuleChecker):
             if isinstance(val, Sdf.AssetPath):
                 val = [val]
             for tex_path in val:
-                if "<UDIM>" in tex_path.path:
+                if UsdShade.UdimUtils.IsUdimIdentifier(tex_path.path):
                     udim_paths.append(tex_path.path)
 
         if not udim_paths or not self._prim_is_in_usdz(prim):

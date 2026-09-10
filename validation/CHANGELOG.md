@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.22.0] - 2026-09-10
+### Added
+- Add `register_content(...)` and `unregister_content(...)` helpers for managing loaded requirements, capabilities,
+  features, and profiles as one specification content lifecycle.
+- Add `UsdShadeSubsetsMaterialBindFamilyChecker`, wrapping OpenUSD
+  `usdShadeValidators:SubsetsMaterialBindFamily` with a Python fallback.
+- Add `register_validation_modules(...)` and `unregister_validation_modules(...)` helpers for loading and unloading
+  loose validator modules with a module lifecycle token.
+- Support metadata-only requirement registration with `register_requirements(*requirements)(None)` and symmetric
+  definition removal by code/version with `unregister_requirements(*requirements)`.
+- Expose native OpenUSD validators for attribute type mismatches, UsdLux encapsulation, UsdShade material
+  encapsulation, material bindings, shader SDR compliance, and USDZ package checks.
+- Public content unregister helpers for requirements, capabilities, features, and profiles now remove the passed
+  DTOs by code/ID and version without clearing broader registry state.
+
+### Changed
+- Profile requirement resolution now skips unavailable optional feature references and reports unavailable required
+  feature references instead of silently returning an incomplete requirement set.
+
+### Fixed
+- `AnchoredAssetPathsChecker` now resolves UDIM texture templates with `UsdShade.UdimUtils`, avoiding false AA.001
+  unresolved dependency failures when matching tile files exist.
+- `nvidia_usd_validate --version` and `python -m usd_validation_nvidia --version` now report the package version when
+  USD is not installed instead of failing while importing `pxr`.
+- `StageMetadataChecker` no longer emits a duplicate missing `defaultPrim` failure; `DefaultPrimChecker` owns that
+  requirement-backed report.
+- `MissingReferenceChecker` now reports missing references once per unresolved asset path while preserving the
+  introducing prim locations.
+- `MaterialPathChecker` now reports missing MDL asset paths once per normalized dependency path and message while
+  preserving the contributing shader attribute locations.
+- `MaterialUsdPreviewSurfaceChecker` now lazily discovers UsdPreviewSurface shader definitions and degrades to its
+  missing-`shaderDefs.usda` warning instead of failing rule initialization when `usd-core` cannot load Sdr resources.
+- `NormalsValidChecker` now uses vectorized mesh helpers for finite and unit normal validation, avoiding the slow
+  Python per-normal loop on large meshes.
+
 ## [1.21.0] - 2026-08-12
 ### Added
 - Add `UsdGeomSubsetFamiliesChecker` and `UsdGeomSubsetParentIsImageableChecker` rules, wrapping the current OpenUSD

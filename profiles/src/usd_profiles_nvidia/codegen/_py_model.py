@@ -14,11 +14,13 @@ from usd_profiles_nvidia.api import (
     Feature,
     FeatureRef,
     Parameter,
+    Profile,
+    ProfileFeature,
     Requirement,
     RequirementRef,
 )
-from usd_profiles_nvidia.model import IdVersion, Naming, Profile, Version
-from usd_profiles_nvidia.model import ProfileFeature as ModelProfileFeature
+from usd_profiles_nvidia.descriptors._identifiers import qualify_owned_identifier
+from usd_profiles_nvidia.model import IdVersion, Naming, Version
 from usd_profiles_nvidia.store import (
     CapabilityStore,
     ExampleStore,
@@ -31,10 +33,7 @@ from usd_profiles_nvidia.store import (
 
 
 def _namespaced_id(identifier: str, namespace: str) -> str:
-    if not namespace or not identifier:
-        return identifier
-    prefix = f"{namespace.rstrip('.')}."
-    return identifier if identifier.startswith(prefix) else f"{prefix}{identifier}"
+    return qualify_owned_identifier(identifier, namespace)
 
 
 def _strip_namespace(identifier: str, namespace: str) -> str:
@@ -194,12 +193,12 @@ class PyProfile:
 
     @property
     def html_path(self) -> str | None:
-        path = self.profile.metadata.path
+        path = self.profile.path
         return f"{path}.html" if path else None
 
     @property
-    def features(self) -> list[ModelProfileFeature]:
-        return self.profile.features
+    def features(self) -> list[ProfileFeature]:
+        return self.profile.profile_features
 
 
 @dataclass(frozen=True)
@@ -285,7 +284,9 @@ class PyFeatureStore:
     def __len__(self) -> int:
         return len(self.store)
 
-    def find(self, key: FeatureRef | IdVersion) -> PyFeature | None:
+    def find(self, key: Feature | FeatureRef | IdVersion) -> PyFeature | None:
+        if isinstance(key, Feature):
+            key = FeatureRef(key.id, key.version)
         if feature := self.store.find(key):
             return self._wrap(feature)
         elif isinstance(key, FeatureRef):

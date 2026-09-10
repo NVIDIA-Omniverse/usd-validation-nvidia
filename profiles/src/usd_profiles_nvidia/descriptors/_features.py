@@ -4,36 +4,15 @@
 
 from __future__ import annotations
 
-import os
-from collections.abc import Iterator, Mapping
-from contextlib import contextmanager
+from collections.abc import Mapping
 from dataclasses import dataclass, fields, replace
 from typing import Any
 
 from usd_profiles_nvidia.api import Feature, FeatureRef, RequirementRef
 
+from ._identifiers import qualify_identifier
+
 _CORE_FEATURE_FIELDS = frozenset(field.name for field in fields(Feature))
-_EXTERNAL_REVERSE_DOMAIN_PREFIXES = ("com.", "org.")
-
-
-class FeatureDescriptorError(ValueError):
-    """An invalid feature descriptor with its source path."""
-
-    def __init__(self, path: str | os.PathLike[str], error: Exception):
-        self.path = os.fspath(path)
-        self.original_error = error
-        super().__init__(f"Invalid feature descriptor {self.path}: {error}")
-
-
-@contextmanager
-def feature_descriptor_errors(path: str | os.PathLike[str]) -> Iterator[None]:
-    """Add source-path context to expected descriptor parsing errors."""
-    try:
-        yield
-    except FeatureDescriptorError:
-        raise
-    except (KeyError, TypeError, ValueError) as error:
-        raise FeatureDescriptorError(path, error) from error
 
 
 class FeatureDescriptorDecoder:
@@ -111,8 +90,7 @@ class FeatureDescriptorDecoder:
                 version = attributes.get("version")
             else:
                 raise TypeError(
-                    f"reference attributes for {identifier!r} must be an object, "
-                    f"got {type(attributes).__name__}"
+                    f"reference attributes for {identifier!r} must be an object, " f"got {type(attributes).__name__}"
                 )
 
         if not isinstance(identifier, str) or not identifier:
@@ -131,19 +109,14 @@ class FeatureDescriptorEnricher:
     def enrich(self, feature: Feature) -> Feature:
         """Qualify requirement references without resolving them."""
         requirements = [
-            replace(requirement, code=self._qualify(requirement.code))
-            if isinstance(requirement, RequirementRef)
-            else requirement
+            (
+                replace(requirement, code=self._qualify(requirement.code))
+                if isinstance(requirement, RequirementRef)
+                else requirement
+            )
             for requirement in feature.requirements
         ]
         return replace(feature, requirements=requirements)
 
     def _qualify(self, code: str) -> str:
-        reverse_domain = self.reverse_domain.rstrip(".")
-        if not reverse_domain:
-            return code
-        if code == reverse_domain or code.startswith(f"{reverse_domain}."):
-            return code
-        if code.startswith(_EXTERNAL_REVERSE_DOMAIN_PREFIXES):
-            return code
-        return f"{reverse_domain}.{code}"
+        return qualify_identifier(code, self.reverse_domain)

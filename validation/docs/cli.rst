@@ -11,6 +11,7 @@ usage: nvidia_usd_validate [-h] [--version] [-e] [-r RULE] [-D RULE] [-c CATEGOR
                            [-d | --init-rules | --no-init-rules | --defaultRules | --no-defaultRules]
                            [--variants | --no-variants]
                            [--instance-prototypes | --no-instance-prototypes]
+                           [--process COUNT]
                            [--csv-output CSV] [--json-output JSON]
                            ASSET
 
@@ -281,7 +282,35 @@ options:
   --instance-prototypes, --no-instance-prototypes
                         | Whether to process instance proxy prims for every instance.
                         | Disabling this can speed up heavily instanced stages. (default: True)
+  --process COUNT       | Experimental: maximum process workers to use for multiprocess-safe
+                        | validation tasks.
+                        | Use 0 to disable process runners. (default: 0)
   --csv-output CSV      Path to the CSV output file. (default: None)
   --json-output JSON    Path to the JSON output file. (default: None)
+
+Multiprocess validation
+#######################
+
+``--process COUNT`` runs rule callbacks that are marked multiprocess-safe in a
+process pool of at most ``COUNT`` workers. The default, ``0``, disables process
+runners entirely and leaves the existing inline and thread routing unchanged.
+
+.. code-block:: shell
+
+   nvidia_usd_validate --process 2 asset.usd
+
+This feature is **experimental**. Two things follow from that, and both matter
+when deciding whether to enable it:
+
+- Only callbacks decorated with :py:func:`~usd_validation_nvidia.multiprocess_safe`
+  are eligible. In the shipped rule set that is ``LayerSpecChecker.CheckLayer``
+  alone, so most validation runs will see little or no change. See
+  :doc:`authoring` to mark your own rules.
+- Gains depend on the asset. Process startup and inter-process communication
+  dominate on small assets, where enabling workers can be slower than leaving
+  them off. Assets with many sublayers benefit most.
+
+The same setting is available through the Python API as
+``ValidationEngine(processes=COUNT)``.
 
 See https://github.com/NVIDIA-Omniverse/usd-validation-nvidia for more details.

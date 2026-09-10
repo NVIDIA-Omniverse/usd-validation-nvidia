@@ -6,6 +6,7 @@ Default plugin for USD Validation NVIDIA.
 
 Registers all built-in validation rules via the entrypoint plugin system.
 """
+
 from __future__ import annotations
 
 __all__ = [
@@ -15,7 +16,6 @@ __all__ = [
 import logging
 
 from pxr import Usd
-
 from usd_validation_nvidia.capabilities import Capabilities, Features, Profiles
 
 from ._base_rule_checker import BaseRuleChecker
@@ -63,8 +63,15 @@ from .rules import (
     UsdGeomSubsetChecker,
     UsdGeomSubsetFamiliesChecker,
     UsdGeomSubsetParentIsImageableChecker,
+    UsdLuxEncapsulationRulesValidator,
     UsdLuxSchemaChecker,
     UsdMaterialBindingApi,
+    UsdShadeEncapsulationMaterialValidator,
+    UsdShadeMaterialBindingCollectionValidator,
+    UsdShadeMaterialBindingRelationships,
+    UsdShadeShaderSdrCompliance,
+    UsdShadeSubsetsMaterialBindFamilyChecker,
+    UsdValidationAttributeTypeMismatchChecker,
     UsdzPackageValidator,
     ValidateTopologyChecker,
     WeldChecker,
@@ -107,6 +114,11 @@ class DefaultPlugin:
         _register("Basic", KindChecker)
         _register("Basic", ExtentsChecker)
         _register("Basic", TypeChecker)
+        _register(
+            "Basic",
+            UsdValidationAttributeTypeMismatchChecker,
+            skip=not UsdValidationAttributeTypeMismatchChecker.is_implemented(),
+        )
 
         # Layer rules
         _register("Layer", LayerSpecChecker)
@@ -115,6 +127,11 @@ class DefaultPlugin:
         # Other rules
         _register("Other", UnicodeNameChecker, skip=Usd.GetVersion() < (0, 24, 3))
         _register("Other", UsdLuxSchemaChecker)
+        _register(
+            "Other",
+            UsdLuxEncapsulationRulesValidator,
+            skip=not UsdLuxEncapsulationRulesValidator.is_implemented(),
+        )
         _register("Other", SkelBindingAPIAppliedChecker)
 
         # Geometry rules
@@ -139,6 +156,27 @@ class DefaultPlugin:
         _register("Material", MaterialOutOfScopeChecker)
         _register("Material", UsdDanglingMaterialBinding)
         _register("Material", UsdMaterialBindingApi)
+        _register(
+            "Material",
+            UsdShadeEncapsulationMaterialValidator,
+            skip=not UsdShadeEncapsulationMaterialValidator.is_implemented(),
+        )
+        _register(
+            "Material",
+            UsdShadeMaterialBindingRelationships,
+            skip=not UsdShadeMaterialBindingRelationships.is_implemented(),
+        )
+        _register(
+            "Material",
+            UsdShadeMaterialBindingCollectionValidator,
+            skip=not UsdShadeMaterialBindingCollectionValidator.is_implemented(),
+        )
+        _register(
+            "Material",
+            UsdShadeShaderSdrCompliance,
+            skip=not UsdShadeShaderSdrCompliance.is_implemented(),
+        )
+        _register("Material", UsdShadeSubsetsMaterialBindFamilyChecker)
         _register("Material", MaterialUsdPreviewSurfaceChecker)
         _register("Material", ShaderImplementationSourceChecker)
         _register("Material", MaterialOldMdlSchemaChecker)

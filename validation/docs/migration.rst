@@ -45,8 +45,10 @@ Updating your project
 =====================
 
 #. Replace ``omniverse-asset-validator`` with ``usd-validation-nvidia`` in your
-   dependencies. Add the ``[usd]`` extra if your environment does not already provide
-   ``usd-core`` (see :doc:`installation`).
+   dependencies. Add the ``[usdex]`` extra for the USD Exchange stack, or
+   ``[usd]`` for the PyPI ``usd-core`` stack, if your environment does not already
+   provide USD (see :doc:`installation`). USD Exchange supports Python 3.10 - 3.13;
+   use the ``[usd]`` extra for Python 3.14 environments.
 #. Update imports from ``omni.asset_validator`` / ``omni.asset_validator.core`` to
    ``usd_validation_nvidia``.
 #. Replace any ``omni.asset_validator`` command-line invocation with ``nvidia_usd_validate``

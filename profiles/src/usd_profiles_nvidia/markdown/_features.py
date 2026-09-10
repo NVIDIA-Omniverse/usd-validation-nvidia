@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from usd_profiles_nvidia.api import Feature, FeatureRef, Requirement, RequirementRef
-from usd_profiles_nvidia.descriptors._features import feature_descriptor_errors
+from usd_profiles_nvidia.descriptors._errors import DescriptorKind, descriptor_errors
 from usd_profiles_nvidia.model import IdVersion, Metadata, Version
 
 from ._model import Section, Sections
@@ -58,13 +58,11 @@ class _FeatureParser(ReferencesParser):
         requirements: list[RequirementRef] = []
         if requirements_list := self.requirements_list:
             requirements.extend(
-                RequirementRef(requirement.code, requirement.version)
-                for requirement in requirements_list
+                RequirementRef(requirement.code, requirement.version) for requirement in requirements_list
             )
         elif requirements_table := self.requirements_table:
             requirements.extend(
-                RequirementRef(requirement.code, requirement.version)
-                for requirement in requirements_table
+                RequirementRef(requirement.code, requirement.version) for requirement in requirements_table
             )
         elif features_table := self.features_table:
             requirements.extend(features_table)
@@ -161,8 +159,7 @@ class MultiFeatureParser(ReferencesParser):
                 continue
             requirements: list[Requirement] = self.get_requirements_list(requirements_section) or []
             requirement_refs: list[RequirementRef] = [
-                RequirementRef(requirement.code, requirement.version)
-                for requirement in requirements
+                RequirementRef(requirement.code, requirement.version) for requirement in requirements
             ]
             features.append(replace(feature, version=version, requirements=requirement_refs))
         return features
@@ -187,7 +184,7 @@ class MdFeaturesParser:
         """
         features: list[Feature] = []
         for source_path in walk_md(self.path):
-            with feature_descriptor_errors(source_path):
+            with descriptor_errors(DescriptorKind.FEATURE, source_path):
                 if feature := FeatureParser(self.root_dir, source_path).parse():
                     features.append(feature)
                 elif multi_feature := MultiFeatureParser(self.root_dir, source_path).parse():

@@ -7,8 +7,8 @@ import os
 from dataclasses import dataclass
 from typing import ClassVar
 
-from usd_profiles_nvidia.api import Capability, Feature
-from usd_profiles_nvidia.model import Profile, Specifications
+from usd_profiles_nvidia.api import Capability, Feature, Profile
+from usd_profiles_nvidia.model import Specifications
 
 from ._capabilities import CapabilitiesParser
 from ._features import FeaturesParser
@@ -66,7 +66,10 @@ class SpecificationsParser:
 
         profiles: list[Profile] = []
         if self.profiles_root and os.path.exists(self.profiles_root):
-            profiles = ProfilesParser(root_dir=self.root_dir or self.profiles_root, path=self.profiles_root).parse()
+            profiles = ProfilesParser(
+                root_dir=self.root_dir or self.profiles_root,
+                path=self.profiles_root,
+            ).parse()
 
         logger.info(f"Parsed {len(capabilities)} capabilities, {len(features)} features, {len(profiles)} profiles")
         return Specifications(

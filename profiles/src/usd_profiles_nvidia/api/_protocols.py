@@ -116,7 +116,7 @@ class ProfileFeatureProtocol(Protocol):
         optional: Whether the feature is optional in the profile
     """
 
-    feature: FeatureProtocol
+    feature: FeatureProtocol | FeatureRefProtocol
     optional: bool
 
 
@@ -132,11 +132,15 @@ class ProfileProtocol(Protocol):
         features: The features of the profile
         capabilities: The capabilities of the profile
         profile_features: The profile feature references
+        display_name: A human-readable profile name
+        message: A description of the profile
     """
 
     id: str
-    version: str
+    version: str | None
     path: str
-    features: list[FeatureProtocol]
+    features: list[FeatureProtocol | FeatureRefProtocol]
     capabilities: list[CapabilityProtocol]
     profile_features: list[ProfileFeatureProtocol]
+    display_name: str | None
+    message: str | None

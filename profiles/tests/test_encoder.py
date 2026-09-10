@@ -5,7 +5,15 @@
 import json
 import unittest
 
-from usd_profiles_nvidia.api import Capability, Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Capability,
+    Feature,
+    FeatureRef,
+    Profile,
+    ProfileFeature,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.graph import CapabilityGraph
 from usd_profiles_nvidia.json import (
     JsonDeserialize,
@@ -22,8 +30,6 @@ from usd_profiles_nvidia.model import (
     Metadata,
     Parameter,
     ParameterType,
-    Profile,
-    ProfileFeature,
     Tag,
     Version,
 )
@@ -120,10 +126,10 @@ class TestJsonSerialization(unittest.TestCase):
         profile = Profile(
             id="test_profile",
             version="1.0.0",
+            path=metadata.path,
             display_name="Test Profile",
             message="A test profile",
-            metadata=metadata,
-            features=[ProfileFeature(IdVersion("test_feature", Version(1, 0, 0)))],
+            profile_features=[ProfileFeature(FeatureRef("test_feature", "1.0.0"))],
         )
 
         result = json.loads(json.dumps(profile, cls=JsonSerialize))
@@ -141,7 +147,8 @@ class TestJsonSerialization(unittest.TestCase):
         profile = Profile(
             id="test_profile",
             version="1.0.0",
-            features=[ProfileFeature(IdVersion("test_feature", Version(1, 0, 0)), optional=True)],
+            path="",
+            profile_features=[ProfileFeature(FeatureRef("test_feature", "1.0.0"), optional=True)],
         )
 
         result = json.loads(json.dumps(profile, cls=JsonSerialize))

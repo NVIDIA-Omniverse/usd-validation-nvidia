@@ -5,7 +5,7 @@
 from dataclasses import dataclass, field
 
 from ._capabilities import Capability
-from ._features import Feature
+from ._features import Feature, FeatureRef
 
 
 @dataclass(frozen=True)
@@ -16,7 +16,7 @@ class ProfileFeature:
         optional: Whether the feature is optional in the profile.
     """
 
-    feature: Feature
+    feature: Feature | FeatureRef
     optional: bool = False
 
 
@@ -30,11 +30,15 @@ class Profile:
         features: The features of the profile.
         capabilities: The capabilities of the profile.
         profile_features: The profile feature references.
+        display_name: A human-readable profile name.
+        message: A description of the profile.
     """
 
     id: str
-    version: str
+    version: str | None
     path: str
-    features: list[Feature] = field(default_factory=list)
+    features: list[Feature | FeatureRef] = field(default_factory=list)
     capabilities: list[Capability] = field(default_factory=list)
     profile_features: list[ProfileFeature] = field(default_factory=list)
+    display_name: str | None = None
+    message: str | None = None

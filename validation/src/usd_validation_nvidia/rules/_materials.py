@@ -3,25 +3,27 @@
 #
 from __future__ import annotations
 
+from collections import defaultdict
 from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
+from functools import cache
 from typing import Any
 from urllib.parse import urlparse
 
-from pxr import Ar, Gf, Sdf, Sdr, Tf, Usd, UsdShade, UsdUtils
-
 import usd_validation_nvidia.capabilities as cap
+from pxr import Ar, Gf, Sdf, Sdr, Tf, Usd, UsdGeom, UsdShade, UsdUtils
 
 from .._base_rule_checker import BaseRuleChecker
 from .._categories import register_rule
 from .._fix import AuthoringLayers
-from .._issues import Suggestion
+from .._issues import Issue, IssueSeverity, Suggestion
 from .._requirements import register_requirements
 from ..utils import (
     get_sdf_type_for_shader_property,
     make_relative_url_if_possible,
     normalize_url,
 )
+from ._usd_validator_adapter import UsdValidatorAdapter
 
 __all__ = [
     "MaterialOldMdlSchemaChecker",
@@ -31,6 +33,11 @@ __all__ = [
     "ShaderImplementationSourceChecker",
     "UsdDanglingMaterialBinding",
     "UsdMaterialBindingApi",
+    "UsdShadeEncapsulationMaterialValidator",
+    "UsdShadeMaterialBindingCollectionValidator",
+    "UsdShadeMaterialBindingRelationships",
+    "UsdShadeShaderSdrCompliance",
+    "UsdShadeSubsetsMaterialBindFamilyChecker",
 ]
 
 USD_2508_API = Usd.GetVersion() >= (0, 25, 8)
@@ -51,6 +58,7 @@ class MaterialPathChecker(BaseRuleChecker):
         super().__init__(verbose, consumerLevelChecks, assetLevelChecks)
         self.unresolved_paths: set[str] = set()
         self.resolved_paths: set[str] = set()
+        self.attribute_paths: defaultdict[tuple[str, str], list[Issue]] = defaultdict(list)
         self.resolver: Ar.Resolver = Ar.GetResolver()
 
     def _path_exists(self, path) -> bool:
@@ -80,20 +88,27 @@ class MaterialPathChecker(BaseRuleChecker):
         """
         self.resolved_paths = set([normalize_url(path) for path in assetDeps])
 
+    def _AddCachedIssue(
+        self, dependency_path: str, message: str, at: Usd.Attribute, suggestion: Suggestion | None = None
+    ) -> None:
+        issue = Issue(severity=IssueSeverity.FAILURE, message=message, at=at, suggestion=suggestion)
+        self.attribute_paths[(dependency_path, message)].append(issue)
+
     @classmethod
-    def fix_path_callback(cls, stage: Usd.Stage, attribute: Usd.Attribute) -> None:
+    def fix_path_callback(cls, stage: Usd.Stage, attributes: list[Usd.Attribute]) -> None:
         """
         Suggestion to fix the path. The fix should take into account the location of the layer to be fixed.
         """
-        strongest_layer = AuthoringLayers(attribute)[0]
-        asset_absolute_path: str = strongest_layer.ComputeAbsolutePath(cls._prefix(attribute.Get().path))
+        for attribute in attributes:
+            strongest_layer = AuthoringLayers(attribute)[0]
+            asset_absolute_path: str = strongest_layer.ComputeAbsolutePath(cls._prefix(attribute.Get().path))
 
-        edit_layer: Sdf.Layer = stage.GetEditTarget().GetLayer()
-        if edit_layer.anonymous:
-            attribute.Set(Sdf.AssetPath(asset_absolute_path))
-        else:
-            asset_relative_path: str = make_relative_url_if_possible(edit_layer.identifier, asset_absolute_path)
-            attribute.Set(Sdf.AssetPath(cls._prefix(asset_relative_path)))
+            edit_layer: Sdf.Layer = stage.GetEditTarget().GetLayer()
+            if edit_layer.anonymous:
+                attribute.Set(Sdf.AssetPath(asset_absolute_path))
+            else:
+                asset_relative_path: str = make_relative_url_if_possible(edit_layer.identifier, asset_absolute_path)
+                attribute.Set(Sdf.AssetPath(cls._prefix(asset_relative_path)))
 
     def CheckPrim(self, prim):
         if not prim.IsA(UsdShade.Shader):
@@ -142,22 +157,21 @@ class MaterialPathChecker(BaseRuleChecker):
             if not original_path.startswith("."):
                 asset_path = normalize_url(strongest_layer.ComputeAbsolutePath(prefixed_path))
                 if self._path_exists(asset_path):
-                    self._AddFailedCheck(
-                        requirement=cap.Requirements.VM_MDL_001,
+                    self._AddCachedIssue(
+                        dependency_path=asset_path,
                         message=f"Relative path {original_path} should be corrected to {prefixed_path}.",
                         at=attribute,
                         suggestion=Suggestion(
                             callable=self.fix_path_callback,
                             message=f"Corrects asset path `{original_path}` to `{prefixed_path}`",
-                            at=attribute,
                         ),
                     )
                     continue
 
             # Unresolved absolute path
             if material_file_path in self.unresolved_paths:
-                self._AddFailedCheck(
-                    requirement=cap.Requirements.VM_MDL_001,
+                self._AddCachedIssue(
+                    dependency_path=material_file_path,
                     message=f"The path {original_path} does not exist.",
                     at=attribute,
                 )
@@ -166,12 +180,27 @@ class MaterialPathChecker(BaseRuleChecker):
             # Unresolved relative path
             asset_path = normalize_url(strongest_layer.ComputeAbsolutePath(prefixed_path))
             if asset_path in self.unresolved_paths:
-                self._AddFailedCheck(
-                    requirement=cap.Requirements.VM_MDL_001,
+                self._AddCachedIssue(
+                    dependency_path=asset_path,
                     message=f"The relative path {original_path} does not exist.",
                     at=attribute,
                 )
                 continue
+
+    def ResetCaches(self):
+        super().ResetCaches()
+        for issues in self.attribute_paths.values():
+            self._AddFailedCheck(
+                requirement=cap.Requirements.VM_MDL_001,
+                message=issues[0].message,
+                at=tuple(issue.at for issue in issues),
+                suggestion=(
+                    Suggestion(callable=issues[0].suggestion.callable, message=issues[0].suggestion.message)
+                    if issues[0].suggestion
+                    else None
+                ),
+            )
+        self.attribute_paths.clear()
 
 
 @register_rule("Material")
@@ -299,6 +328,85 @@ class UsdMaterialBindingApi(BaseRuleChecker):
             )
 
 
+@register_rule("Material", skip="usdShadeValidators:EncapsulationMaterialValidator" not in UsdValidatorAdapter)
+class UsdShadeEncapsulationMaterialValidator(UsdValidatorAdapter):
+    """
+    Validates UsdShade material encapsulation using OpenUSD's EncapsulationMaterialValidator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdShadeValidators:EncapsulationMaterialValidator"
+
+
+@register_rule("Material", skip="usdShadeValidators:MaterialBindingRelationships" not in UsdValidatorAdapter)
+class UsdShadeMaterialBindingRelationships(UsdValidatorAdapter):
+    """
+    Validates material-binding properties using OpenUSD's MaterialBindingRelationships validator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdShadeValidators:MaterialBindingRelationships"
+
+
+@register_rule("Material", skip="usdShadeValidators:MaterialBindingCollectionValidator" not in UsdValidatorAdapter)
+class UsdShadeMaterialBindingCollectionValidator(UsdValidatorAdapter):
+    """
+    Validates material-binding collections using OpenUSD's MaterialBindingCollectionValidator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdShadeValidators:MaterialBindingCollectionValidator"
+
+
+@register_rule("Material", skip="usdShadeValidators:ShaderSdrCompliance" not in UsdValidatorAdapter)
+class UsdShadeShaderSdrCompliance(UsdValidatorAdapter):
+    """
+    Validates UsdShade shader property conformance using OpenUSD's ShaderSdrCompliance validator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdShadeValidators:ShaderSdrCompliance"
+
+
+@register_rule("Material")
+class UsdShadeSubsetsMaterialBindFamilyChecker(UsdValidatorAdapter):
+    """
+    Validates that the materialBind subset family is restricted.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdShadeValidators:SubsetsMaterialBindFamily"
+
+    def _CheckPrim(self, prim: Usd.Prim) -> None:
+        imageable = UsdGeom.Imageable(prim)
+        if not imageable:
+            return
+
+        material_bind_subsets = UsdGeom.Subset.GetGeomSubsets(
+            imageable,
+            elementType="",
+            familyName=UsdShade.Tokens.materialBind,
+        )
+        if not material_bind_subsets:
+            return
+
+        material_bind_family_type = UsdGeom.Subset.GetFamilyType(imageable, UsdShade.Tokens.materialBind)
+        if material_bind_family_type != UsdGeom.Tokens.unrestricted:
+            return
+
+        self._AddFailedCheck(
+            f"Imageable prim <{prim.GetPath()}> has '{UsdShade.Tokens.materialBind}' subset family with invalid "
+            f"family type '{material_bind_family_type}'. Family type should be '{UsdGeom.Tokens.nonOverlapping}' "
+            f"or '{UsdGeom.Tokens.partition}' instead.",
+            at=prim,
+        )
+
+
 @dataclass
 class _InputValue:
     """Stores value of the underlying Usd.Attribute for a UsdShade.Input object.
@@ -337,8 +445,6 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
 
     # Keep this docstring in sync with derived classes
 
-    usd_preview_surface_shaders = []
-
     @dataclass
     class _ValidationResult:
         """Returned as a result of a failed validation check."""
@@ -351,14 +457,21 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
     def __init__(self, verbose: bool, consumerLevelChecks: bool, assetLevelChecks: bool) -> None:
         super().__init__(verbose, consumerLevelChecks, assetLevelChecks)
 
-        if not MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders:
+    @classmethod
+    @cache
+    def usd_preview_surface_shaders(cls) -> tuple[str, ...]:
+        try:
             if USD_2508_API:
                 nodes = Sdr.Registry().GetShaderNodeNames()
             else:
                 nodes = Sdr.Registry().GetNodeNames()
+            usd_preview_surface_shaders = []
             for sdr_node_name in nodes:
                 if sdr_node_name.startswith("Usd"):
-                    MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.append(sdr_node_name)
+                    usd_preview_surface_shaders.append(sdr_node_name)
+            return tuple(usd_preview_surface_shaders)
+        except Tf.ErrorException:
+            return ()
 
     def CheckStage(self, usdStage: Usd.Stage) -> None:
         # Without UsdPreviewSurface shader definitions in the Sdr Registry the per-prim checks
@@ -366,7 +479,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
         # This typically means the ``shaderDefs.usda`` shader resource is missing from the
         # runtime (e.g., on the ``usd-exchange`` wheel). Surface a warning so users know the
         # rule did not actually inspect their shaders.
-        if not MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders:
+        if not self.usd_preview_surface_shaders():
             self._AddWarning(
                 "No UsdPreviewSurface shader definitions are registered with the Sdr Registry, "
                 "so this rule cannot validate any shaders. This typically means the "
@@ -411,9 +524,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
             attr.Set(input_value.value)
 
     @classmethod
-    def write_usd_shade_input_metadata(
-        cls, usd_shade_input: UsdShade.Input, sdr_property: Sdr.ShaderProperty
-    ) -> None:
+    def write_usd_shade_input_metadata(cls, usd_shade_input: UsdShade.Input, sdr_property: Sdr.ShaderProperty) -> None:
         """Set the metadata iff it differs from what is already defined."""
         if cls._validate_usd_shade_input_metadata(usd_shade_input, sdr_property) is not None:
             options = [o[0] for o in sdr_property.GetOptions()]
@@ -487,7 +598,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
     def update_usd_shade_input(cls, usd_shade_input: UsdShade.Input, sdr_property: Sdr.ShaderProperty) -> None:
         """Update the UsdShade.Input from SdrProperty, restore any parameter values and/or connections that have been set."""
 
-        (force_connection_write, _, input_value, connections) = cls._input_value_and_connections_transform(
+        force_connection_write, _, input_value, connections = cls._input_value_and_connections_transform(
             usd_shade_input, sdr_property
         )
 
@@ -536,7 +647,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
         shader_id = usdshade_shader.GetShaderId()
 
         # not a UsdPreviewSurface shader, so skip.
-        if shader_id not in cls.usd_preview_surface_shaders:
+        if shader_id not in cls.usd_preview_surface_shaders():
             return
 
         sdr_node = Sdr.Registry().GetShaderNodeByName(shader_id)
@@ -739,9 +850,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
             )
 
     @classmethod
-    def _validate_usd_shade_input_invalid_connection(
-        cls, usd_shade_input: UsdShade.Input
-    ) -> _ValidationResult | None:
+    def _validate_usd_shade_input_invalid_connection(cls, usd_shade_input: UsdShade.Input) -> _ValidationResult | None:
         connections = usd_shade_input.GetConnectedSources()
         if not connections or not connections[0]:
             return
@@ -763,8 +872,8 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
         if options:
             options = [o[0] for o in options]
         elif usd_shade_input.GetBaseName() == "sourceColorSpace":
-            # TODO: we should be getting this information from the SDR registry but for the SourceColorSpace parameter we are not.
-            # hardcoding this here for now until the Sdr plugins are updated.
+            # The SDR registry does not provide sourceColorSpace options yet.
+            # Keep the known token set here until the Sdr plugins report it.
             options = ["raw", "sRGB", "auto"]
 
         if options:
@@ -887,7 +996,7 @@ class MaterialUsdPreviewSurfaceChecker(BaseRuleChecker):
         shader_id = usdshade_shader.GetShaderId()
 
         # not a UsdPreviewSurface shader, so skip.
-        if shader_id not in cls.usd_preview_surface_shaders:
+        if shader_id not in cls.usd_preview_surface_shaders():
             return []
 
         sdr_node = Sdr.Registry().GetShaderNodeByName(shader_id)
@@ -1030,9 +1139,7 @@ class MaterialOldMdlSchemaChecker(BaseRuleChecker):
             shader.SetSourceAssetSubIdentifier(name, "mdl")
             return
 
-        raise ValueError(
-            "Unable to fix shader using deprecated MDL schema due to the following:\n" + "\n".join(errors)
-        )
+        raise ValueError("Unable to fix shader using deprecated MDL schema due to the following:\n" + "\n".join(errors))
 
     def CheckPrim(self, prim):
         shader = UsdShade.Shader(prim)

@@ -30,6 +30,9 @@ For full functionality, install with optional dependencies:
 # Include usd-core
 pip install usd-validation-nvidia[usd]
 
+# Include USD Exchange
+pip install usd-validation-nvidia[usdex]
+
 # Include NumPy (for optimizations)
 pip install usd-validation-nvidia[numpy]
 
@@ -126,6 +129,7 @@ nvidia_usd_validate --help
 ## Requirements
 
 - Python 3.10 - 3.13 with OpenUSD 23.11 or later
+- Python 3.10 - 3.13 with USD Exchange 3.0.0 or later
 - Python 3.14 with OpenUSD 26.08
 
 ## License

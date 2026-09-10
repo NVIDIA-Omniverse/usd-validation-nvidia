@@ -34,14 +34,14 @@ class IsAnIssue:
 
     Args:
         message: The expected message of the issue.
-        at: Optional. The expected location of the issue.
+        at: Optional. The expected location(s) of the issue.
         code: Optional. The expected code of the issue.
         requirement: Optional. The expected requirement of the issue.
         severity: Optional. The expected severity of the issue.
     """
 
     message: str | re.Pattern | None = None
-    at: str | Sdf.Path | pathlib.Path | None = None
+    at: str | Sdf.Path | pathlib.Path | list[str | Sdf.Path | pathlib.Path] | None = None
     code: str | None = None
     rule: type[BaseRuleChecker] | None = None
     requirement: Requirement | RequirementRefProtocol | None = None
@@ -67,17 +67,23 @@ class IsAnIssue:
 
     @singledispatchmethod
     @classmethod
-    def at_cmp(cls, lh, rh: Identifier) -> bool:
+    def at_cmp(cls, lh, rh: Identifier | list[Identifier] | tuple[Identifier, ...]) -> bool:
+        if isinstance(rh, (list, tuple)):
+            return cls.at_cmp([lh], rh)
         return lh == rh
 
     @at_cmp.register
     @classmethod
-    def _(cls, lh: str, rh: Identifier) -> bool:
+    def _(cls, lh: str, rh: Identifier | list[Identifier] | tuple[Identifier, ...]) -> bool:
+        if isinstance(rh, (list, tuple)):
+            return cls.at_cmp([lh], rh)
         return lh == rh.as_str()
 
     @at_cmp.register
     @classmethod
-    def _(cls, lh: Sdf.Path, rh: Identifier) -> bool:
+    def _(cls, lh: Sdf.Path, rh: Identifier | list[Identifier] | tuple[Identifier, ...]) -> bool:
+        if isinstance(rh, (list, tuple)):
+            return cls.at_cmp([lh], rh)
         if hasattr(rh, "path"):
             return lh == rh.path
         else:
@@ -85,10 +91,30 @@ class IsAnIssue:
 
     @at_cmp.register
     @classmethod
-    def _(cls, lh: pathlib.Path, rh: Identifier) -> bool:
+    def _(cls, lh: pathlib.Path, rh: Identifier | list[Identifier] | tuple[Identifier, ...]) -> bool:
+        if isinstance(rh, (list, tuple)):
+            return cls.at_cmp([lh], rh)
         if hasattr(rh, "path") and isinstance(rh.path, str):
             return lh == pathlib.Path(rh.path)
         return False
+
+    @at_cmp.register
+    @classmethod
+    def _(cls, lh: list, rh: Identifier | list[Identifier] | tuple[Identifier, ...]) -> bool:
+        if not isinstance(rh, (list, tuple)):
+            return False
+        if len(lh) != len(rh):
+            return False
+
+        remaining = list(rh)
+        for expected in lh:
+            for index, actual in enumerate(remaining):
+                if cls.at_cmp(expected, actual):
+                    del remaining[index]
+                    break
+            else:
+                return False
+        return True
 
     @classmethod
     def requirement_cmp(

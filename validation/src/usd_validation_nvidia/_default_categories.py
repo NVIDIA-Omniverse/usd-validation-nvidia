@@ -43,8 +43,17 @@ from .rules import (
     UsdGeomSubsetChecker,
     UsdGeomSubsetFamiliesChecker,
     UsdGeomSubsetParentIsImageableChecker,
+    UsdLuxEncapsulationRulesValidator,
     UsdLuxSchemaChecker,
     UsdMaterialBindingApi,
+    UsdShadeEncapsulationMaterialValidator,
+    UsdShadeMaterialBindingCollectionValidator,
+    UsdShadeMaterialBindingRelationships,
+    UsdShadeShaderSdrCompliance,
+    UsdShadeSubsetsMaterialBindFamilyChecker,
+    UsdUtilsFileExtensionValidator,
+    UsdUtilsPackageEncapsulationValidator,
+    UsdValidationAttributeTypeMismatchChecker,
     ValidateTopologyChecker,
     WeldChecker,
     ZeroAreaFaceChecker,
@@ -72,6 +81,8 @@ class DefaultCategoryRules(Enum):
         (
             AnchoredAssetPathsChecker,
             SupportedFileTypesChecker,
+            UsdUtilsFileExtensionValidator,
+            UsdUtilsPackageEncapsulationValidator,
         ),
     )
     """
@@ -93,6 +104,7 @@ class DefaultCategoryRules(Enum):
             StageMetadataChecker,
             TextureChecker,
             TypeChecker,
+            UsdValidationAttributeTypeMismatchChecker,
         ),
     )
     """
@@ -161,6 +173,11 @@ class DefaultCategoryRules(Enum):
             ShaderImplementationSourceChecker,
             UsdDanglingMaterialBinding,
             UsdMaterialBindingApi,
+            UsdShadeEncapsulationMaterialValidator,
+            UsdShadeMaterialBindingCollectionValidator,
+            UsdShadeMaterialBindingRelationships,
+            UsdShadeShaderSdrCompliance,
+            UsdShadeSubsetsMaterialBindFamilyChecker,
         ),
     )
     """
@@ -188,6 +205,7 @@ class DefaultCategoryRules(Enum):
         "Other",
         (
             SkelBindingAPIAppliedChecker,
+            UsdLuxEncapsulationRulesValidator,
             UsdLuxSchemaChecker,
         ),
     )

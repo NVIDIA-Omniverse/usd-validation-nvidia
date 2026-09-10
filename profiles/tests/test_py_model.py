@@ -5,7 +5,14 @@
 import os
 import unittest
 
-from usd_profiles_nvidia.api import Capability, Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Capability,
+    Feature,
+    FeatureRef,
+    Profile,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.codegen._py_model import (
     PyCapability,
     PyFeature,
@@ -13,10 +20,7 @@ from usd_profiles_nvidia.codegen._py_model import (
     PyRequirement,
     PythonStoreView,
 )
-from usd_profiles_nvidia.model import (
-    Profile,
-    Specifications,
-)
+from usd_profiles_nvidia.model import Specifications
 from usd_profiles_nvidia.parsers import SpecificationsParser
 from usd_profiles_nvidia.store import SpecificationsStore
 
@@ -45,7 +49,7 @@ class TestPythonModel(unittest.TestCase):
         self.assertIsNone(PyRequirement(Requirement(code="REQ.001")).html_path)
         self.assertIsNone(PyCapability(Capability(id="materials", version="1.0.0", path="", requirements=[])).html_path)
         self.assertIsNone(PyFeature(Feature(id="rigid_body_physics", version="", path="", requirements=[])).html_path)
-        self.assertIsNone(PyProfile(Profile(id="prop_robotics_neutral")).html_path)
+        self.assertIsNone(PyProfile(Profile(id="prop_robotics_neutral", version="", path="")).html_path)
 
     def test_capability_wraps_model_requirements(self):
         requirement = Requirement(code="materials.MAT.001", version="1.0.0")

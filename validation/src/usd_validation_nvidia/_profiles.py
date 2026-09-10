@@ -4,12 +4,16 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 
 from ._features import FeatureRegistry
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from .capabilities import ProfileProtocol, RequirementRefProtocol
+from .capabilities import (
+    FeatureProtocol,
+    ProfileProtocol,
+    RequirementRefProtocol,
+)
 from .utils import EventListener, SemVer, deprecated, singleton
 
 __all__ = [
@@ -54,31 +58,38 @@ class ProfileRegistry(VersionedRegistry[Profile]):
         feature_registry = FeatureRegistry()
         registry = RequirementsRegistry()
         requirements: list[Requirement | RequirementRefProtocol] = []
-        for feature in getattr(profile, "features", ()):
+        for feature in self._resolved_features(profile, feature_registry):
             requirements.extend(feature_registry.get_requirements(feature))
-        for capability in profile.capabilities:
+        for capability in getattr(profile, "capabilities", ()):
             requirements.extend(registry.resolve_requirements(capability.requirements))
         return requirements
 
-    def remove(self, profile: Profile) -> None:
-        """
-        Remove a profile from the registry.
-
-        Args:
-            profile: The profile to remove
-
-        Raises:
-            ValueError: If the profile has requirements that are implemented
-        """
-        registry = RequirementsRegistry()
-        requirements: list[Requirement | RequirementRefProtocol] = []
-        for feature in getattr(profile, "features", ()):
-            requirements.extend(registry.resolve_requirements(feature.requirements))
-        for capability in profile.capabilities:
-            requirements.extend(registry.resolve_requirements(capability.requirements))
-        if registry.get_validators(requirements):
-            raise ValueError(f"Profile {profile} has requirements that are implemented")
-        super().remove(profile)
+    @classmethod
+    def _resolved_features(
+        cls,
+        profile: Profile,
+        registry: FeatureRegistry,
+        *,
+        allow_unresolved_required: bool = False,
+    ) -> Iterator[FeatureProtocol]:
+        """Yield concrete profile features and compatible registered values for references."""
+        feature_entries = (
+            ((profile_feature.feature, profile_feature.optional) for profile_feature in profile.profile_features)
+            if profile.profile_features
+            else ((feature, False) for feature in profile.features)
+        )
+        for feature, optional in feature_entries:
+            if not hasattr(feature, "requirements"):
+                reference = feature
+                feature = registry.resolve(reference.id, reference.version)
+                if feature is None and not (optional or allow_unresolved_required):
+                    raise ValueError(
+                        f"Required feature {reference.id!r} version {reference.version!r} "
+                        f"referenced by profile {profile.id!r} version {profile.version!r} is not registered"
+                    )
+            if feature is None:
+                continue
+            yield feature
 
     @deprecated("Use add() instead")
     def add_profile(self, profile: Profile) -> None:
@@ -150,20 +161,20 @@ def register_profiles(profiles: Iterable[Profile]) -> bool:
 
 def unregister_profiles(profiles: Iterable[Profile]) -> bool:
     """
-    Unregister multiple profiles, skipping any still in use.
+    Unregister multiple profiles by ID and version, skipping any not registered.
 
     Args:
         profiles: An iterable of profiles to unregister.
 
     Returns:
-        True if every profile was unregistered, False if any were skipped.
+        True if every profile was unregistered, False if any were missing.
     """
     flag: bool = True
     for profile in profiles:
         try:
             unregister_profile(profile)
         except ValueError:
-            logger.debug(f"Profile {profile} still in use, skipping")
+            logger.debug(f"Profile {profile} not registered, skipping")
             flag = False
     return flag
 

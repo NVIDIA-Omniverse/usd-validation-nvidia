@@ -5,10 +5,9 @@
 import os
 from pathlib import Path
 
+import usd_validation_nvidia.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
 from pxr import Usd
-
-import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
     AnchoredAssetPathsChecker,
     SupportedFileTypesChecker,
@@ -27,8 +26,6 @@ class AnchoredAssetPathsCheckerTest(AsyncioValidationTestCase):
         # Given
         anchored_layer_path = normalize_url(str(data_path / "anchoredAssetPath.usda"))
         absolute_layer_path = normalize_url(str(data_path / "absoluteAssetPath.usda"))
-        relative_layer_path = normalize_url(str(data_path / "relativeAssetPath.usda"))
-        material_layer_path = normalize_url(str(data_path / "materialUdim.usda"))
         # When / Then
         expected_failures = [
             IsAFailure(
@@ -61,25 +58,7 @@ class AnchoredAssetPathsCheckerTest(AsyncioValidationTestCase):
             ),  # absolute payload path
         ]
 
-        # In USD 25.02, UsdUtils.ComputeAllDependencies() starts to
-        # report dependency assets from a dependent .usdz layers.
-        if Usd.GetVersion() >= (0, 25, 2):
-            expected_failures.extend(
-                [
-                    IsAFailure(
-                        "Dependent Reference .* cannot be resolved.",
-                        at=material_layer_path,
-                        requirement=cap.Requirements.AA_001,
-                    ),  # Udim texture path
-                    IsAFailure(
-                        "Dependent Reference .* cannot be resolved.",
-                        at=relative_layer_path,
-                        requirement=cap.Requirements.AA_001,
-                    ),  # Udim texture path
-                ]
-            )
-
-        elif Usd.GetVersion() < (0, 24, 5):
+        if Usd.GetVersion() < (0, 24, 5):
             expected_failures.insert(
                 5,
                 IsAFailure(

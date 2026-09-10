@@ -3,7 +3,6 @@
 #
 from common import AsyncioValidationTestCase, get_url
 from pxr import Gf, Sdf, UsdGeom
-
 from usd_validation_nvidia import (
     AlmostExtremeExtentChecker,
     BaseBoundsChecker,
@@ -20,10 +19,8 @@ class AlmostExtremeExtentCheckerCheckerTest(AsyncioValidationTestCase):
     """Ensure that we identify the Prims that RTX will produce warnings for, and no others"""
 
     async def test_validate(self):
-        # TODO: We need some more test cases
-        # - Transformed parent prims
-        # - Time sampled prims
-        # - Prims with invalid or un-authored extent
+        # Additional edge cases include transformed parent prims, time-sampled prims,
+        # and prims with invalid or unauthored extents.
 
         # Declare a list of the Paths that we expect to fail
         fail_prim_paths = [

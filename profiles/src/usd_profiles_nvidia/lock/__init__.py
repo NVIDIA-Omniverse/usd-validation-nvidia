@@ -5,7 +5,14 @@
 from ._builder import ProfilesLockBuilder
 from ._file import DEFAULT_LOCK_FILE, ProfilesLockFile
 from ._manager import ProfilesLockManager
-from ._model import FeatureLockEntry, LockCheckResult, LockProblem, ProfilesLock, ProfilesLockError, SourceLockEntry
+from ._model import (
+    FeatureLockEntry,
+    LockCheckResult,
+    LockProblem,
+    ProfilesLock,
+    ProfilesLockError,
+    SourceLockEntry,
+)
 from ._validator import ProfilesLockValidator
 
 __all__ = [

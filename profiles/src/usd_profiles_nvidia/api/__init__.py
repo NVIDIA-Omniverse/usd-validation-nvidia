@@ -9,8 +9,8 @@ from ._parameters import Parameter, ParameterType
 from ._profiles import Profile, ProfileFeature
 from ._protocols import (
     CapabilityProtocol,
-    FeatureRefProtocol,
     FeatureProtocol,
+    FeatureRefProtocol,
     ProfileFeatureProtocol,
     ProfileProtocol,
     RequirementProtocol,

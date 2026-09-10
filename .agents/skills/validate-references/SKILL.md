@@ -29,6 +29,14 @@ another installed validation package. This skill shows the smallest useful plugi
 The referenced package supplies the concrete requirement object and rule; the downstream plugin supplies only the
 generated feature composition.
 
+## Inputs
+
+- Required: target plugin or example path, referenced requirement or feature codes, versions when they must be pinned,
+  and the owning package that registers the referenced objects.
+- Optional: reverse-domain, generated package name, feature IDs, dependency graph, asset to validate, and whether to use
+  local source (`--with ./validation`) or an installed package.
+- Precedence: explicit user prompt, existing specs and plugin files, agent context, then the examples in this skill.
+
 ## Prerequisites
 
 - Python 3.10-3.14.

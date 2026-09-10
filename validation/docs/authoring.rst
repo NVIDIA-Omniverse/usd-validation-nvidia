@@ -125,6 +125,40 @@ as a rule:
         def validator_name(cls):
             return "usdUtilsValidators:UsdzPackageValidator"
 
+Running a callback in a process pool
+====================================
+
+By default every rule callback runs in the calling process. Decorate a callback with
+:py:func:`~usd_validation_nvidia.multiprocess_safe` to declare it eligible for the
+process pool that ``--process COUNT`` enables:
+
+.. code-block:: python
+
+    from usd_validation_nvidia import BaseRuleChecker, multiprocess_safe, register_rule
+
+
+    @register_rule("Basic")
+    class MyLayerRule(BaseRuleChecker):
+        @multiprocess_safe
+        def CheckLayer(self, layer):
+            ...
+
+The decorator is a declaration, not a request: marked callbacks run in the pool only
+when process execution is enabled, and behave exactly as before when it is not. This
+feature is experimental.
+
+A callback is only safe to mark if it holds to both of these:
+
+- **Its arguments and results survive pickling.** Work crosses a process boundary, so
+  anything the callback receives or reports must be picklable. Validation identifiers
+  and layer compliance events already are.
+- **It shares no mutable state with the parent process.** Accumulating results on
+  ``self`` across calls does not work — a worker mutates its own copy, and the parent
+  never sees it. Report findings through the usual issue helpers instead.
+
+``CheckStage`` and ``CheckPrim`` callbacks that traverse a live stage are generally not
+safe to mark, because the stage does not cross the process boundary.
+
 Distributing rules as a plugin
 ==============================
 
@@ -143,3 +177,41 @@ The referenced object implements :py:class:`~usd_validation_nvidia.PluginProtoco
 ``on_shutdown()`` hook. :py:class:`~usd_validation_nvidia.DefaultPlugin` is the built-in
 reference implementation. The legacy ``omni.asset_validator`` group is also scanned for
 backward compatibility, but new plugins should use ``usd_validation_nvidia``.
+
+Loading authored specs and loose rules
+======================================
+
+For applications that load authored profile/specification content at runtime, use
+``usd_profiles_nvidia.SpecificationsLoader`` to parse the content and
+:py:func:`~usd_validation_nvidia.register_content` to register its requirement
+definitions, capabilities, features, and profiles. Loose Python validator modules have a
+separate lifecycle token from :py:func:`~usd_validation_nvidia.register_validation_modules`:
+
+.. code-block:: python
+
+    from usd_profiles_nvidia import SpecificationsLoader
+    from usd_validation_nvidia import (
+        register_content,
+        register_validation_modules,
+        unregister_content,
+        unregister_validation_modules,
+    )
+
+    content = SpecificationsLoader(
+        root_dir="specs",
+        reverse_domain="com.example.assets",
+    ).load()
+
+    registered_modules = None
+    try:
+        register_content(content)
+        registered_modules = register_validation_modules(["specs/capabilities/geometry/validation.py"])
+        ...
+    finally:
+        if registered_modules is not None:
+            unregister_validation_modules(registered_modules)
+        unregister_content(content)
+
+The loaded ``content`` object is the lifecycle token for documentation/specification
+content. The ``registered_modules`` token owns imported rule modules, so reload and
+shutdown code can unregister exactly what it previously loaded.

@@ -79,8 +79,7 @@ class TestPythonGenerator(unittest.TestCase):
             self.assertIsInstance(feature, module.FeatureProtocol)
             for dependency in feature.dependencies:
                 self.assertTrue(
-                    isinstance(dependency, module.FeatureProtocol)
-                    or isinstance(dependency, module.FeatureRefProtocol)
+                    isinstance(dependency, module.FeatureProtocol) or isinstance(dependency, module.FeatureRefProtocol)
                 )
         for profile in module.Profiles:
             self.assertIsInstance(profile, module.ProfileProtocol)
@@ -119,6 +118,15 @@ class TestPythonGenerator(unittest.TestCase):
                 self.assertEqual(profiles.Requirements.VG_RTX_002_V1_0_0.code, "VG.RTX.002")
                 self.assertEqual(profiles.Requirements.VG_RTX_002_V1_0_0.version, "1.0.0")
                 self.assertIsNone(profiles.Requirements.VG_RTX_002_V1_0_0.validator)
+
+                feature = profiles.Features.DESCRIPTOR_FEATURE_V1_0_0
+                self.assertEqual(feature.id, "descriptor_feature")
+                self.assertEqual(feature.requirements, [profiles.Requirements.VG_RTX_002_V1_0_0])
+
+                profile = profiles.Profiles.DESCRIPTOR_PROFILE_V1_0_0
+                self.assertEqual(profile.id, "descriptor_profile")
+                self.assertEqual(profile.features, [feature])
+                self.assertEqual(profile.profile_features, [profiles.ProfileFeature(feature)])
 
     def test_codegen_with_examples(self):
         """Test code generation with requirement examples."""

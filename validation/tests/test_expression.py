@@ -44,11 +44,9 @@ class ExpressionTests(unittest.TestCase):
         tree = _PatternTree()
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
-            """
-            ),
+            """),
         )
 
     def test_expression_tree(self):
@@ -56,12 +54,10 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("This is a nice sentence")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a nice sentence
-            """
-            ),
+            """),
         )
 
         tree = _PatternTree()
@@ -69,14 +65,12 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("This is a cool sentence")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a .* sentence
                     This is a nice sentence
                     This is a cool sentence
-            """
-            ),
+            """),
         )
 
         tree = _PatternTree()
@@ -85,16 +79,14 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("This is a very cool sentence")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a .* sentence
                     This is a nice sentence
                     This is a .*cool sentence
                         This is a cool sentence
                         This is a very cool sentence
-            """
-            ),
+            """),
         )
 
         tree = _PatternTree()
@@ -104,8 +96,7 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("This is a sentence complete")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a .*
                     This is a .* sentence
@@ -114,8 +105,7 @@ class ExpressionTests(unittest.TestCase):
                             This is a cool sentence
                             This is a very cool sentence
                     This is a sentence complete
-            """
-            ),
+            """),
         )
 
         tree = _PatternTree()
@@ -126,8 +116,7 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("Unrelated stuff!")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a .*
                     This is a .* sentence
@@ -137,8 +126,7 @@ class ExpressionTests(unittest.TestCase):
                             This is a very cool sentence
                     This is a sentence complete
                 Unrelated stuff!
-            """
-            ),
+            """),
         )
 
         tree = _PatternTree()
@@ -149,8 +137,7 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("Unrelated stuff!")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a .*
                     This is a .* sentence
@@ -159,8 +146,7 @@ class ExpressionTests(unittest.TestCase):
                         This is a cool sentence
                     This is a sentence complete
                 Unrelated stuff!
-            """
-            ),
+            """),
         )
 
     def test_expression_tree_repeated(self):
@@ -169,10 +155,8 @@ class ExpressionTests(unittest.TestCase):
         tree.insert("This is a nice sentence")
         self.assertEqual(
             self.print_tree(tree),
-            inspect.cleandoc(
-                """
+            inspect.cleandoc("""
             .*
                 This is a nice sentence
-            """
-            ),
+            """),
         )

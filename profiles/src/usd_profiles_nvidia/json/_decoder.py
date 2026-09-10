@@ -6,7 +6,15 @@ import json
 from collections.abc import Mapping
 from dataclasses import fields
 
-from usd_profiles_nvidia.api import Capability, Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Capability,
+    Feature,
+    FeatureRef,
+    Profile,
+    ProfileFeature,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.model import (
     Compatibility,
     Example,
@@ -17,8 +25,6 @@ from usd_profiles_nvidia.model import (
     Metadata,
     Parameter,
     ParameterType,
-    Profile,
-    ProfileFeature,
     Tag,
     Version,
 )
@@ -66,13 +72,14 @@ class JsonDeserialize(json.JSONDecoder):
 
     @classmethod
     def decode_profile(cls, dct):
+        metadata = dct.get("metadata")
         return Profile(
             id=dct["id"],
-            version=dct.get("version"),
+            version=dct.get("version", ""),
+            path=(metadata.path if isinstance(metadata, Metadata) else dct.get("path")) or "",
             display_name=dct.get("name"),
             message=dct.get("description"),
-            features=cls.decode_profile_features(dct.get("features")),
-            metadata=dct.get("metadata", Metadata()),
+            profile_features=cls.decode_profile_features(dct.get("features")),
         )
 
     @classmethod
@@ -174,8 +181,12 @@ class JsonDeserialize(json.JSONDecoder):
 
     @classmethod
     def decode_profile_feature(cls, feature: dict) -> ProfileFeature:
+        feature_ref = cls.decode_id_version(feature["feature"])
         return ProfileFeature(
-            feature=cls.decode_id_version(feature["feature"]),
+            feature=FeatureRef(
+                feature_ref.id,
+                str(feature_ref.version) if feature_ref.version is not None else None,
+            ),
             optional=feature["optional"],
         )
 

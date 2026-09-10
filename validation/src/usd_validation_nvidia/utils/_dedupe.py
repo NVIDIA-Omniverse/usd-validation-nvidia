@@ -48,4 +48,3 @@ class DedupeMetaclass(type):
             maxsize=cls.MAX_DEDUPE_ENTRIES,
             currsize=len(cls._dedupe_instances),
         )
-

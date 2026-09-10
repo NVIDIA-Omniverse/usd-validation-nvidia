@@ -8,7 +8,13 @@ import json
 import os
 from dataclasses import dataclass
 
-from ._model import FeatureLockEntry, LOCK_VERSION, ProfilesLock, ProfilesLockError, SourceLockEntry
+from ._model import (
+    LOCK_VERSION,
+    FeatureLockEntry,
+    ProfilesLock,
+    ProfilesLockError,
+    SourceLockEntry,
+)
 
 DEFAULT_LOCK_FILE = "profiles.lock"
 

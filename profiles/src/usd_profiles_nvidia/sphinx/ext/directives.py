@@ -5,7 +5,6 @@
 from typing import Any
 
 from sphinx.application import Sphinx
-
 from usd_profiles_nvidia.sphinx.directives import (
     features_table_setup,
     requirements_table_setup,

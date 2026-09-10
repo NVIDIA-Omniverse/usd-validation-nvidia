@@ -13,14 +13,14 @@ from functools import lru_cache
 
 from pxr import Sdf, Tf
 
-from ._assets import AssetProgress
-from ._base_rule_checker import BaseRuleChecker
-from ._capabilities import Capability, CapabilityRegistry
-from ._categories import CategoryRuleRegistry
-from ._engine import ValidationEngine
-from ._features import Feature, FeatureRegistry
-from ._fix import IssueFixer
-from ._issues import (
+from .._assets import AssetProgress
+from .._base_rule_checker import BaseRuleChecker
+from .._capabilities import Capability, CapabilityRegistry
+from .._categories import CategoryRuleRegistry
+from .._engine import ValidationEngine
+from .._features import Feature, FeatureRegistry
+from .._fix import IssueFixer
+from .._issues import (
     Issue,
     IssueGroupBy,
     IssueGroupsBy,
@@ -29,15 +29,15 @@ from ._issues import (
     IssueSeverity,
     IssuesList,
 )
-from ._parameters import ParameterMapping, UserParameter
-from ._profiles import Profile, ProfileRegistry
-from ._registry import VersionedRegistry
-from ._requirements import Requirement, RequirementsRegistry
-from ._results import Results, ResultsList
-from ._validation_context import ValidationContext
-from ._version import __version__
-from .reporting import export_csv_file, export_json_file
-from .utils import SemVer
+from .._parameters import ParameterMapping, UserParameter
+from .._profiles import Profile, ProfileRegistry
+from .._registry import VersionedRegistry
+from .._requirements import Requirement, RequirementsRegistry
+from .._results import Results, ResultsList
+from .._validation_context import ValidationContext
+from .._version import __version__
+from ..reporting import export_csv_file, export_json_file
+from ..utils import SemVer
 
 __all__ = [
     "ValidationArgsExec",
@@ -171,8 +171,7 @@ def create_validation_parser() -> argparse.ArgumentParser:
     parser = _ArgParser(allow_abbrev=False)
     parser.prog = "validate"
     parser.formatter_class = _ArgFormatter
-    parser.description = inspect.cleandoc(
-        """
+    parser.description = inspect.cleandoc("""
         Utility for USD validation to ensure assets run smoothly across all OpenUSD
         products. Validation is based on the USD ComplianceChecker (i.e. the same
         backend as the usdchecker commandline tool), and has been extended with
@@ -184,20 +183,17 @@ def create_validation_parser() -> argparse.ArgumentParser:
 
         Note this level of configuration requires setting the environment,
         prior to launching this tool.
-        """
-    )
+        """)
     parser.epilog = "See https://nvidia-omniverse.github.io/usd-validation-nvidia/ for more details."
     parser.add_argument(
         "asset",
         metavar="ASSET",
         type=str,
         nargs=1,
-        help=inspect.cleandoc(
-            """
+        help=inspect.cleandoc("""
             A single OpenUSD Asset.
             Note: This can be a file or folder.
-            """
-        ),
+            """),
     )
     # Version
     parser.add_argument(
@@ -401,13 +397,11 @@ def create_validation_parser() -> argparse.ArgumentParser:
         "--defaultRules",  # For backwards compatibility
         default=True,
         action=argparse.BooleanOptionalAction,
-        help=inspect.cleandoc(
-            """
+        help=inspect.cleandoc("""
             Whether to use the default enabled validation rules.
             Opt-out of this behavior to gain finer control over
             the rules using the --categories and --rules flags.
-            """
-        ),
+            """),
     )
     # Variants
     parser.add_argument(
@@ -421,12 +415,10 @@ def create_validation_parser() -> argparse.ArgumentParser:
         "--instance-prototypes",
         default=True,
         action=argparse.BooleanOptionalAction,
-        help=inspect.cleandoc(
-            """
+        help=inspect.cleandoc("""
             Whether to process instance proxy prims for every instance.
             Disabling this can speed up heavily instanced stages.
-            """
-        ),
+            """),
     )
     # Process workers
     parser.add_argument(
@@ -434,12 +426,10 @@ def create_validation_parser() -> argparse.ArgumentParser:
         metavar="COUNT",
         default=0,
         type=_non_negative_int,
-        help=inspect.cleandoc(
-            """
+        help=inspect.cleandoc("""
             Experimental: maximum process workers to use for multiprocess-safe validation tasks.
             Use 0 to disable process runners.
-            """
-        ),
+            """),
     )
     # CSV Output
     parser.add_argument(
@@ -791,7 +781,7 @@ class ValidationNamespaceExec:
         tokens.append(issue.message)
         if issue.at:
             tokens.append("At")
-            if isinstance(issue.at, tuple):
+            if isinstance(issue.at, (list, tuple)):
                 tokens.append(", ".join([at.as_str() for at in issue.at]))
             else:
                 tokens.append(issue.at.as_str())
@@ -851,7 +841,7 @@ class ValidationNamespaceExec:
                 f"{mapper[IssueSeverity.FAILURE]} Failures / "
                 f"{mapper[IssueSeverity.WARNING]} Warnings / "
                 f"{mapper[IssueSeverity.ERROR]} Errors / "
-                f"{mapper[IssueSeverity.INFO]} Infos "
+                f"{mapper[IssueSeverity.INFO]} Infos ",
             )
         # Group by severity
         logger.log(summary_level, "-" * 128)

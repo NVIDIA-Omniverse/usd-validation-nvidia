@@ -8,7 +8,15 @@ from dataclasses import dataclass
 from functools import singledispatchmethod
 from typing import Any
 
-from usd_profiles_nvidia.api import Capability, Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Capability,
+    Feature,
+    FeatureRef,
+    Profile,
+    ProfileFeature,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.graph._graph import CapabilityGraph
 from usd_profiles_nvidia.model import (
     BuildCapabilityGraph,
@@ -19,8 +27,6 @@ from usd_profiles_nvidia.model import (
     IdVersion,
     Metadata,
     Parameter,
-    Profile,
-    ProfileFeature,
     Tag,
     Version,
 )
@@ -130,9 +136,9 @@ class JsonSerialize(json.JSONEncoder):
                 "name": o.display_name,
                 "description": o.message,
                 "requirements": [],
-                "capabilities": [],
-                "features": o.features,
-                "metadata": o.metadata,
+                "capabilities": o.capabilities,
+                "features": o.profile_features,
+                "metadata": Metadata(path=o.path) if o.path else None,
             }
         }
 
@@ -170,7 +176,7 @@ class JsonSerialize(json.JSONEncoder):
     @default.register
     def _(self, o: ProfileFeature):
         return {
-            "feature": o.feature,
+            "feature": FeatureRef(o.feature.id, o.feature.version),
             "optional": o.optional,
         }
 

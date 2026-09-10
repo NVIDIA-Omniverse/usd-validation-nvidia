@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-from common import AsyncioValidationTestCase
-
 import usd_validation_nvidia.capabilities as cap
+from common import AsyncioValidationTestCase
 
 
 class UpAxisZCheckerTest(AsyncioValidationTestCase):

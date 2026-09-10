@@ -1,0 +1,11 @@
+{
+  "profile": {
+    "id": "descriptor_profile",
+    "version": "1.0.0",
+    "features": [
+      {
+        "feature": "descriptor_feature@1.0.0"
+      }
+    ]
+  }
+}

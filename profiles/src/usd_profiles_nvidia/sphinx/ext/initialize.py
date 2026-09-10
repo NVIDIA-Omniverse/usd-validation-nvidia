@@ -5,7 +5,6 @@
 from typing import Any
 
 from sphinx.application import Sphinx
-
 from usd_profiles_nvidia.sphinx.initialize import build_jsons_setup, build_specs_setup
 
 

@@ -55,21 +55,6 @@ class CapabilityRegistry(VersionedRegistry[Capability]):
         """
         return RequirementsRegistry().resolve_requirements(capability.requirements)
 
-    def remove(self, capability: Capability) -> None:
-        """
-        Remove a capability from the registry.
-
-        Args:
-            capability: The capability to remove
-
-        Raises:
-            ValueError: If the capability has requirements that are implemented
-        """
-        registry = RequirementsRegistry()
-        if registry.get_validators(capability.requirements):
-            raise ValueError(f"Capability {capability} has requirements that are implemented")
-        super().remove(capability)
-
     @deprecated("Use keys() instead")
     def get_capability_ids(self) -> list[str]:
         return [key.id for key in self.keys()]
@@ -144,20 +129,20 @@ def register_capabilities(capabilities: Iterable[Capability]) -> bool:
 
 def unregister_capabilities(capabilities: Iterable[Capability]) -> bool:
     """
-    Unregister multiple capabilities, skipping any still in use.
+    Unregister multiple capabilities by ID and version, skipping any not registered.
 
     Args:
         capabilities: An iterable of capabilities to unregister.
 
     Returns:
-        True if every capability was unregistered, False if any were skipped.
+        True if every capability was unregistered, False if any were missing.
     """
     flag: bool = True
     for capability in capabilities:
         try:
             unregister_capability(capability)
         except ValueError:
-            logger.debug(f"Capability {capability} still in use, skipping")
+            logger.debug(f"Capability {capability} not registered, skipping")
             flag = False
     return flag
 

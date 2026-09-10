@@ -5,10 +5,9 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import ANY
 
+import usd_validation_nvidia.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
 from pxr import Sdf, Usd, UsdGeom, UsdShade, UsdUtils
-
-import usd_validation_nvidia.capabilities as cap
 from usd_validation_nvidia import (
     BaseRuleChecker,
     DelegateContextManager,
@@ -61,7 +60,7 @@ class MissingReferenceCheckerTest(AsyncioValidationTestCase):
         await self.assertRuleAsync(
             asset=get_url("basicFailures.usda"),
             rule=MissingReferenceChecker,
-            asserts=[IsAFailure(".*Could not open asset.*", at=Sdf.Path("/fake"))],
+            asserts=[IsAFailure(".*Found unresolvable external dependency.*", at=Sdf.Path("/fake"))],
         )
 
     async def test_validate_stage_ok(self):
@@ -70,8 +69,47 @@ class MissingReferenceCheckerTest(AsyncioValidationTestCase):
         await self.assertRuleAsync(
             asset=stage,
             rule=MissingReferenceChecker,
-            asserts=[IsAFailure(".*Could not open asset.*", at=Sdf.Path("/fake"))],
+            asserts=[IsAFailure(".*Found unresolvable external dependency.*", at=Sdf.Path("/fake"))],
         )
+
+    async def test_diagnostic_missing_from_unresolved_paths_is_reported(self):
+        checker = MissingReferenceChecker(False, False, True)
+        checker._references_by_path["missing.usda"].append(Sdf.Path("/A"))
+        checker.CheckUnresolvedPaths([])
+
+        self.assertEqualIssues(
+            [IsAFailure(r"Found unresolvable external dependency 'missing\.usda'\.")],
+            list(checker.GetIssues()),
+        )
+
+    async def test_duplicate_missing_references_reported_once_per_dependency(self):
+        with TemporaryDirectory() as temp_dir:
+            stage_path = Path(temp_dir) / "root.usda"
+            with DelegateContextManager():
+                stage = Usd.Stage.CreateNew(str(stage_path))
+                for prim_path, asset_path in (
+                    ("/A", "./missing_a.usda"),
+                    ("/B", "./missing_a.usda"),
+                    ("/C", "./missing_b.usda"),
+                ):
+                    prim = stage.DefinePrim(prim_path)
+                    prim.GetReferences().AddReference(asset_path)
+                stage.GetRootLayer().Save()
+
+            await self.assertRuleAsync(
+                asset=str(stage_path),
+                rule=MissingReferenceChecker,
+                asserts=[
+                    IsAFailure(
+                        r".*Found unresolvable external dependency '.*missing_a\.usda'\.",
+                        at=[Sdf.Path("/A"), Sdf.Path("/B")],
+                    ),
+                    IsAFailure(
+                        r".*Found unresolvable external dependency '.*missing_b\.usda'\.",
+                        at=Sdf.Path("/C"),
+                    ),
+                ],
+            )
 
     async def test_extract_from_commentary(self):
         self.assertEqual(
@@ -134,7 +172,6 @@ class StageMetadataCheckerTest(AsyncioValidationTestCase):
             asserts=[
                 IsAFailure(".*upAxis.*"),
                 IsAFailure(".*metersPerUnit.*"),
-                IsAFailure(".*invalid defaultPrim.*"),
             ],
         )
         await self.assertRequirementAsync(

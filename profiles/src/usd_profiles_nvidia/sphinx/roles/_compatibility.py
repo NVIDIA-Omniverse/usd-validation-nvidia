@@ -6,7 +6,6 @@ from typing import Any
 
 from docutils import nodes
 from sphinx.application import Sphinx
-
 from usd_profiles_nvidia.model import Compatibility
 
 

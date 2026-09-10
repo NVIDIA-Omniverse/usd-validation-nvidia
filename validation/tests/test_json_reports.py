@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: Copyright (c) 2024-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-import json
 import io
+import json
 import os
 import pathlib
 import unittest
@@ -10,7 +10,6 @@ from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, Mock, patch
 
 from common import get_url
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     FeatureStatus,

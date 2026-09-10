@@ -22,6 +22,15 @@ compatibility: "Requires Python 3.10-3.14, uv or pip, network access to Python p
 `usd-validation-nvidia` is distributed as a Python package on PyPI. This skill shows how to scaffold a minimal plugin
 project and run its first validation command.
 
+
+## Inputs
+
+- Required: target project directory, supported Python version, and package manager when the user or project context does
+  not make those obvious.
+- Optional: plugin/package names, package-index constraints, and whether to use local source (`--with ./validation`) or
+  the public `usd-validation-nvidia` package.
+- Precedence: explicit user prompt, existing project files, agent context, then the examples in this skill.
+
 ## Prerequisites
 
 - Python 3.10-3.14.

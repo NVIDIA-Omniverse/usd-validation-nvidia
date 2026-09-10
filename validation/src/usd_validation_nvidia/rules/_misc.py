@@ -14,6 +14,7 @@ __all__ = [
     "UsdGeomSubsetChecker",
     "UsdGeomSubsetFamiliesChecker",
     "UsdGeomSubsetParentIsImageableChecker",
+    "UsdLuxEncapsulationRulesValidator",
     "UsdLuxSchemaChecker",
 ]
 
@@ -119,6 +120,17 @@ class UsdGeomSubsetParentIsImageableChecker(UsdValidatorAdapter):
             f"GeomSubset <{prim.GetPath()}> has direct parent prim <{parent_prim.GetPath()}> that is not Imageable.",
             at=prim,
         )
+
+
+@register_rule("Other", skip="usdLuxValidators:EncapsulationRulesValidator" not in UsdValidatorAdapter)
+class UsdLuxEncapsulationRulesValidator(UsdValidatorAdapter):
+    """
+    Validates UsdLux connectable encapsulation using OpenUSD's EncapsulationRulesValidator.
+    """
+
+    @classmethod
+    def validator_name(cls) -> str:
+        return "usdLuxValidators:EncapsulationRulesValidator"
 
 
 @register_rule("Other")

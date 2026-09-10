@@ -4,9 +4,8 @@
 import unittest
 from unittest import mock
 
-from pxr import Sdf, Sdr, Usd
-
 import usd_validation_nvidia.utils._usd_utils as usd_utils
+from pxr import Sdf, Sdr, Usd
 from usd_validation_nvidia import get_sdf_type_for_shader_property
 
 

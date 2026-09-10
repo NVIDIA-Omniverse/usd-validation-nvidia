@@ -9,7 +9,6 @@ import unittest
 from unittest.mock import MagicMock
 
 from pxr import Ar, Usd
-
 from usd_validation_nvidia import (
     AssetFormat,
     AssetFormatRegistry,

@@ -9,7 +9,6 @@ import pathlib
 import unittest
 
 from pxr import Ar, Usd
-
 from usd_validation_nvidia import (
     BaseRuleChecker,
     FormatDependency,

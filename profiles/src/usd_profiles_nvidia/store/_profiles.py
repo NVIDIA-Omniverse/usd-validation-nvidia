@@ -4,7 +4,8 @@
 
 from typing import Any
 
-from usd_profiles_nvidia.model import IdVersion, Profile, Version
+from usd_profiles_nvidia.api import Profile
+from usd_profiles_nvidia.model import IdVersion, Version
 
 from ._keystore import PersistentVersionedRegistry
 

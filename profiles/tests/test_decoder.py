@@ -5,7 +5,15 @@
 import json
 import unittest
 
-from usd_profiles_nvidia.api import Capability, Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Capability,
+    Feature,
+    FeatureRef,
+    Profile,
+    ProfileFeature,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.json import (
     JsonDeserialize,
 )
@@ -15,14 +23,10 @@ from usd_profiles_nvidia.model import (
     ExampleResult,
     ExampleSnippet,
     ExampleSnippetLanguage,
-    IdVersion,
     Metadata,
     Parameter,
     ParameterType,
-    Profile,
-    ProfileFeature,
     Tag,
-    Version,
 )
 
 
@@ -75,6 +79,7 @@ class TestJsonDeserialization(unittest.TestCase):
         self.assertEqual(result.display_name, "Test Profile")
         self.assertEqual(result.message, "A test profile")
         self.assertEqual(result.features, [])
+        self.assertEqual(result.path, "test/profile")
 
     def test_deserialize_profile_optional_feature(self):
         """Test deserialization of optional profile feature references."""
@@ -88,8 +93,11 @@ class TestJsonDeserialization(unittest.TestCase):
 
         result = json.loads(json.dumps(json_data), cls=JsonDeserialize)
 
-        self.assertEqual(result.features, [ProfileFeature(IdVersion("test_feature", Version(1, 0, 0)), optional=True)])
-        self.assertTrue(result.features[0].optional)
+        self.assertEqual(
+            result.profile_features,
+            [ProfileFeature(FeatureRef("test_feature", "1.0.0"), optional=True)],
+        )
+        self.assertTrue(result.profile_features[0].optional)
 
     def test_deserialize_feature(self):
         """Test deserialization of Feature objects."""

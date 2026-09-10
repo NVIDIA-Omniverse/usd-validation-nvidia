@@ -3,6 +3,7 @@
 #
 from __future__ import annotations
 
+import math
 import operator
 from collections import defaultdict
 from collections.abc import Sequence
@@ -18,7 +19,9 @@ __all__ = [
     "RepeatedValuesSet",
     "check_manifold_elements",
     "compute_winding_bias",
+    "get_non_unit_normal_length",
     "has_empty_faces",
+    "has_finite_normals",
     "has_indexable_values",
     "has_invalid_indices",
     "has_invalid_primvar_indices",
@@ -453,6 +456,52 @@ def _(mesh: UsdGeom.Mesh) -> bool:
     return not areas.all()
 
 
+@default_implementation
+def has_finite_normals(normals: VtArray[Gf.Vec3f]) -> bool:
+    for normal in normals:
+        if not all(math.isfinite(component) for component in normal):
+            return False
+
+    return True
+
+
+@has_finite_normals.numpy
+def _(normals: VtArray[Gf.Vec3f]) -> bool:
+    import numpy as np
+
+    normals_array = np.array(normals)
+    if normals_array.size == 0:
+        return True
+
+    return bool(np.isfinite(normals_array).all())
+
+
+@default_implementation
+def get_non_unit_normal_length(normals: VtArray[Gf.Vec3f], tolerance: float = 1e-3) -> float | None:
+    for normal in normals:
+        length = normal.GetLength()
+        if not abs(length - 1.0) <= tolerance:
+            return length
+
+    return None
+
+
+@get_non_unit_normal_length.numpy
+def _(normals: VtArray[Gf.Vec3f], tolerance: float = 1e-3) -> float | None:
+    import numpy as np
+
+    normals_array = np.array(normals)
+    if normals_array.size == 0:
+        return None
+
+    lengths = np.linalg.norm(normals_array, axis=1)
+    non_unit_indices = np.flatnonzero(np.logical_not(np.abs(lengths - 1.0) <= tolerance))
+    if non_unit_indices.size:
+        return float(lengths[non_unit_indices[0]])
+
+    return None
+
+
 class RepeatedValuesSet:
     """A class that finds and manages repetitions in a sequence of values.
 
@@ -586,7 +635,6 @@ def has_indexable_values(primvar: UsdGeom.Primvar) -> bool:
         Sdf.ValueTypeNames.UInt64Array,
     ):
         # We don't need to index simple type arrays. They do not use more memory than indexed.
-        # TODO We need to determine the array size and memory usage for Int2Array, Int3Array, Int4Array types
         return False
 
     if primvar.GetNamespace() == "primvars:skel":

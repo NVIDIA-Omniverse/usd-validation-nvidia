@@ -1,0 +1,7 @@
+{
+  "id": "descriptor_feature",
+  "version": "1.0.0",
+  "requirements": [
+    "VG.RTX.002@1.0.0"
+  ]
+}

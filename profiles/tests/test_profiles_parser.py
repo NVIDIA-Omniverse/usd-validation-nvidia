@@ -5,8 +5,8 @@
 import unittest
 from pathlib import Path
 
+from usd_profiles_nvidia.api import Feature, Profile, ProfileFeature
 from usd_profiles_nvidia.markdown import ProfilesParser
-from usd_profiles_nvidia.model import IdVersion, ProfileFeature, Version
 
 
 class TestProfilesParser(unittest.TestCase):
@@ -21,9 +21,19 @@ class TestProfilesParser(unittest.TestCase):
         self.assertEqual(profiles[0].version, "1.0.0")
         self.assertEqual(profiles[0].display_name, "Name")
         self.assertEqual(profiles[0].message, "Description")
+        self.assertEqual(profiles[0].path, "profile-simple")
+        self.assertIsInstance(profiles[0], Profile)
         self.assertEqual(len(profiles[0].features), 2)
-        self.assertEqual(profiles[0].features[0], ProfileFeature(IdVersion("simple", Version(1, 0, 0))))
-        self.assertEqual(profiles[0].features[1], ProfileFeature(IdVersion("complex", Version(1, 0, 0))))
+        self.assertTrue(all(isinstance(feature, Feature) for feature in profiles[0].features))
+        self.assertEqual(profiles[0].profile_features, [ProfileFeature(feature) for feature in profiles[0].features])
+
+    def test_parse_single_markdown_file(self):
+        root_dir = Path(__file__).parent / "resources" / "simple-profile"
+        profile_path = root_dir / "profile-simple.md"
+
+        profiles = ProfilesParser(root_dir=str(root_dir), path=str(profile_path)).parse()
+
+        self.assertEqual([profile.id for profile in profiles], ["name"])
 
     def test_does_not_parse_toml(self):
         root_dir = Path(__file__).parent / "resources" / "toml-profiles"

@@ -92,6 +92,7 @@ for issue in results.issues():
 - [Validation API Reference](https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/api.html)
 - [Available Validation Rules](https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/rules.html)
 - [Validation Requirements](https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/requirements.html)
+- [Profile Authoring](https://nvidia-omniverse.github.io/usd-validation-nvidia/profiles/docs/quick-start.html)
 
 ## Requirements
 
