@@ -31,7 +31,7 @@ To keep references to all prims we visited we create multiple `Identifiers`. Ide
 object to be accessed. Callables will tell us what action perform on those references. The idea is to create an AST
 of post mortum actions.
 
-See Also `BaseRuleChecker`
+See Also `BaseRule`
 """
 
 from __future__ import annotations

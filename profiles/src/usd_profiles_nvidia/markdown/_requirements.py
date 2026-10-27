@@ -6,10 +6,9 @@ import logging
 import os
 from dataclasses import dataclass
 
-from usd_profiles_nvidia.api import Requirement
+from usd_profiles_nvidia.api import Example, Requirement
 from usd_profiles_nvidia.model import (
     Compatibility,
-    Example,
     Metadata,
     Tag,
 )

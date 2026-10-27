@@ -40,7 +40,7 @@ def Xform "Xform"
 
 def Xform "Xform_01" (
    instanceable = true
-   references = </World/Xform>
+   references = </Xform>
 )
 {
 }
@@ -63,8 +63,33 @@ def Xform "Xform"
 
 def Xform "Xform_01" (
    instanceable = true
-   references = </World/Xform>
+   references = </Xform>
    prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+)
+{
+}
+```
+
+### Valid: Kinematic rigid body in a scene graph instance
+
+A kinematic rigid body can be part of a scene graph instance:
+
+```usd
+#usda 1.0
+
+def Xform "Xform"
+{
+   def Cube "cube" (
+      prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsCollisionAPI"]
+   )
+   {
+      bool physics:kinematicEnabled = true
+   }
+}
+
+def Xform "Xform_01" (
+   instanceable = true
+   references = </Xform>
 )
 {
 }

@@ -7,6 +7,7 @@ usage: nvidia_usd_validate [-h] [--version] [-e] [-r RULE] [-D RULE] [-c CATEGOR
                            [--disable-feature FEATURE] [--profile PROFILE]
                            [--disable-profile PROFILE] [--parameter PARAMETER]
                            [-f | --fix | --no-fix] [--stamp | --no-stamp] [-p PREDICATE]
+                           [--exit-zero | --no-exit-zero]
                            [--group-by GROUP_BY]
                            [-d | --init-rules | --no-init-rules | --defaultRules | --no-defaultRules]
                            [--variants | --no-variants]
@@ -270,6 +271,9 @@ options:
                         | IsError
                         | IsFailure
                         | IsWarning (default: None)
+  --exit-zero, --no-exit-zero
+                        | Whether to exit with a status code of 0 even if validation issues are found.
+                        | Execution errors still produce a non-zero exit code. (default: False)
   --group-by GROUP_BY   Group by. Valid options include:
                         | requirement
                         | rule_name (default: None)

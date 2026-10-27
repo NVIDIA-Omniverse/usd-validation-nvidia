@@ -27,12 +27,6 @@ Install from PyPI:
 pip install usd-profiles-nvidia
 ```
 
-For Sphinx integration (directives and roles for profile documentation), install the optional dependency:
-
-```bash
-pip install usd-profiles-nvidia[sphinx]
-```
-
 ## Basic Usage
 
 ### Loading Authored Specifications
@@ -67,6 +61,16 @@ The resulting `LoadedSpecifications` contains public `Capability`, `Feature`, an
 feature dependencies, and externally referenced requirements stay as `FeatureRef` and `RequirementRef` values; the
 loader does not resolve them against registries. `SpecificationsParser` remains available for compatibility, but new
 consumers should use `SpecificationsLoader`.
+
+Run local structural diagnostics without resolving lazy references or changing the loaded DTOs:
+
+```python
+for problem in specifications.validate():
+    print(problem.severity.value, problem.message)
+```
+
+This reports typed problems for malformed versions, duplicate definitions in the load result, and invalid profile
+feature optionality. It intentionally does not inspect live registries.
 
 Register the loaded requirement definitions as metadata without binding them to validator rules, then remove the
 same definitions by code and version when their content lifecycle ends:
@@ -192,10 +196,10 @@ requirement:
 
 ```python
 import mypackage.profiles as cap
-from usd_validation_nvidia import BaseRuleChecker, register_requirements
+from usd_validation_nvidia import BaseRule, register_requirements
 
 @register_requirements(cap.Requirements.REQ_001_V1_0_0)
-class SingleRootChecker(BaseRuleChecker):
+class SingleRootChecker(BaseRule):
     """USD stage must have a single root prim."""
 
     def CheckStage(self, usdStage):
@@ -219,6 +223,10 @@ results = engine.validate("path/to/asset.usd")
 ```
 
 ### Sphinx Integration
+
+The package includes Sphinx extensions for rendering profile documentation. Install Sphinx and MyST-Parser
+separately in your documentation build environment.
+Neither tool is required for specification parsing or code generation.
 
 Add to your Sphinx `conf.py`:
 
@@ -261,11 +269,6 @@ Core package:
 - Jinja2 3.1.5 or later
 - markdown-it-py 3.0.0 or later
 - tomli 2.0.0 or later for Python versions earlier than 3.11
-
-Optional Sphinx integration (`usd-profiles-nvidia[sphinx]`):
-
-- Sphinx 7.2.6 or later
-- myst-parser 4.0.0 or later
 
 ## License
 

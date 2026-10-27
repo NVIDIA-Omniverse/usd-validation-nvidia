@@ -13,16 +13,15 @@ from urllib.parse import urlparse
 import usd_validation_nvidia.capabilities as cap
 from pxr import Ar, Gf, Sdf, Sdr, Tf, Usd, UsdGeom, UsdShade, UsdUtils
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
 from .._fix import AuthoringLayers
 from .._issues import Issue, IssueSeverity, Suggestion
-from .._requirements import register_requirements
+from ..registries import register_requirements, register_rule
 from ..utils import (
     get_sdf_type_for_shader_property,
     make_relative_url_if_possible,
     normalize_url,
 )
+from ._base import BaseRuleChecker
 from ._usd_validator_adapter import UsdValidatorAdapter
 
 __all__ = [

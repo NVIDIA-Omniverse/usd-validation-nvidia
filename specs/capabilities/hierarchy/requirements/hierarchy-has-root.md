@@ -61,6 +61,42 @@ def DomeLight "Light"
 }
 ```
 
+### Invalid: Multiple root prims
+
+```usd
+#usda 1.0
+(
+    defaultPrim = "Xform1"
+)
+def Xform "Xform1"
+{
+}
+
+def Xform "Xform2"
+{
+}
+```
+
+### Invalid: Only root prims that are not part of the asset
+
+```usd
+#usda 1.0
+
+def DomeLight "Light"
+{
+}
+
+def Camera "Camera"
+{
+}
+```
+
+### Invalid: No root prims
+
+```usd
+#usda 1.0
+```
+
 ## How to comply
 
 - Ensure all prims in the asset are descendants of a single root prim

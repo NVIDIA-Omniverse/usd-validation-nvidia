@@ -21,6 +21,107 @@ Visualization, culling and other algorithms rely on correct winding order to det
 
 ## Examples
 
+In these examples the counter-clockwise winding of the quad faces towards +Z.
+
+### Valid: Normals consistent with the winding order
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "faceVarying"
+    )
+}
+```
+
+### Valid: Per-vertex normals consistent with the winding order
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "varying"
+    )
+}
+```
+
+### Valid: Left-handed orientation with normals that agree with it
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)] (
+        interpolation = "faceVarying"
+    )
+    uniform token orientation = "leftHanded"
+}
+```
+
+### Valid: Winding check skips a mesh without normals
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    # Without normals there is nothing to compare with the winding order
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+
+}
+```
+
+### Valid: Normals that do not match the topology
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    # Reported for the normals, not for the winding order
+    normal3f[] normals = [(0, 0, -1)] (
+        interpolation = "faceVarying"
+    )
+}
+```
+
+### Valid: Indexed normals with indices that are out of range
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    # Reported for the normals, not for the winding order
+    normal3f[] primvars:normals = [(0, 0, -1)] (
+        interpolation = "faceVarying"
+    )
+    int[] primvars:normals:indices = [0, 0, 0, 1]
+}
+```
+
 ### Invalid: Inconsistent winding order
 
 ```{figure} /specs/_static/images/winding_order.jpg
@@ -29,8 +130,8 @@ Visual artifacts when the winding order is incorrect in Storm.
 ```
 
 ```usd
-# Invalid: Cube with flipped winding order for the top face
 #usda 1.0
+# Invalid: Cube with flipped winding order for the top face
 (
     metersPerUnit = 1.0
     upAxis = "Z"
@@ -42,6 +143,17 @@ def Xform "World"
     {
         point3f[] points = [(-0.5, -0.5, -0.5), (0.5, -0.5, -0.5), (0.5, 0.5, -0.5), (-0.5, 0.5, -0.5), (-0.5, -0.5, 0.5), (0.5, -0.5, 0.5), (0.5, 0.5, 0.5), (-0.5, 0.5, 0.5)]
         int[] faceVertexCounts = [4, 4, 4, 4, 4, 4]
+        # Outward normals, one per face corner
+        normal3f[] normals = [
+            (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1),
+            (0, 1, 0), (0, 1, 0), (0, 1, 0), (0, 1, 0),
+            (1, 0, 0), (1, 0, 0), (1, 0, 0), (1, 0, 0),
+            (0, -1, 0), (0, -1, 0), (0, -1, 0), (0, -1, 0),
+            (-1, 0, 0), (-1, 0, 0), (-1, 0, 0), (-1, 0, 0),
+            (0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)
+        ] (
+            interpolation = "faceVarying"
+        )
 
         # Indices for each quad face, CCW by default
         # Let's flip the winding order for the top face (face 5)
@@ -57,3 +169,72 @@ def Xform "World"
 }
 
 ```
+
+### Invalid: Indexed normals opposite to the winding order
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    # Every corner uses the last value, which points towards -Z
+    normal3f[] primvars:normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, -1)] (
+        interpolation = "faceVarying"
+    )
+    int[] primvars:normals:indices = [3, 3, 3, 3]
+}
+```
+
+### Invalid: Right-handed orientation with normals opposite to the winding order
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)] (
+        interpolation = "faceVarying"
+    )
+    uniform token orientation = "rightHanded"
+}
+```
+
+### Invalid: Per-vertex normals opposite to the winding order
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)] (
+        interpolation = "varying"
+    )
+}
+```
+
+### Invalid: Left-handed orientation with normals opposite to it
+
+```usd
+#usda 1.0
+
+def Mesh "Quad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "varying"
+    )
+    uniform token orientation = "leftHanded"
+}
+```
+

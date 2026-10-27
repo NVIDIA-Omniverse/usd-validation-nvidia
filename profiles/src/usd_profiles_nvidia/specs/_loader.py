@@ -26,6 +26,9 @@ from usd_profiles_nvidia.parsers import (
     SpecificationsParser,
 )
 
+from ._diagnostics import _LoadedSpecificationsValidator
+from ._types import SpecificationProblem
+
 
 @dataclass(frozen=True)
 class LoadedSpecifications:
@@ -39,6 +42,10 @@ class LoadedSpecifications:
     def requirements(self) -> list[Requirement | RequirementRef]:
         """Return requirements and lazy references authored by loaded capabilities."""
         return [requirement for capability in self.capabilities for requirement in capability.requirements]
+
+    def validate(self) -> tuple[SpecificationProblem, ...]:
+        """Return local structural problems without resolving references or mutating loaded objects."""
+        return _LoadedSpecificationsValidator(self).validate()
 
 
 @dataclass(kw_only=True)

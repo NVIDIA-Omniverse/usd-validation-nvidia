@@ -7,21 +7,14 @@ from pxr import Sdf
 from usd_validation_nvidia import (
     DanglingOverPrimChecker,
     DefaultPrimChecker,
-    IssuePredicates,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAWarning
 
 
 class DefaultPrimCheckerTest(AsyncioValidationTestCase):
 
-    async def test_missing_or_invalid_default_prim(self):
-        await self.assertRuleAsync(
-            asset=get_url("curves.usda"),
-            rule=DefaultPrimChecker,
-            asserts=[
-                IsAFailure("Stage has missing or invalid defaultPrim.*", requirement=cap.Requirements.HI_004),
-            ],
-        )
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.HI_004)
 
     async def test_invalid_default_prims(self):
         await self.assertRuleAsync(
@@ -40,27 +33,6 @@ class DefaultPrimCheckerTest(AsyncioValidationTestCase):
                     at=Sdf.Path("/ScopeIsConsideredDefaultPrimCandidate"),
                 ),
             ],
-        )
-
-    async def test_default_prim_is_scope(self):
-        await self.assertRuleAsync(
-            asset=get_url("layoutDefaultPrimScope.usda"),
-            rule=DefaultPrimChecker,
-            asserts=[],
-        )
-
-    async def test_fix_default_prim(self):
-        await self.assertSuggestionAsync(
-            asset=get_url("layoutDefaultPrimFix.usda"),
-            rule=DefaultPrimChecker,
-            predicate=IssuePredicates.ContainsMessage("Stage has missing or invalid defaultPrim."),
-        )
-
-    async def test_fix_activate_prim(self):
-        await self.assertSuggestionAsync(
-            asset=get_url("layoutFailures.usda"),
-            rule=DefaultPrimChecker,
-            predicate=IssuePredicates.ContainsMessage("The default prim <World> should be active."),
         )
 
 

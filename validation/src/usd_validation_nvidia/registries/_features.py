@@ -6,10 +6,10 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Iterable
 
+from ..capabilities import FeatureProtocol, FeatureRefProtocol, RequirementRefProtocol
+from ..utils import EventListener, SemVer, singleton
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from .capabilities import FeatureProtocol, FeatureRefProtocol, RequirementRefProtocol
-from .utils import EventListener, SemVer, singleton
 
 __all__ = [
     "Feature",
@@ -51,9 +51,18 @@ class FeatureRegistry(VersionedRegistry[Feature]):
         """Get only the latest version of each feature."""
         return self.latest_values()
 
-    def get_requirements(self, feature: Feature | FeatureRefProtocol) -> list[Requirement | RequirementRefProtocol]:
+    def get_requirements(
+        self, feature: Feature | FeatureRefProtocol, *, recursive: bool = True
+    ) -> list[Requirement | RequirementRefProtocol]:
         """
-        Return requirements owned by a feature and its resolved feature dependencies.
+        Return requirements owned by a feature, including its resolved dependencies by default.
+
+        Args:
+            feature: Either a feature or a feature ref protocol.
+            recursive: Include requirements from feature dependencies.
+
+        Returns:
+            Feature requirements found in the registry, otherwise the original references.
         """
         registry = RequirementsRegistry()
         requirements: list[Requirement | RequirementRefProtocol] = []
@@ -74,7 +83,7 @@ class FeatureRegistry(VersionedRegistry[Feature]):
             seen.add(key)
             requirements.extend(registry.resolve_requirements(current.requirements))
             dependencies = getattr(current, "dependencies", [])
-            if isinstance(dependencies, Iterable):
+            if recursive and isinstance(dependencies, Iterable):
                 queue.extend(dependencies)
         return requirements
 

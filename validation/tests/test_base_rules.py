@@ -3,7 +3,6 @@
 #
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import ANY
 
 import usd_validation_nvidia.capabilities as cap
 from common import AsyncioValidationTestCase, get_url
@@ -11,13 +10,10 @@ from pxr import Sdf, Usd, UsdGeom, UsdShade, UsdUtils
 from usd_validation_nvidia import (
     BaseRuleChecker,
     DelegateContextManager,
-    ExtentsChecker,
     KindChecker,
     MissingReferenceChecker,
     NormalMapTextureChecker,
-    PortableAssetPathChecker,
     PrimEncapsulationChecker,
-    StageMetadataChecker,
     TextureChecker,
     TypeChecker,
     ValidationEngine,
@@ -27,31 +23,8 @@ from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
 
 class ExtentsCheckerTest(AsyncioValidationTestCase):
 
-    async def test_validate(self):
-        # When / Then
-        await self.assertRuleAsync(
-            asset=get_url("extent.usda"),
-            rule=ExtentsChecker,
-            asserts=[
-                IsAFailure("Prim does not have any extent value.*", at=Sdf.Path("/World/ParentTransform/CubeNoExtent")),
-                IsAFailure("Prim has incorrect extent value.*", at=Sdf.Path("/World/CubeIncorrectExtent")),
-                IsAFailure("Prim does not have any extent value.*", at=Sdf.Path("/World/deforming_mesh_no_extent")),
-                IsAFailure(
-                    r"Incorrect extent value for prim at multiple times \(i.e. 1.0, 2.0\).*",
-                    at=Sdf.Path("/World/deforming_mesh_incorrect_extent_samples"),
-                ),
-                IsAFailure("Prim does not have any extent value.*", at=Sdf.Path("/World/curve_0")),
-                IsAFailure(r"Incorrect extent value for prim at time 2.0.*", at=Sdf.Path("/World/points_0")),
-            ],
-        )
-        await self.assertRuleAsync(
-            asset=get_url("curves.usda"),
-            rule=ExtentsChecker,
-            asserts=[],
-        )
-
-    async def test_autofix(self):
-        await self.assertSuggestionAsync(asset=get_url("extent.usda"), rule=ExtentsChecker, predicate=None)
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.VG_002)
 
 
 class MissingReferenceCheckerTest(AsyncioValidationTestCase):
@@ -148,46 +121,15 @@ class MissingReferenceCheckerTest(AsyncioValidationTestCase):
 
 class PortableAssetPathCheckerTest(AsyncioValidationTestCase):
 
-    async def test_validate(self):
-        await self.assertExamplesAsync(requirement=cap.Requirements.AA_003)
-
-    async def test_fix(self):
-        with DelegateContextManager():
-            stage = Usd.Stage.CreateInMemory()
-            prim = stage.DefinePrim("/RefPrim")
-            prim.GetReferences().AddReference("\\directory\\asset.usda")
-
-        await self.assertSuggestionAsync(asset=stage, rule=PortableAssetPathChecker, predicate=None)
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.AA_003)
 
 
 class StageMetadataCheckerTest(AsyncioValidationTestCase):
 
-    async def test_validate(self):
-        stage = Usd.Stage.CreateInMemory()
-        UsdGeom.Mesh.Define(stage, "/Mesh")
-
-        await self.assertRuleAsync(
-            asset=stage,
-            rule=StageMetadataChecker,
-            asserts=[
-                IsAFailure(".*upAxis.*"),
-                IsAFailure(".*metersPerUnit.*"),
-            ],
-        )
-        await self.assertRequirementAsync(
-            asset=stage,
-            requirement=cap.Requirements.UN_001,
-            asserts=[
-                IsAFailure(ANY, requirement=cap.Requirements.UN_001),
-            ],
-        )
-        await self.assertRequirementAsync(
-            asset=stage,
-            requirement=cap.Requirements.UN_002,
-            asserts=[
-                IsAFailure(ANY, requirement=cap.Requirements.UN_002),
-            ],
-        )
+    async def test_examples(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.UN_001)
+        await self.assertExamplesAsync(requirement=cap.Requirements.UN_002)
 
 
 class PrimEncapsulationCheckerTest(AsyncioValidationTestCase):

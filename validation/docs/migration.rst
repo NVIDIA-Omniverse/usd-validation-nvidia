@@ -23,9 +23,10 @@ What changed
     * - run inside Kit / ``python -m omni.asset_validator``
       - the ``nvidia_usd_validate`` CLI (``python -m omni.asset_validator`` still works)
 
-The rule API is the same: rules still subclass ``BaseRuleChecker``, override the same
+The rule API is the same: rules still subclass ``BaseRule``, override the same
 ``Check*`` callbacks, report with ``_AddFailedCheck`` / ``_AddWarning`` / ..., and register
-with ``register_rule``. See :doc:`authoring`.
+with ``register_rule``. ``BaseRuleChecker`` remains a backward-compatible alias for existing
+plugins. See :doc:`authoring`.
 
 Compatibility shims
 ===================
@@ -53,5 +54,6 @@ Updating your project
    ``usd_validation_nvidia``.
 #. Replace any ``omni.asset_validator`` command-line invocation with ``nvidia_usd_validate``
    (see :doc:`cli`).
-#. Custom rules carry over unchanged: keep your ``BaseRuleChecker`` subclasses and
-   ``register_rule`` decorators, and confirm they appear in a default ``ValidationEngine``.
+#. Custom rules carry over unchanged because ``BaseRuleChecker`` remains an alias. Prefer
+   ``BaseRule`` in new code, keep the existing ``register_rule`` decorators, and confirm the
+   rules appear in a default ``ValidationEngine``.

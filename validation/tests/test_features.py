@@ -2,11 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import unittest
-from unittest.mock import Mock
 
 from usd_validation_nvidia import (
     BaseRuleChecker,
-    Feature,
     FeatureRegistry,
     RequirementsRegistry,
     add_registry_feature_callback,
@@ -25,44 +23,44 @@ from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 class FeaturesRegistryTest(unittest.TestCase):
     def setUp(self):
         self.registry = FeatureRegistry()
-        self.mock_feature = Mock(spec=Feature)
-        self.mock_feature.id = "test_feature"
-        self.mock_feature.version = "1.0.0"
-        self.mock_feature.path = "/path/test_feature"
-        self.mock_feature.requirements = []
+        self.feature = FeatureDTO(
+            id="test_feature",
+            version="1.0.0",
+            path="/path/test_feature",
+        )
 
     def tearDown(self):
         try:
-            unregister_feature(self.mock_feature)
+            unregister_feature(self.feature)
         except ValueError:
             pass
 
     def test_add(self):
-        self.registry.add(self.mock_feature)
+        self.registry.add(self.feature)
 
-        self.assertIn(self.mock_feature, self.registry)
+        self.assertIn(self.feature, self.registry)
 
     def test_find(self):
-        self.registry.add(self.mock_feature)
+        self.registry.add(self.feature)
 
-        self.assertEqual(self.registry.find("test_feature"), self.mock_feature)
+        self.assertEqual(self.registry.find("test_feature"), self.feature)
 
     def test_find_nonexistent_feature(self):
         self.assertIsNone(self.registry.find("nonexistent"))
 
     def test_register_feature_ok(self):
-        register_feature(self.mock_feature)
+        register_feature(self.feature)
 
         try:
-            self.assertIn(self.mock_feature, self.registry)
+            self.assertIn(self.feature, self.registry)
         finally:
-            unregister_feature(self.mock_feature)
+            unregister_feature(self.feature)
 
     def test_unregister_feature_ok(self):
-        register_feature(self.mock_feature)
-        unregister_feature(self.mock_feature)
+        register_feature(self.feature)
+        unregister_feature(self.feature)
 
-        self.assertNotIn(self.mock_feature, self.registry)
+        self.assertNotIn(self.feature, self.registry)
 
     def test_unregister_feature_requirement_ok(self):
         requirement = RequirementDTO(code="FEATURE.REMOVE.REQ", version="1.0.0")
@@ -87,23 +85,23 @@ class FeaturesRegistryTest(unittest.TestCase):
             unregister_requirements(FeatureRule)
 
     def test_register_features(self):
-        self.assertTrue(register_features([self.mock_feature]))
+        self.assertTrue(register_features([self.feature]))
         try:
-            self.assertIn(self.mock_feature, self.registry)
+            self.assertIn(self.feature, self.registry)
         finally:
-            unregister_features([self.mock_feature])
+            unregister_features([self.feature])
 
     def test_register_features_duplicate_returns_false(self):
-        register_feature(self.mock_feature)
+        register_feature(self.feature)
         try:
-            self.assertFalse(register_features([self.mock_feature]))
+            self.assertFalse(register_features([self.feature]))
         finally:
-            unregister_feature(self.mock_feature)
+            unregister_feature(self.feature)
 
     def test_unregister_features(self):
-        register_features([self.mock_feature])
-        self.assertTrue(unregister_features([self.mock_feature]))
-        self.assertNotIn(self.mock_feature, self.registry)
+        register_features([self.feature])
+        self.assertTrue(unregister_features([self.feature]))
+        self.assertNotIn(self.feature, self.registry)
 
     def test_get_requirements_includes_dependencies(self):
         feature_requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
@@ -123,6 +121,7 @@ class FeaturesRegistryTest(unittest.TestCase):
         )
 
         self.assertEqual(self.registry.get_requirements(feature), [feature_requirement, dependency_requirement])
+        self.assertEqual(self.registry.get_requirements(feature, recursive=False), [feature_requirement])
 
     def test_get_requirements_deduplicates_resolved_feature_refs(self):
         requirement = RequirementDTO(code="FEATURE.REQ", version="1.0.0")
@@ -185,8 +184,8 @@ class FeaturesRegistryTest(unittest.TestCase):
     def test_add_callback_ok(self):
         callback = unittest.mock.Mock()
         _subscription = add_registry_feature_callback(callback)
-        register_feature(self.mock_feature)
+        register_feature(self.feature)
         try:
             callback.assert_called_once()
         finally:
-            unregister_feature(self.mock_feature)
+            unregister_feature(self.feature)

@@ -7,8 +7,14 @@ import unittest
 
 from usd_profiles_nvidia.api import (
     Capability,
+    Example,
+    ExampleResult,
+    ExampleSnippet,
+    ExampleSnippetLanguage,
     Feature,
     FeatureRef,
+    Parameter,
+    ParameterType,
     Profile,
     ProfileFeature,
     Requirement,
@@ -22,14 +28,8 @@ from usd_profiles_nvidia.json import (
 from usd_profiles_nvidia.model import (
     BuildCapabilityGraph,
     CapabilityNode,
-    Example,
-    ExampleResult,
-    ExampleSnippet,
-    ExampleSnippetLanguage,
     IdVersion,
     Metadata,
-    Parameter,
-    ParameterType,
     Tag,
     Version,
 )
@@ -187,6 +187,14 @@ class TestJsonSerialization(unittest.TestCase):
         self.assertEqual(feat_data["dependencies"], ["base_feature@1.0.0"])
         self.assertEqual(feat_data["display_name"], "Test Feature")
 
+    def test_serialize_feature_parameters(self):
+        """Feature parameters round-trip through the encoder and decoder."""
+        parameter = Parameter("TOL", ParameterType.FLOAT, 0.001)
+        feature = Feature(id="f", version="1.0.0", path="", parameters=(parameter,))
+        payload = json.dumps(feature, cls=JsonSerialize)
+        self.assertEqual(json.loads(payload)["feature"]["parameters"][0]["display_name"], "TOL")
+        self.assertEqual(json.loads(payload, cls=JsonDeserialize).parameters, (parameter,))
+
     def test_serialize_metadata(self):
         """Test serialization of Metadata objects."""
         metadata = Metadata("test/example.md")
@@ -214,7 +222,7 @@ class TestJsonSerialization(unittest.TestCase):
     def test_serialize_example(self):
         """Test serialization of Example objects."""
         example = Example(
-            snippet=ExampleSnippet(language=ExampleSnippetLanguage.PYTHON, content="print('Hello, World!')"),
+            snippet=ExampleSnippet(language=ExampleSnippetLanguage.PYTHON, inline_content="print('Hello, World!')"),
             display_name="A test example",
             result=ExampleResult.SUCCESS,
         )
@@ -232,7 +240,7 @@ class TestJsonSerialization(unittest.TestCase):
 
     def test_serialize_example_snippet(self):
         """Test serialization of ExampleSnippet objects."""
-        snippet = ExampleSnippet(language=ExampleSnippetLanguage.USD, content="def Xform 'Root' {}")
+        snippet = ExampleSnippet(language=ExampleSnippetLanguage.USD, inline_content="def Xform 'Root' {}")
         result = json.loads(json.dumps(snippet, cls=JsonSerialize))
 
         expected = {"language": "usd", "content": "def Xform 'Root' {}"}
@@ -277,7 +285,7 @@ class TestJsonSerialization(unittest.TestCase):
                             Example(
                                 snippet=ExampleSnippet(
                                     language=ExampleSnippetLanguage.USD,
-                                    content='def Mesh "bad" {}',
+                                    inline_content='def Mesh "bad" {}',
                                 ),
                                 display_name="Bad mesh",
                                 result=ExampleResult.FAILURE,

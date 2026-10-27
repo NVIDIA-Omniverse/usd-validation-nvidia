@@ -4,28 +4,79 @@
 
 import os
 import unittest
+from hashlib import sha256
 
 from usd_profiles_nvidia.api import (
     Capability,
+    Example,
+    ExampleResult,
+    ExampleSnippet,
+    ExampleSnippetLanguage,
     Feature,
     FeatureRef,
+    Parameter,
+    ParameterType,
     Profile,
     Requirement,
     RequirementRef,
 )
 from usd_profiles_nvidia.codegen._py_model import (
     PyCapability,
+    PyExample,
+    PyExampleStore,
     PyFeature,
+    PyParameter,
     PyProfile,
     PyRequirement,
     PythonStoreView,
 )
 from usd_profiles_nvidia.model import Specifications
 from usd_profiles_nvidia.parsers import SpecificationsParser
-from usd_profiles_nvidia.store import SpecificationsStore
+from usd_profiles_nvidia.store import ExampleStore, SpecificationsStore
 
 
 class TestPythonModel(unittest.TestCase):
+    def test_parameter_adds_python_enum_name(self):
+        parameter = Parameter(display_name="max faces", type=ParameterType.INT, assigned_value=10)
+
+        py_parameter = PyParameter(parameter)
+
+        self.assertIs(py_parameter.parameter, parameter)
+        self.assertEqual(py_parameter.enum_name, "MAX_FACES")
+        self.assertEqual(py_parameter.assigned_value, 10)
+
+    def test_example_adds_python_enum_name_and_resource_filename(self):
+        content = 'def Xform "Root" {}'
+        example = Example(
+            snippet=ExampleSnippet(language=ExampleSnippetLanguage.USD, inline_content=content),
+            display_name="Valid root",
+            result=ExampleResult.SUCCESS,
+        )
+
+        py_example = PyExample(example)
+
+        self.assertIs(py_example.example, example)
+        self.assertEqual(py_example.enum_name, "VALID_ROOT_OK")
+        self.assertEqual(py_example.filename, f"{sha256(content.encode('utf-8')).hexdigest()[:12]}.usd")
+
+    def test_example_store_rejects_python_enum_name_collisions(self):
+        examples = (
+            Example(
+                snippet=ExampleSnippet(language=ExampleSnippetLanguage.USD, inline_content="first"),
+                display_name="Valid root",
+                result=ExampleResult.SUCCESS,
+            ),
+            Example(
+                snippet=ExampleSnippet(language=ExampleSnippetLanguage.USD, inline_content="second"),
+                display_name="Valid-root",
+                result=ExampleResult.SUCCESS,
+            ),
+        )
+        store = PyExampleStore(ExampleStore([Requirement(code="REQ.001", examples=examples)]))
+
+        with self.assertRaisesRegex(ValueError, "VALID_ROOT_OK"):
+            list(store)
+
     def test_requirement_wraps_api_requirement(self):
         requirement = Requirement(
             code="materials.MAT.001",

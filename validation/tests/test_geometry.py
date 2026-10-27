@@ -12,12 +12,9 @@ from usd_validation_nvidia import (
     ManifoldChecker,
     NormalsExistChecker,
     NormalsValidChecker,
-    NormalsWindingsChecker,
     SubdivisionSchemeChecker,
     UnusedMeshTopologyChecker,
     UnusedPrimvarChecker,
-    ValidateTopologyChecker,
-    WeldChecker,
     ZeroAreaFaceChecker,
 )
 from usd_validation_nvidia.tests import IsAFailure, IsAnError, IsAWarning
@@ -93,22 +90,8 @@ class IndexedPrimvarCheckerTest(AsyncioValidationTestCase):
 
 
 class UnusedMeshTopologyCheckerTest(AsyncioValidationTestCase):
-    async def test_validate(self):
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/geometryFail.usda"),
-            rule=UnusedMeshTopologyChecker,
-            asserts=[
-                IsAFailure("Some points are not referenced by the faces."),
-                IsAFailure("Some points are not referenced by the faces."),
-            ],
-        )
-
-    async def test_fix(self):
-        await self.assertSuggestionAsync(
-            asset=get_url("Geometry/geometryFail.usda"),
-            rule=UnusedMeshTopologyChecker,
-            predicate=None,
-        )
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.VG_018)
 
     async def test_failures_without_fix(self):
         await self.assertRuleAsync(
@@ -147,58 +130,13 @@ class ZeroAreaFaceCheckerTest(AsyncioValidationTestCase):
 
 
 class WeldCheckerTest(AsyncioValidationTestCase):
-    async def test_validate(self):
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/geometryFail.usda"),
-            rule=WeldChecker,
-            asserts=[
-                IsAWarning("Some points are co-located and may be able to be merged."),
-            ],
-        )
-
-    async def test_validate_stage(self):
-        stage = Usd.Stage.Open(get_url("Geometry/geometryFail.usda"))
-        await self.assertRuleAsync(
-            asset=stage,
-            rule=WeldChecker,
-            asserts=[
-                IsAWarning("Some points are co-located and may be able to be merged."),
-            ],
-        )
-
-    async def test_validate_vertex_incomplete(self):
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/weldableIncomplete.usda"),
-            rule=WeldChecker,
-            asserts=[
-                IsAFailure(
-                    "Attribute (/root/Quad_1.normals) values length does not match points length although its interpolation is vertex or varying.",
-                    at=Sdf.Path("/root/Quad_1"),
-                ),
-                IsAFailure(
-                    "Primvar (/root/Quad_2.primvars:st) values length does not match points length although its interpolation is vertex or varying.",
-                    at=Sdf.Path("/root/Quad_2"),
-                ),
-            ],
-        )
+    async def test_examples(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.VG_016)
 
 
 class ValidateTopologyCheckerTest(AsyncioValidationTestCase):
-    async def test_validate(self):
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/geometryTopology.usda"),
-            rule=ValidateTopologyChecker,
-            asserts=[
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_1")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_2")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_3")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_4")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_5")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_6")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_7")),
-                IsAFailure("Invalid topology found", at=Sdf.Path("/root/Quad_10")),
-            ],
-        )
+    async def test_examples(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.VG_014)
 
 
 class UnusedPrimvarCheckerTest(AsyncioValidationTestCase):
@@ -318,116 +256,13 @@ class NormalsExistCheckerTest(AsyncioValidationTestCase):
 
 
 class NormalsValidCheckerTest(AsyncioValidationTestCase):
-    async def test_validate(self):
-        # Both normals and primvars normals are set. Fail since only one should be present
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/planeWithNormalsAndPrimvarNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[
-                IsAFailure("Mesh '/pPlane3' normals have 7 elements but expected 8 for 'faceVarying' interpolation."),
-            ],
-        )
-
-        # Subdivision is None. Has normals. Pass.
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionNoneHasNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[],
-        )
-
-        # Subdivision is None. No normals. Pass.
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionNoneNoNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[],
-        )
-
-        # Subdivision is Catmull-Clark. Has normals. Fail - can't have both
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionCatmullHasNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[
-                IsAFailure(
-                    "Mesh '/World/Cube' is subdiv ('catmullClark') but has authored normals; USD recommends not authoring normals on subdiv meshes."
-                ),
-            ],
-        )
-        # Subdivision is Catmull-Clark. No normals. Pass
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionCatmullNoNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[],
-        )
-
-        # Subdivision is undefined. Defaults to Catmull Clark. Has
-        # normals. Fail because want explicit subdiv scheme defined
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionUndefinedHasNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[
-                IsAFailure(
-                    "Mesh '/World/Cube' is subdiv ('catmullClark') but has authored normals; USD recommends not authoring normals on subdiv meshes."
-                ),
-            ],
-        )
-
-        # Subdivision is undefined. Defaults to Catmull Clark. No normals. Pass.
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionUndefinedNoNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[],
-        )
-
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/geometryInvalidNormals.usda"),
-            rule=NormalsValidChecker,
-            asserts=[
-                IsAnError("Mesh '/root/Quad_0' has non-finite normal components."),
-                IsAWarning("Mesh '/root/Quad_1' has non-unit normal (length=1.414214)."),
-                IsAnError("Mesh '/root/Quad_2' has non-finite normal components."),
-                IsAWarning("Mesh '/root/Quad_3' has non-unit normal (length=1.414214)."),
-                IsAWarning("Mesh '/root/Quad_4' has non-unit normal (length=177.000000)."),
-                IsAWarning("Mesh '/root/Quad_6' has non-unit normal (length=77.006493)."),
-                IsAnError("Mesh '/root/Quad_7' has non-finite normal components."),
-                IsAWarning("Mesh '/root/Quad_8' has non-unit normal (length=1.414214)."),
-                IsAnError("Mesh '/root/Quad_9' has non-finite normal components."),
-                IsAWarning("Mesh '/root/Quad_10' has non-unit normal (length=3.162278)."),
-            ],
-        )
+    async def test_examples(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.VG_028)
 
 
 class NormalsWindingsCheckerTest(AsyncioValidationTestCase):
-    async def test_validate(self):
-        # Both normals and primvars normals are set. Fail since only one should be present
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/geometryWindings.usda"),
-            rule=NormalsWindingsChecker,
-            asserts=[
-                IsAnError("Mesh '/World/reversedDefaultOrientation' has normals inconsistent with the face windings."),
-                IsAnError(
-                    "Mesh '/World/reversedIndexedDefaultOrientation' has normals inconsistent with the face windings."
-                ),
-                IsAnError(
-                    "Mesh '/World/reversedRightHandOrientation' has normals inconsistent with the face windings."
-                ),
-                IsAnError("Mesh '/World/reversedPerVertex' has normals inconsistent with the face windings."),
-                IsAnError("Mesh '/World/perVertexNormalsLeftHanded' has normals inconsistent with the face windings."),
-            ],
-        )
-
-    async def test_missing_normals_topology_is_skipped(self):
-        await self.assertRuleAsync(
-            asset=get_url("subdivisionNoneNoNormals.usda"),
-            rule=NormalsWindingsChecker,
-            asserts=[],
-        )
-
-    async def test_malformed_normals_topology_is_skipped_like_missing_normals(self):
-        await self.assertRuleAsync(
-            asset=get_url("Geometry/malformedNormalsWindings.usda"),
-            rule=NormalsWindingsChecker,
-            asserts=[],
-        )
+    async def test_examples(self):
+        await self.assertExamplesAsync(requirement=cap.Requirements.VG_029)
 
     async def test_malformed_normals_topology_is_reported_by_owning_rules(self):
         asset = get_url("Geometry/malformedNormalsWindings.usda")

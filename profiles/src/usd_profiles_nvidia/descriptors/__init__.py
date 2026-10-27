@@ -3,5 +3,6 @@
 #
 
 from ._errors import DescriptorError, DescriptorKind
+from ._parameters import parse_parameter
 
-__all__ = ["DescriptorError", "DescriptorKind"]
+__all__ = ["DescriptorError", "DescriptorKind", "parse_parameter"]

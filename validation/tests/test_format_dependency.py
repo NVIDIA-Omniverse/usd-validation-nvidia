@@ -7,6 +7,7 @@ import json
 import os
 import pathlib
 import unittest
+from unittest.mock import create_autospec
 
 from pxr import Ar, Usd
 from usd_validation_nvidia import (
@@ -17,7 +18,11 @@ from usd_validation_nvidia import (
     register_format,
     unregister_format,
 )
-from usd_validation_nvidia.tests import IsAFailure, ValidationTestCaseMixin
+from usd_validation_nvidia.tests import (
+    AsyncioValidationTestCaseMixin,
+    IsAFailure,
+    ValidationTestCaseMixin,
+)
 
 _DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "asset_format")
 
@@ -159,3 +164,33 @@ class TestEngineValidateRawAssetWithRealData(unittest.TestCase, ValidationTestCa
         # apple.usd is the only USD catalog item in simready_leaf.json
         self.assertEqual(len(stage_roots), 1)
         self.assertTrue(stage_roots[0].endswith("apple.usd"))
+
+    def test_validate_check_dependencies(self):
+        class Collector(BaseRuleChecker):
+            CheckDependencies = create_autospec(BaseRuleChecker.CheckDependencies)
+            CheckFormatDependency = create_autospec(BaseRuleChecker.CheckFormatDependency)
+
+        self.assertSuccess(asset=self._LEAF, rule=Collector)
+        self.assertEqual(Collector.CheckFormatDependency.call_count, 2)
+        self.assertEqual(Collector.CheckDependencies.call_count, 1)
+
+
+@unittest.skipUnless(Usd.GetVersion() >= (0, 25, 5), "Ar.OpenAsset requires USD 25.05+")
+class TestEngineValidateRawAssetWithRealDataAsync(unittest.IsolatedAsyncioTestCase, AsyncioValidationTestCaseMixin):
+
+    _LEAF = os.path.join(_DATA_DIR, "simready_leaf.json")
+
+    def setUp(self):
+        register_format()(_JsonSimReadyFormat)
+
+    def tearDown(self):
+        unregister_format(_JsonSimReadyFormat)
+
+    async def test_validate_check_dependencies(self):
+        class Collector(BaseRuleChecker):
+            CheckDependencies = create_autospec(BaseRuleChecker.CheckDependencies)
+            CheckFormatDependency = create_autospec(BaseRuleChecker.CheckFormatDependency)
+
+        await self.assertSuccessAsync(asset=self._LEAF, rule=Collector)
+        self.assertEqual(Collector.CheckFormatDependency.call_count, 2)
+        self.assertEqual(Collector.CheckDependencies.call_count, 1)

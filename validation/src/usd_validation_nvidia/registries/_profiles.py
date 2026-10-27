@@ -4,17 +4,20 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable
 
-from ._features import FeatureRegistry
-from ._registry import IdVersion, VersionedRegistry
-from ._requirements import Requirement, RequirementsRegistry
-from .capabilities import (
+from ..capabilities import (
+    CapabilityProtocol,
     FeatureProtocol,
+    FeatureRefProtocol,
     ProfileProtocol,
     RequirementRefProtocol,
 )
-from .utils import EventListener, SemVer, deprecated, singleton
+from ..utils import EventListener, SemVer, deprecated, singleton
+from ._capabilities import CapabilityRegistry
+from ._features import FeatureRegistry
+from ._registry import IdVersion, VersionedRegistry
+from ._requirements import Requirement, RequirementsRegistry
 
 __all__ = [
     "Profile",
@@ -51,45 +54,64 @@ class ProfileRegistry(VersionedRegistry[Profile]):
         """Get all profiles (all versions)."""
         return list(self)
 
-    def get_requirements(self, profile: Profile) -> list[Requirement | RequirementRefProtocol]:
+    def get_requirements(
+        self, profile: Profile, *, optional: bool = True, recursive: bool = True
+    ) -> list[Requirement | RequirementRefProtocol]:
         """
-        Return requirements owned by a profile's features, feature dependencies, and capabilities.
-        """
-        feature_registry = FeatureRegistry()
-        registry = RequirementsRegistry()
-        requirements: list[Requirement | RequirementRefProtocol] = []
-        for feature in self._resolved_features(profile, feature_registry):
-            requirements.extend(feature_registry.get_requirements(feature))
-        for capability in getattr(profile, "capabilities", ()):
-            requirements.extend(registry.resolve_requirements(capability.requirements))
-        return requirements
+        Return requirements owned by a profile.
 
-    @classmethod
-    def _resolved_features(
-        cls,
-        profile: Profile,
-        registry: FeatureRegistry,
-        *,
-        allow_unresolved_required: bool = False,
-    ) -> Iterator[FeatureProtocol]:
-        """Yield concrete profile features and compatible registered values for references."""
-        feature_entries = (
-            ((profile_feature.feature, profile_feature.optional) for profile_feature in profile.profile_features)
-            if profile.profile_features
-            else ((feature, False) for feature in profile.features)
-        )
-        for feature, optional in feature_entries:
-            if not hasattr(feature, "requirements"):
-                reference = feature
-                feature = registry.resolve(reference.id, reference.version)
-                if feature is None and not (optional or allow_unresolved_required):
-                    raise ValueError(
-                        f"Required feature {reference.id!r} version {reference.version!r} "
-                        f"referenced by profile {profile.id!r} version {profile.version!r} is not registered"
-                    )
-            if feature is None:
-                continue
-            yield feature
+        Use profile_features when present, otherwise legacy features and
+        capabilities. Resolve feature references through FeatureRegistry, then
+        CapabilityRegistry. Include feature dependencies by default.
+
+        Args:
+            profile: The profile whose requirements should be returned.
+            optional: Include optional profile features when available.
+            recursive: Include requirements from feature dependencies.
+
+        Returns:
+            Unique requirements per code and version.
+        """
+        capability_registry = CapabilityRegistry()
+        feature_registry = FeatureRegistry()
+        requirements_registry = RequirementsRegistry()
+        requirements: list[Requirement | RequirementRefProtocol] = []
+
+        if profile_features := getattr(profile, "profile_features", ()):
+            for profile_feature in profile_features:
+                if profile_feature.optional and not optional:
+                    continue
+                if isinstance(profile_feature.feature, FeatureProtocol):
+                    requirements.extend(feature_registry.get_requirements(profile_feature.feature, recursive=recursive))
+                elif isinstance(profile_feature.feature, CapabilityProtocol):
+                    requirements.extend(profile_feature.feature.requirements)
+                else:
+                    feature_id: str = profile_feature.feature.id
+                    feature_version: str | None = profile_feature.feature.version
+                    feature_requirements: list[Requirement | RequirementRefProtocol] | None = None
+                    if isinstance(profile_feature.feature, FeatureRefProtocol):
+                        if feature := feature_registry.find(feature_id, feature_version):
+                            feature_requirements = feature_registry.get_requirements(feature, recursive=recursive)
+                        elif capability := capability_registry.find(feature_id, feature_version):
+                            feature_requirements = capability.requirements
+                    if feature_requirements is not None:
+                        requirements.extend(feature_requirements)
+                    elif not profile_feature.optional:
+                        raise ValueError(
+                            f"Required feature {feature_id!r} version {feature_version!r} "
+                            f"referenced by profile {profile.id!r} version {profile.version!r} is not registered"
+                        )
+        else:
+            for feature in getattr(profile, "features", ()):
+                requirements.extend(feature_registry.get_requirements(feature, recursive=recursive))
+
+            for capability in getattr(profile, "capabilities", ()):
+                requirements.extend(capability.requirements)
+
+        requirements_by_key: dict[tuple[str, str | None], Requirement | RequirementRefProtocol] = {}
+        for requirement in requirements_registry.resolve_requirements(requirements):
+            requirements_by_key[(requirement.code, requirement.version)] = requirement
+        return list(requirements_by_key.values())
 
     @deprecated("Use add() instead")
     def add_profile(self, profile: Profile) -> None:

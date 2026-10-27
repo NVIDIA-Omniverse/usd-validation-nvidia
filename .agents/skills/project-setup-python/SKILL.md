@@ -165,7 +165,7 @@ Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use t
 
 - `register_rule("Example")`: registers the rule in the `Example` category; the string argument is the rule category
   shown by the CLI.
-- `BaseRuleChecker.CheckStage(...)`: validates the whole stage once.
+- `BaseRule.CheckStage(...)`: validates the whole stage once.
 - `_AddFailedCheck(...)`: reports a validation failure.
 
 ## Key Dependencies
@@ -175,7 +175,6 @@ Note: replace `--with ./validation` with `--with usd-validation-nvidia` to use t
 | `usd-validation-nvidia[usd]` | Engine, CLI, built-in validators, and `usd-core` runtime dependency |
 | `usd-validation-nvidia[numpy]` | Optional NumPy acceleration |
 | `usd-profiles-nvidia` | Profile/capability/feature/requirement modeling and code generation package |
-| `usd-profiles-nvidia[sphinx]` | Optional Sphinx directives and roles for profile documentation |
 
 ## Limitations
 

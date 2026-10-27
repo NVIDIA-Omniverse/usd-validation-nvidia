@@ -41,6 +41,21 @@ def Xform "World"
 }
 ```
 
+### Invalid: Inactive defaultPrim
+
+```usd
+#usda 1.0
+(
+    defaultPrim = "World"
+)
+
+def Xform "World" (
+    active = false
+)
+{
+}
+```
+
 ### Valid: defaultPrim specified
 
 ```usd
@@ -56,6 +71,19 @@ def Xform "World"
     {
         double size = 1.0
     }
+}
+```
+
+### Valid: Scope as defaultPrim
+
+```usd
+#usda 1.0
+(
+    defaultPrim = "World"
+)
+
+def Scope "World"
+{
 }
 ```
 

@@ -40,6 +40,40 @@ def Mesh "MeshWithColocatedPoints" {
 }
 ```
 
+### Invalid: Normals do not match the points
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithIncompleteNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0)]  # Co-located with the first point
+    # Vertex interpolation requires one normal per point
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "vertex"
+    )
+}
+```
+
+### Invalid: Primvar does not match the points
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithIncompletePrimvar"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (0, 0, 0)]  # Co-located with the first point
+    # Vertex interpolation requires one value per point
+    texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+        interpolation = "vertex"
+    )
+}
+```
+
 ### Valid: No co-located points
 
 ```usd
@@ -53,6 +87,16 @@ def Mesh "CleanMesh" {
         (2,2,2),
         (3,3,3)
     ]
+}
+```
+
+### Valid: Mesh without data
+
+```usd
+#usda 1.0
+
+def Mesh "EmptyMesh"
+{
 }
 ```
 

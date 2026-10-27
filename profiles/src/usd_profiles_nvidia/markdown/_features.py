@@ -6,11 +6,18 @@ import re
 from dataclasses import dataclass, replace
 from typing import Any
 
-from usd_profiles_nvidia.api import Feature, FeatureRef, Requirement, RequirementRef
+from usd_profiles_nvidia.api import (
+    Feature,
+    FeatureRef,
+    Parameter,
+    Requirement,
+    RequirementRef,
+)
 from usd_profiles_nvidia.descriptors._errors import DescriptorKind, descriptor_errors
 from usd_profiles_nvidia.model import IdVersion, Metadata, Version
 
 from ._model import Section, Sections
+from ._parameters import ParameterParser
 from ._parser import walk_md
 from ._references import ReferencesParser
 
@@ -50,6 +57,15 @@ class _FeatureParser(ReferencesParser):
                 )
         return dependencies
 
+    def _parse_parameters(self) -> tuple[Parameter, ...]:
+        """
+        Parse parameter overrides from the document's optional Parameters section.
+        """
+        parameters_section = self.main_section.sections.get("parameters")
+        if parameters_section is None:
+            return ()
+        return tuple(ParameterParser(parameters_section).parse())
+
     def parse(self) -> Feature | None:
         """
         Parse the feature from the source file.
@@ -75,6 +91,7 @@ class _FeatureParser(ReferencesParser):
             requirements=requirements,
             dependencies=attrs.get("dependencies", []),
             path=Metadata(path=self.relpath).path,
+            parameters=self._parse_parameters(),
         )
 
 
@@ -161,7 +178,11 @@ class MultiFeatureParser(ReferencesParser):
             requirement_refs: list[RequirementRef] = [
                 RequirementRef(requirement.code, requirement.version) for requirement in requirements
             ]
-            features.append(replace(feature, version=version, requirements=requirement_refs))
+            parameters_section: Section | None = section.sections.get("parameters")
+            parameters: tuple[Parameter, ...] = (
+                tuple(ParameterParser(parameters_section).parse()) if parameters_section is not None else ()
+            )
+            features.append(replace(feature, version=version, requirements=requirement_refs, parameters=parameters))
         return features
 
 

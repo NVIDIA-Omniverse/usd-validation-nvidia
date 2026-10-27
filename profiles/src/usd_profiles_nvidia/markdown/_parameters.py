@@ -7,7 +7,8 @@
 import re
 from dataclasses import dataclass
 
-from usd_profiles_nvidia.model import Parameter, ParameterType
+from usd_profiles_nvidia.api import Parameter, ParameterType
+from usd_profiles_nvidia.descriptors import parse_parameter
 
 from ._parser import Section
 
@@ -29,7 +30,7 @@ class ParameterParser:
     parameters_section: Section
 
     @staticmethod
-    def _parse_parameter_type(type_str: str) -> tuple[ParameterType, list[str] | None]:
+    def _parse_parameter_type(type_str: str) -> tuple[ParameterType, tuple[str, ...] | None]:
         """
         Parse a parameter type string.
 
@@ -67,7 +68,7 @@ class ParameterParser:
                 raise ValueError(error_msg)
 
             # Extract the individual enum values
-            enum_values = _ENUM_VALUE_RE.findall(values_str)
+            enum_values = tuple(_ENUM_VALUE_RE.findall(values_str))
 
             # Verify completeness: ensure we extracted values
             if not enum_values:
@@ -139,11 +140,10 @@ class ParameterParser:
             # Parse the type and enum values
             param_type, enum_values = self._parse_parameter_type(param_type_str)
 
-            # Parameter.__post_init__ will validate enum assigned values
             parameters.append(
-                Parameter(
+                parse_parameter(
                     display_name=param_name,
-                    type=param_type,
+                    parameter_type=param_type,
                     assigned_value=param_default,
                     enum_values=enum_values,
                 )

@@ -14,16 +14,18 @@ from dataclasses import fields as dataclass_fields
 from pathlib import Path
 from typing import Any
 
-from usd_profiles_nvidia.api import Requirement
-from usd_profiles_nvidia.model import (
-    CapabilityNode,
+from usd_profiles_nvidia.api import (
     Example,
     ExampleResult,
     ExampleSnippet,
     ExampleSnippetLanguage,
-    Metadata,
     Parameter,
-    ParameterType,
+    Requirement,
+)
+from usd_profiles_nvidia.descriptors import parse_parameter
+from usd_profiles_nvidia.model import (
+    CapabilityNode,
+    Metadata,
 )
 from usd_profiles_nvidia.model._graph import SCHEMA_VERSION
 
@@ -37,7 +39,6 @@ logger = logging.getLogger(__name__)
 
 _CAPABILITY_NODE_FIELDS = {field.name for field in dataclass_fields(CapabilityNode) if field.name != "id"}
 _EXAMPLE_FIELDS = {field.name for field in dataclass_fields(Example)}
-_EXAMPLE_SNIPPET_FIELDS = {field.name for field in dataclass_fields(ExampleSnippet)}
 _PARAMETER_FIELDS = {field.name for field in dataclass_fields(Parameter)}
 _REQUIREMENT_FIELDS = {field.name for field in dataclass_fields(Requirement) if field.name != "code"}
 
@@ -105,11 +106,11 @@ class CapabilityGraphDeserializer(json.JSONDecoder):
     @classmethod
     def decode_parameter(cls, data: dict[str, Any]) -> Parameter:
         values = {key: value for key, value in data.items() if key in _PARAMETER_FIELDS}
-        return Parameter(
-            **{
-                **values,
-                "type": ParameterType(values["type"]),
-            }
+        return parse_parameter(
+            display_name=values["display_name"],
+            parameter_type=values["type"],
+            assigned_value=values.get("assigned_value"),
+            enum_values=values.get("enum_values"),
         )
 
     @classmethod
@@ -130,13 +131,10 @@ class CapabilityGraphDeserializer(json.JSONDecoder):
 
     @classmethod
     def decode_example_snippet(cls, data: dict[str, Any], *, context: str = "") -> ExampleSnippet:
-        values = {key: value for key, value in data.items() if key in _EXAMPLE_SNIPPET_FIELDS}
         snippet_context = f"{context} snippet" if context else "example snippet"
         return ExampleSnippet(
-            **{
-                **values,
-                "language": ExampleSnippetLanguage(cls._required(values, "language", snippet_context)),
-            }
+            language=ExampleSnippetLanguage(cls._required(data, "language", snippet_context)),
+            inline_content=cls._required(data, "content", snippet_context),
         )
 
     @staticmethod

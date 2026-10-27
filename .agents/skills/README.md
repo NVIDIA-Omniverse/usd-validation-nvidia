@@ -61,7 +61,7 @@ skills accurate as the API evolves.
 
 ```python
 # [snippet:custom-rule]
-class ExampleDefaultPrimChecker(BaseRuleChecker):
+class ExampleDefaultPrimChecker(BaseRule):
     ...
 # [/snippet:custom-rule]
 ```

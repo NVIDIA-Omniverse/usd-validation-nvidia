@@ -5,10 +5,10 @@ import enum
 
 from pxr import Sdf, Usd
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
 from .._issues import Suggestion
+from ..registries import register_rule
 from ..utils import multiprocess_safe
+from ._base import BaseRuleChecker
 
 __all__ = [
     "LayerSpecChecker",

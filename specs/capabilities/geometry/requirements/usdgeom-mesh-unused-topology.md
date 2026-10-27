@@ -35,6 +35,28 @@ def Mesh "MeshWithUnusedPoints" {
 }
 ```
 
+### Invalid: Mesh with unused vertices and primvars
+
+Vertex and varying primvars have a value per vertex, so the values of the unused vertices are unused as well:
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithUnusedPointsAndPrimvars"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0), (2, 0, 0)]  # The last vertex is unused
+
+    float[] primvars:value1 = [1, 2, 3, 4, 5] (interpolation = "vertex")
+    float[] primvars:value2 = [1, 2, 3, 4, 5] (interpolation = "varying")
+    float[] primvars:value3 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (interpolation = "vertex"; elementSize = 2)
+    float[] primvars:value4 = [0, 1, 2, 3] (interpolation = "faceVarying")
+    float3[] primvars:value5 = [(1, 0, 0), (2, 0, 0)] (interpolation = "vertex")
+    int[] primvars:value5:indices = [0, 1, 0, 1, 1]
+}
+```
+
 ### Valid: Clean topology
 
 ```usd
@@ -46,6 +68,16 @@ def Mesh "CleanMesh" {
     point3f[] points = [
         (0,0,0), (1,0,0), (1,1,0), (0,1,0)  # Only required vertices
     ]
+}
+```
+
+### Valid: Mesh without data
+
+```usd
+#usda 1.0
+
+def Mesh "EmptyMesh"
+{
 }
 ```
 

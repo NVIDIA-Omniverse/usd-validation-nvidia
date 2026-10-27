@@ -7,7 +7,7 @@ import re
 from dataclasses import dataclass
 from typing import ClassVar
 
-from usd_profiles_nvidia.model import (
+from usd_profiles_nvidia.api import (
     Example,
     ExampleResult,
     ExampleSnippet,
@@ -47,14 +47,14 @@ class ExamplesParser:
         for fence in subsection.fences:
             if fence.is_directive():
                 continue
-            match fence.info.lower():
+            match (fence.info.split() or [""])[0].lower():
                 case "python" | "py":
                     language = ExampleSnippetLanguage.PYTHON
                 case "usd" | "usda":
                     language = ExampleSnippetLanguage.USD
                 case _:
                     continue
-            return ExampleSnippet(language=language, content=fence.content.strip())
+            return ExampleSnippet(language=language, inline_content=fence.content.strip())
         return None
 
     def _parse_example(self, subsection: Section) -> Example | None:

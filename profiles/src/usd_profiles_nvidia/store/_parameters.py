@@ -5,8 +5,7 @@
 from collections.abc import Iterator
 from dataclasses import InitVar, dataclass, field
 
-from usd_profiles_nvidia.api import Requirement
-from usd_profiles_nvidia.model import Parameter
+from usd_profiles_nvidia.api import Parameter, Requirement
 
 
 @dataclass

@@ -1,11 +1,20 @@
 Python API
 ##########
 
-`usd_profiles_nvidia` Module
-============================
+`usd_profiles_nvidia` API
+=========================
 
-.. currentmodule:: usd_profiles_nvidia.codegen
-
-.. autoclass:: PythonGenerator
-    :members:
+.. automodule:: usd_profiles_nvidia
+    :platform: Windows-x86_64, Linux-x86_64
+    :members: CapabilityGraph,
+              get_version,
+              LoadedSpecifications,
+              LoadedSpecificationsProtocol,
+              PythonGenerator,
+              SpecificationKind,
+              SpecificationProblem,
+              SpecificationProblemKind,
+              SpecificationProblemSeverity,
+              SpecificationRef,
+              SpecificationsLoader
     :member-order: alphabetical

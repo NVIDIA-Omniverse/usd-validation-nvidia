@@ -12,9 +12,9 @@ from typing import Any, Protocol, final, runtime_checkable
 
 from pxr import Sdf, Tf, Usd
 
-from .._base_rule_checker import BaseRuleChecker
 from .._issues import Issue, IssueSeverity
-from .._requirements import Requirement, RequirementsRegistry
+from ..registries import Requirement, RequirementsRegistry
+from ._base import BaseRuleChecker
 
 __all__ = [
     "UsdValidatorAdapter",

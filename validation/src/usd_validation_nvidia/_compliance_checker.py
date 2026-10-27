@@ -14,13 +14,11 @@ from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from functools import singledispatchmethod
 from math import nextafter
+from urllib.parse import ParseResult, urlparse
 
 from pxr import Ar, Sdf, Usd, UsdUtils
 
-from ._asset_format import AssetFormat, AssetFormatRegistry, FormatDependency
 from ._assets import AssetType
-from ._base_rule_checker import BaseRuleChecker
-from ._base_rule_metadata import BaseRuleCheckerMetadata
 from ._compliance_runners import (
     AsyncComplianceCheckerRunner,
     ComplianceCheckerEvent,
@@ -33,6 +31,8 @@ from ._identifiers import ANON_VALIDATOR_LAYER_NAME
 from ._issues import Issue, IssueSeverity
 from ._parameters import ParameterMapping
 from ._stats import ValidationStats
+from .registries import AssetFormat, AssetFormatRegistry, FormatDependency
+from .rules import BaseRuleChecker, BaseRuleCheckerMetadata
 from .utils import LocalUriResolver, UriResolver, make_absolute_url_if_possible
 
 __all__ = [
@@ -123,7 +123,7 @@ class ComplianceChecker:
         Adds a rule to the ComplianceChecker.
 
         Args:
-            rule_type (type[BaseRuleChecker]): The type of the rule to add.
+            rule_type (type[BaseRule]): The type of the rule to add.
         """
         if rule_type in self._rule_types:
             return
@@ -193,7 +193,7 @@ class ComplianceChecker:
         context = self.get_dependency_context(asset)
 
         asset_dependencies = None
-        if self._rules_check_assets():
+        if self._rules_check_assets() and self._is_usd_asset(asset):
             asset_dependencies = self._check_dependencies(asset, context)
 
         with self._create_sync_runner(self._rules, self.stats, context, processes=self.processes) as runner:
@@ -211,7 +211,7 @@ class ComplianceChecker:
         context = self.get_dependency_context(asset)
 
         asset_dependencies = None
-        if self._rules_check_assets():
+        if self._rules_check_assets() and self._is_usd_asset(asset):
             asset_dependencies = await to_thread(self._check_dependencies, asset, context)
 
         # Setup _callback
@@ -268,6 +268,22 @@ class ComplianceChecker:
     def _rules_check_prims(self) -> bool:
         """Checks if any of the rules has implemented CheckPrim."""
         return any(BaseRuleCheckerMetadata(type(rule)).is_prim_implemented() for rule in self._rules)
+
+    @singledispatchmethod
+    @classmethod
+    def _is_usd_asset(cls, asset: AssetType) -> bool:
+        raise NotImplementedError(f"Unknown type {type(asset)}")
+
+    @_is_usd_asset.register
+    @classmethod
+    def _(cls, asset: Usd.Stage) -> bool:
+        return True
+
+    @_is_usd_asset.register
+    @classmethod
+    def _(cls, asset: str) -> bool:
+        parse_result: ParseResult = urlparse(asset)
+        return Usd.Stage.IsSupportedFile(parse_result.path)
 
     @singledispatchmethod
     @classmethod
@@ -345,7 +361,7 @@ class ComplianceChecker:
         if context is None:
             context = self.get_dependency_context(asset)
 
-        if isinstance(asset, str) and not Usd.Stage.IsSupportedFile(asset):
+        if isinstance(asset, str) and not self._is_usd_asset(asset):
             yield from self._check_asset_format(asset, context)
             return
 
@@ -437,7 +453,7 @@ class ComplianceChecker:
             self._AddError(f"Cannot open file '{asset_path}': no registered format handler.")
             return
         for dependency_path in asset_format.get_dependencies(asset_path, self.resolver):
-            if Usd.Stage.IsSupportedFile(dependency_path):
+            if self._is_usd_asset(dependency_path):
                 yield from self._check_compliance(dependency_path, context=context)
             else:
                 format_dependency = FormatDependency(

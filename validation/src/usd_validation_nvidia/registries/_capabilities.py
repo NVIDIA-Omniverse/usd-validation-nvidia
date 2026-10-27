@@ -4,10 +4,10 @@
 import logging
 from collections.abc import Callable, Iterable
 
+from ..capabilities import CapabilityProtocol, RequirementRefProtocol
+from ..utils import EventListener, SemVer, deprecated, singleton
 from ._registry import IdVersion, VersionedRegistry
 from ._requirements import Requirement, RequirementsRegistry
-from .capabilities import CapabilityProtocol, RequirementRefProtocol
-from .utils import EventListener, SemVer, deprecated, singleton
 
 __all__ = [
     "Capability",
@@ -52,6 +52,12 @@ class CapabilityRegistry(VersionedRegistry[Capability]):
     def get_requirements(self, capability: Capability) -> list[Requirement | RequirementRefProtocol]:
         """
         Return requirements owned by a capability.
+
+        Args:
+            capability: Concrete capability.
+
+        Returns:
+            Capability requirements found in the registry, otherwise the original references.
         """
         return RequirementsRegistry().resolve_requirements(capability.requirements)
 

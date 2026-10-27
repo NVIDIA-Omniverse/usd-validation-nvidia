@@ -13,7 +13,6 @@ from urllib.parse import ParseResult, urlparse
 
 from pxr import Sdf, Usd
 
-from ._asset_format import AssetFormatRegistry
 from ._assets import (
     AssetLocatedCallback,
     AssetProgress,
@@ -21,21 +20,28 @@ from ._assets import (
     AssetType,
     AssetValidatedCallback,
 )
-from ._base_rule_checker import BaseRuleChecker
-from ._capabilities import Capability, CapabilityRegistry
-from ._categories import CategoryRuleRegistry
 from ._compliance_checker import ComplianceChecker
-from ._features import Feature, FeatureRegistry
 from ._issues import Issue, IssuePredicate, IssueSeverity
-from ._parameters import Parameter, ParameterMapping
+from ._parameters import ParameterMapping
 from ._plugins import PluginManager
-from ._profiles import Profile, ProfileRegistry
-from ._requirements import Requirement, RequirementsRegistry
 from ._results import Results, ResultsList
 from ._stats import ValidationStats
 from ._validation_context import ValidationContext
 from ._version import __version__
-from .capabilities import RequirementProtocol, RequirementRefProtocol
+from .capabilities import ParameterProtocol, RequirementProtocol, RequirementRefProtocol
+from .registries import (
+    AssetFormatRegistry,
+    Capability,
+    CapabilityRegistry,
+    CategoryRuleRegistry,
+    Feature,
+    FeatureRegistry,
+    Profile,
+    ProfileRegistry,
+    Requirement,
+    RequirementsRegistry,
+)
+from .rules import BaseRuleChecker
 from .utils import LocalUriResolver, UriResolver, deprecated
 
 __all__ = [
@@ -51,7 +57,7 @@ T = TypeVar("T")
 class ValidationEngine:
     """An engine for running rule-checkers on a given OpenUSD Asset.
 
-    Rules are :py:class:`BaseRuleChecker` derived classes which perform specific validation checks over various aspects
+    Rules are :py:class:`BaseRule` derived classes which perform specific validation checks over various aspects
     of a USD layer/stage. Rules must be added through enable_rule. removed through disable_rule.
 
     Validation can be performed asynchronously (using either :py:meth:`validate_async` or :py:meth:`validate_with_callbacks`)
@@ -112,7 +118,7 @@ class ValidationEngine:
     _disabled_profiles: list[Profile] = field(init=False, default_factory=list)
     _tasks: set[asyncio.Task] = field(init=False, default_factory=set)
     _stats: ValidationStats = field(init=False, default_factory=ValidationStats)
-    _parameters: list[Parameter] = field(init=False, default_factory=list)
+    _parameters: list[ParameterProtocol] = field(init=False, default_factory=list)
 
     @cached_property
     def _resolver(self) -> UriResolver:
@@ -126,7 +132,7 @@ class ValidationEngine:
         """
         return CategoryRuleRegistry().rules
 
-    def add_parameter(self, parameter: Parameter) -> None:
+    def add_parameter(self, parameter: ParameterProtocol) -> None:
         """
         Adds a custom parameter to the engine.
         """
@@ -205,7 +211,7 @@ class ValidationEngine:
         Enable a given rule on this engine.
 
         Args:
-            rule (Type[BaseRuleChecker]): A `BaseRuleChecker` derived class to be enabled
+            rule (Type[BaseRule]): A `BaseRule` derived class to be enabled
         """
         self._enabled_rules.append(rule)
         with contextlib.suppress(ValueError):
@@ -216,7 +222,7 @@ class ValidationEngine:
         Disable a given rule on this engine.
 
         Args:
-            rule (type[BaseRuleChecker]): A `BaseRuleChecker` derived class to be enabled
+            rule (type[BaseRule]): A `BaseRule` derived class to be enabled
         """
         self._disabled_rules.append(rule)
         with contextlib.suppress(ValueError):

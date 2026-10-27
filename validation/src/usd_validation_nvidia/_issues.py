@@ -29,8 +29,8 @@ from ._identifiers import (
     StageId,
     to_identifier,
 )
-from ._requirements import Requirement, RequirementsRegistry
 from .capabilities import RequirementProtocol, RequirementRefProtocol
+from .registries import Requirement, RequirementsRegistry
 from .utils import DedupeMetaclass, _PatternTree, deprecated
 
 __all__ = [
@@ -46,7 +46,7 @@ __all__ = [
 ]
 
 RuleType = TypeVar("RuleType")
-"""Any Checker is a subclass of BaseRuleChecker."""
+"""Any rule is a subclass of BaseRule."""
 
 
 class IssueSeverity(Enum):
@@ -214,7 +214,7 @@ class Issue:
     Attributes:
         message (str | None): The reason this issue is mentioned.
         severity (IssueSeverity | None): The severity associated with the issue.
-        rule (Type[BaseRuleChecker] | None): Optional. The class of rule detecting this issue.
+        rule (Type[BaseRule] | None): Optional. The class of rule detecting this issue.
         at (Identifier[AtType] | None): Optional. The Prim/Stage/Layer/SdfLayer/SdfPrim/etc.. where this issue arises.
         suggestion (Suggestion | None): Optional. The default (first) suggestion to apply. Cannot be
             combined with ``suggestions``; use one or the other. After construction, always equals
@@ -234,7 +234,7 @@ class Issue:
 
         import usd_validation_nvidia
 
-        class MyRule(BaseRuleChecker):
+        class MyRule(usd_validation_nvidia.BaseRule):
             pass
 
         stage = Usd.Stage.Open('foo.usd')
@@ -660,6 +660,25 @@ class IssuePredicates:
             IssuePredicates.MatchesAnyCode.__name__,
             lambda issue: issue.code in codes,
             args=(codes,),
+        )
+
+    @staticmethod
+    def IsRequirement(requirement: RequirementProtocol) -> IssuePredicate:
+        """
+        Args:
+            requirement: The requirement to filter.
+
+        Returns:
+            A filter for issues reported for the requirement, i.e. with matching code and version.
+        """
+        return _Predicate(
+            IssuePredicates.IsRequirement.__name__,
+            lambda issue: (
+                issue.requirement is not None
+                and issue.requirement.code == requirement.code
+                and issue.requirement.version == requirement.version
+            ),
+            args=(requirement,),
         )
 
     @staticmethod

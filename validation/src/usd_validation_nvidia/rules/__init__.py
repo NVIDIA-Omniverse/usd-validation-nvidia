@@ -8,6 +8,7 @@ from ._atomic_asset import (
     UsdUtilsPackageEncapsulationValidator,
     UsdzUdimLimitationChecker,
 )
+from ._base import BaseRule, BaseRuleChecker
 from ._basic import (
     ByteAlignmentChecker,
     CompressionChecker,
@@ -56,6 +57,7 @@ from ._materials import (
     UsdShadeShaderSdrCompliance,
     UsdShadeSubsetsMaterialBindFamilyChecker,
 )
+from ._metadata import BaseRuleCheckerMetadata
 from ._misc import (
     SkelBindingAPIAppliedChecker,
     UsdGeomSubsetChecker,
@@ -95,6 +97,9 @@ __all__ = [
     "ArticulationChecker",
     "AssetOriginPositioningChecker",
     "BaseBoundsChecker",
+    "BaseRule",
+    "BaseRuleChecker",
+    "BaseRuleCheckerMetadata",
     "BoundsLimit",
     "ByteAlignmentChecker",
     "ColliderChecker",

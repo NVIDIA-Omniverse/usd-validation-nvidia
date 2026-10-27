@@ -24,6 +24,18 @@ For time-varying geometry, the extent must be computed at each time sample where
 
 ## Examples
 
+### Valid: Extent that matches the geometry
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithExtent"
+{
+    point3f[] points = [(0, 0, 0), (1, 1, 1)]
+    float3[] extent = [(0, 0, 0), (1, 1, 1)]
+}
+```
+
 ### Invalid: Incorrect extent on static geometry
 
 ```usd
@@ -64,6 +76,82 @@ def Mesh "MeshWithExtent" {
     float3[] extent.timeSamples = {
         0: [(0,0,0), (1,1,1)],  # Initial extent
         1: [(0,0,0), (2,2,2)]   # Extent changes with geometry
+    }
+}
+```
+
+### Invalid: Missing extent on curves
+
+```usd
+#usda 1.0
+
+def BasisCurves "CurvesWithoutExtent"
+{
+    uniform token type = "linear"
+    int[] curveVertexCounts = [2]
+    point3f[] points = [(0, 0, 0), (1, 0, 0)]
+    float[] widths = [1, 1]
+}
+```
+
+### Invalid: Incorrect extent at several times
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithIncorrectExtents"
+{
+    point3f[] points.timeSamples = {
+        1: [(0, 0, 0), (1, 1, 1)],
+        2: [(0, 0, 0), (2, 2, 2)]
+    }
+    # The extent is wrong at both times
+    float3[] extent.timeSamples = {
+        1: [(0, 0, 0), (5, 5, 5)],
+        2: [(0, 0, 0), (5, 5, 5)]
+    }
+}
+```
+
+### Invalid: Incorrect extent at one time
+
+```usd
+#usda 1.0
+
+def Points "PointsWithIncorrectExtent"
+{
+    point3f[] points.timeSamples = {
+        1: [(0, 0, 0), (1, 0, 0)],
+        2: [(0, 0, 0), (2, 0, 0)]
+    }
+    float[] widths.timeSamples = {
+        1: [2, 2],
+        2: [2, 2]
+    }
+    # The extent is correct at time 1 but was not updated at time 2
+    float3[] extent.timeSamples = {
+        1: [(-1, -1, -1), (2, 1, 1)],
+        2: [(-1, -1, -1), (2, 1, 1)]
+    }
+}
+```
+
+### Invalid: Incorrect extent after the widths change
+
+```usd
+#usda 1.0
+
+def Points "PointsWithChangingWidths"
+{
+    point3f[] points = [(0, 0, 0), (1, 0, 0)]
+    float[] widths.timeSamples = {
+        1: [2, 2],
+        2: [4, 4]
+    }
+    # The extent is correct at time 1 but was not updated when the widths grew at time 2
+    float3[] extent.timeSamples = {
+        1: [(-1, -1, -1), (2, 1, 1)],
+        2: [(-1, -1, -1), (2, 1, 1)]
     }
 }
 ```

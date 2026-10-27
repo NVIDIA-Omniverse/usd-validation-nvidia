@@ -32,7 +32,6 @@ class TestOmniCompat(unittest.TestCase):
             "markdown": ["DocumentParser", "ProfilesParser"],
             "model": [
                 "BuildCapabilityGraph",
-                "Capability",
                 "CapabilityNode",
                 "Version",
             ],

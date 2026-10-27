@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Protocol, runtime_checkable
 
-from .utils import (
+from ..utils import (
     EventListener,
     EventStream,
     UriResolver,
@@ -28,7 +28,7 @@ __all__ = [
 
 @dataclass(frozen=True)
 class FormatDependency:
-    """Context object passed to :py:meth:`~usd_validation_nvidia.BaseRuleChecker.CheckFormatDependency`.
+    """Context object passed to :py:meth:`~usd_validation_nvidia.BaseRule.CheckFormatDependency`.
 
     Attributes:
         path: The specific dependency path being checked.

@@ -4,7 +4,7 @@
 import factory_asset_profiles
 from pxr import Usd, UsdGeom
 from usd_validation_nvidia import (
-    BaseRuleChecker,
+    BaseRule,
     ParameterMapping,
     register_features,
     register_profiles,
@@ -19,7 +19,7 @@ from usd_validation_nvidia import (
 FACTORY_BOUNDABLE_SIZE = factory_asset_profiles.Requirements.GEOMETRY_001
 
 
-class FactoryBoundsChecker(BaseRuleChecker):
+class FactoryBoundsChecker(BaseRule):
     """Validate boundable prim sizes against factory limits."""
 
     def __init__(self, parameters: ParameterMapping | None = None) -> None:

@@ -7,8 +7,6 @@ from collections.abc import Iterator
 import usd_validation_nvidia.capabilities as cap
 from pxr import Gf, Sdf, Tf, Usd, UsdGeom, Vt
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
 from .._issues import Suggestion
 from .._mesh_tools import (
     check_manifold_elements,
@@ -25,7 +23,8 @@ from .._mesh_tools import (
     is_typename_array,
     remove_unused_values_and_remap_indices,
 )
-from .._requirements import register_requirements
+from ..registries import register_requirements, register_rule
+from ._base import BaseRuleChecker
 
 __all__ = [
     "AssetOriginPositioningChecker",

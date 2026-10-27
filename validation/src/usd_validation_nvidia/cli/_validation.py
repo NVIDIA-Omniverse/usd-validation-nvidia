@@ -14,11 +14,7 @@ from functools import lru_cache
 from pxr import Sdf, Tf
 
 from .._assets import AssetProgress
-from .._base_rule_checker import BaseRuleChecker
-from .._capabilities import Capability, CapabilityRegistry
-from .._categories import CategoryRuleRegistry
 from .._engine import ValidationEngine
-from .._features import Feature, FeatureRegistry
 from .._fix import IssueFixer
 from .._issues import (
     Issue,
@@ -30,13 +26,23 @@ from .._issues import (
     IssuesList,
 )
 from .._parameters import ParameterMapping, UserParameter
-from .._profiles import Profile, ProfileRegistry
-from .._registry import VersionedRegistry
-from .._requirements import Requirement, RequirementsRegistry
 from .._results import Results, ResultsList
 from .._validation_context import ValidationContext
 from .._version import __version__
+from ..registries import (
+    Capability,
+    CapabilityRegistry,
+    CategoryRuleRegistry,
+    Feature,
+    FeatureRegistry,
+    Profile,
+    ProfileRegistry,
+    Requirement,
+    RequirementsRegistry,
+    VersionedRegistry,
+)
 from ..reporting import export_csv_file, export_json_file
+from ..rules import BaseRuleChecker
 from ..utils import SemVer
 
 __all__ = [
@@ -375,6 +381,16 @@ def create_validation_parser() -> argparse.ArgumentParser:
         choices=issue_predicates,
         help=inspect.cleandoc(f"Predicate to select. Valid options include:\n{issue_predicates_help}"),
     )
+    # Exit status
+    parser.add_argument(
+        "--exit-zero",
+        default=False,
+        action=argparse.BooleanOptionalAction,
+        help=inspect.cleandoc("""
+            Whether to exit with a status code of 0 even if validation issues are found.
+            Execution errors still produce a non-zero exit code.
+            """),
+    )
     # Group by
     issue_groups_by = [
         IssueGroupsBy.rule_name.__name__,
@@ -535,6 +551,11 @@ class ValidationNamespaceExec:
             The `fix` option value.
         """
         return self._namespace.fix
+
+    @property
+    def exit_zero(self) -> bool:
+        """Whether validation issues should produce a zero exit code."""
+        return self._namespace.exit_zero
 
     @property
     def predicate(self) -> IssuePredicate:
@@ -945,8 +966,9 @@ class ValidationNamespaceExec:
         results: ResultsList = task.result()
 
         logger.info("-" * 128)
-        has_issues: bool = results.issues()
-        if not has_issues:
+        issues: IssuesList = results.issues()
+        has_findings: bool = bool(issues)
+        if not has_findings:
             print("No issues found.")
         else:
             self._assets_summary(results)
@@ -989,7 +1011,10 @@ class ValidationNamespaceExec:
             outputs_written = self._export_csv(results, context) and outputs_written
         if self.json_output:
             outputs_written = self._export_json(results, context) and outputs_written
-        return not has_issues and outputs_written
+        has_errors: bool = bool(issues.filter_by(IssuePredicates.IsError()))
+        has_errors |= not outputs_written
+        findings_affect_exit_code: bool = not self.exit_zero and has_findings
+        return not has_errors and not findings_affect_exit_code
 
     def run_validation(self) -> bool:
         root_logger = logging.getLogger()

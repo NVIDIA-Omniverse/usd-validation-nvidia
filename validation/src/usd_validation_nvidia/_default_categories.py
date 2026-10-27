@@ -4,10 +4,10 @@
 from collections.abc import Sequence
 from enum import Enum
 
-from ._base_rule_checker import BaseRuleChecker
 from .rules import (
     AnchoredAssetPathsChecker,
     ArticulationChecker,
+    BaseRuleChecker,
     ByteAlignmentChecker,
     ColliderChecker,
     CompressionChecker,

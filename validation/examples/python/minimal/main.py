@@ -4,11 +4,11 @@
 """Minimal USD Validation NVIDIA plugin example."""
 
 from pxr import Usd
-from usd_validation_nvidia import BaseRuleChecker, register_rule, unregister_rule
+from usd_validation_nvidia import BaseRule, register_rule, unregister_rule
 
 
 # [snippet:custom-rule]
-class ExampleDefaultPrimChecker(BaseRuleChecker):
+class ExampleDefaultPrimChecker(BaseRule):
     """Require the stage to define a valid default prim."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:

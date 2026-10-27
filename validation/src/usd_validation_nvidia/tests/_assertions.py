@@ -9,11 +9,11 @@ from functools import singledispatchmethod
 from pxr import Sdf, Usd
 
 from .._assets import AssetType
-from .._base_rule_checker import BaseRuleChecker
 from .._identifiers import Identifier
 from .._issues import Issue, IssueSeverity
-from .._requirements import Requirement
 from ..capabilities import RequirementRefProtocol
+from ..registries import Requirement
+from ..rules import BaseRuleChecker
 from ..utils import deprecated
 
 __all__ = [

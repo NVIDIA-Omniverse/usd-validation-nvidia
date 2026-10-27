@@ -6,8 +6,8 @@ from __future__ import annotations
 import usd_validation_nvidia.capabilities as cap
 from pxr import Tf, Usd, UsdGeom
 
-from .._base_rule_checker import BaseRuleChecker
-from .._requirements import register_requirements
+from ..registries import register_requirements
+from ._base import BaseRuleChecker
 
 __all__ = [
     "GaussianSplatSchemaChecker",

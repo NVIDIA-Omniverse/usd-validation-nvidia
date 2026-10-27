@@ -3,10 +3,10 @@
 #
 from collections.abc import Callable, Sequence
 from functools import cache
+from typing import TypeVar
 
-from ._base_rule_checker import BaseRuleChecker
+from ..utils import EventListener, deprecated, singleton
 from ._registry import Registry
-from .utils import EventListener, deprecated, singleton
 
 __all__ = [
     "CategoryRuleRegistry",
@@ -15,6 +15,9 @@ __all__ = [
     "register_rule",
     "unregister_rule",
 ]
+
+# TypeVar for BaseRuleChecker to avoid circular import
+BaseRuleChecker = TypeVar("BaseRuleChecker")
 
 
 @singleton
@@ -44,7 +47,7 @@ class CategoryRuleRegistry(Registry[str, list[type[BaseRuleChecker]]]):
 
         Args:
             category (str): The category to associate to the rule.
-            rule (Type[BaseRuleChecker]): The rule class.
+            rule (Type[BaseRule]): The rule class.
         """
         self.remove(rule)  # Remove from any existing category
         rules: list[type[BaseRuleChecker]] = self.get(category, [])
@@ -110,7 +113,7 @@ def register_rule(
     skip: bool = False,
     overwrite: type[BaseRuleChecker] | None = None,
 ) -> Callable[[type[BaseRuleChecker]], type[BaseRuleChecker]]:
-    """Decorator. Register a new :py:class:`BaseRuleChecker` to a specific category.
+    """Decorator. Register a new :py:class:`BaseRule` to a specific category.
 
     Example:
 
@@ -119,7 +122,7 @@ def register_rule(
     .. code-block:: python
 
         @register_rule("MyCategory")
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             pass
 
 
@@ -128,7 +131,7 @@ def register_rule(
     .. code-block:: python
 
         @register_rule("MyCategory", skip=True)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             pass
 
     To overwrite a rule, use the ``overwrite`` parameter. This can be useful to override a rule for a specific category.
@@ -136,13 +139,13 @@ def register_rule(
     .. code-block:: python
 
         @register_rule("MyCategory", overwrite=OtherRule)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             pass
 
     Args:
         category (str): The label with which this rule will be associated
         skip (bool): Optional. Whether to skip rule registration. Default false.
-        overwrite (type[BaseRuleChecker] | None): Optional. The rule to overwrite. Default None.
+        overwrite (type[BaseRule] | None): Optional. The rule to overwrite. Default None.
     """
 
     def _registerRule(rule_class: type[BaseRuleChecker]) -> type[BaseRuleChecker]:
@@ -184,7 +187,7 @@ def add_registry_rule_callback(callback: Callable[[], None]) -> EventListener:
         subscription = add_registry_rule_callback(lambda: print("Rule registered"))
 
         @register_rule("MyCategory")
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             pass
 
         # Output:

@@ -9,16 +9,16 @@ import os
 import tempfile
 import unittest
 
-from usd_profiles_nvidia.api import Requirement
-from usd_profiles_nvidia.graph import CapabilityGraph, encode_graph
-from usd_profiles_nvidia.model import (
+from usd_profiles_nvidia.api import (
     Example,
     ExampleResult,
     ExampleSnippet,
     ExampleSnippetLanguage,
     Parameter,
     ParameterType,
+    Requirement,
 )
+from usd_profiles_nvidia.graph import CapabilityGraph, encode_graph
 
 # Fixtures
 
@@ -116,7 +116,7 @@ class TestGraphRequirement(unittest.TestCase):
     def test_create_full(self):
         parameter = Parameter(display_name="max_faces", type=ParameterType.INT)
         example = Example(
-            snippet=ExampleSnippet(language=ExampleSnippetLanguage.USD, content='def Mesh "bad" {}'),
+            snippet=ExampleSnippet(language=ExampleSnippetLanguage.USD, inline_content='def Mesh "bad" {}'),
             display_name="Bad mesh",
             result=ExampleResult.FAILURE,
         )

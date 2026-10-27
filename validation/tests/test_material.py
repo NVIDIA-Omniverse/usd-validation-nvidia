@@ -3,7 +3,6 @@
 #
 import os
 import pathlib
-import re
 import shutil
 import typing
 import unittest
@@ -19,7 +18,6 @@ from usd_validation_nvidia import (
     FixStatus,
     IssueFixer,
     IssuePredicates,
-    MaterialOldMdlSchemaChecker,
     MaterialOutOfScopeChecker,
     MaterialPathChecker,
     MaterialUsdPreviewSurfaceChecker,
@@ -221,6 +219,7 @@ class MaterialPathCheckerTest(AsyncioValidationTestCase):
         )
 
     # References
+
     async def test_reference_relative_known_path(self):
         await self.assertRuleAsync(
             asset=get_url("Materials/layerKnownReference.usda"),
@@ -411,42 +410,8 @@ class ShaderImplementationSourceCheckerTest(AsyncioValidationTestCase):
 
 
 class MaterialOldMdlSchemaCheckerTest(AsyncioValidationTestCase):
-    async def test_success_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        UsdGeom.Xform.Define(stage, "/Xform")
-
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shader.SetSourceAsset(Sdf.AssetPath("module.mdl"), "mdl")
-        shader.SetSourceAssetSubIdentifier("Material", "mdl")
-
-        await self.assertSuccessAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
-
-    async def test_failure_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shader.GetImplementationSourceAttr().Set("mdlMaterial")
-        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
-        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
-
-        await self.assertRuleAsync(
-            asset=stage,
-            rule=MaterialOldMdlSchemaChecker,
-            asserts=[
-                IsAFailure(
-                    re.compile("The shader is using the deprecated MDL schema.*"),
-                    at=Sdf.Path("/Shader"),
-                ),
-            ],
-        )
-
-    async def test_fix_ok(self):
-        stage = Usd.Stage.CreateInMemory()
-        shader = UsdShade.Shader.Define(stage, "/Shader")
-        shader.GetImplementationSourceAttr().Set("mdlMaterial")
-        shader.GetPrim().CreateAttribute("module", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath("module.mdl"))
-        shader.GetPrim().CreateAttribute("name", Sdf.ValueTypeNames.Token).Set("Material")
-
-        await self.assertSuggestionAsync(asset=stage, rule=MaterialOldMdlSchemaChecker)
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.VM_MDL_002)
 
 
 @dataclass
@@ -526,56 +491,6 @@ class CustomizedMaterialUsdPreviewSurfaceChecker(MaterialUsdPreviewSurfaceChecke
     "Tests require usd-core with shader definitions, available in 26.03+",
 )
 class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
-    async def test_api(self):
-        await self.assertRuleAsync(
-            asset=get_url("Materials/usdPreviewSurfaceFail.usda"),
-            rule=CustomizedMaterialUsdPreviewSurfaceChecker,
-            asserts=[
-                IsAFailure(
-                    "/World/Looks/mtl_cube/PreviewSurfaceTexture.inputs:diffuseColor: Expected type: 'color3f' actual type: 'float3'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/PreviewSurfaceTexture.inputs:metallic: Expected type: 'float' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/PreviewSurfaceTexture.inputs:roughness: Expected type: 'float' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/PreviewSurfaceTexture.inputs:specular: Has a connection; however this parameter is not defined in the specification.",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/diffuseColorTex.inputs:sourceColorSpace: Attribute token value: 'bad' is not present in the list of allowed tokens: '['raw', 'sRGB', 'auto']'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/diffuseColorTex.outputs:rgb: Expected type: 'float3' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/metallicTex.outputs:rgb: Expected type: 'float3' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/roughnessTex.outputs:rgb: Expected type: 'float3' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_cube/normalTex.outputs:rgb: Expected type: 'float3' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_cube"),
-                ),
-            ],
-        )
-
-    async def test_pass(self):
-        await self.assertRuleAsync(
-            asset=get_url("Materials/usdPreviewSurfacePass.usda"),
-            rule=MaterialUsdPreviewSurfaceChecker,
-            asserts=[],
-        )
 
     async def test_warns_when_shader_defs_missing(self):
         # Simulate a runtime where ``shaderDefs.usda`` is unavailable: the Sdr Registry
@@ -601,37 +516,8 @@ class MaterialUsdPreviewSurfaceCheckerTest(AsyncioValidationTestCase):
         finally:
             MaterialUsdPreviewSurfaceChecker.usd_preview_surface_shaders.cache_clear()
 
-    async def test_autofix_suggestions(self):
-        await self.assertSuggestionAsync(
-            asset=get_url("Materials/usdPreviewSurfaceFail.usda"),
-            rule=CustomizedMaterialUsdPreviewSurfaceChecker,
-            predicate=None,
-        )
-
-    async def test_time_sampled(self):
-        await self.assertRuleAsync(
-            asset=get_url("Materials/usdPreviewSurfaceTimeSampledFail.usda"),
-            rule=CustomizedMaterialUsdPreviewSurfaceChecker,
-            asserts=[
-                IsAFailure(
-                    "/World/Looks/mtl_sphere/Shader.inputs:metallic: Expected type: 'float' actual type: 'color3f'",
-                    at=Sdf.Path("/World/Looks/mtl_sphere"),
-                ),
-                IsAFailure(
-                    "/World/Looks/mtl_sphere/roughnessTex.inputs:wrapT: Attribute contains time sampled value(s) that "
-                    "are not present in the list of allowed tokens: ['black', 'clamp', 'repeat', 'mirror', "
-                    "'useMetadata']",
-                    at=Sdf.Path("/World/Looks/mtl_sphere"),
-                ),
-            ],
-        )
-
-    async def test_fix_time_sampled(self):
-        await self.assertRuleAsync(
-            asset=get_url("Materials/usdPreviewSurfaceTimeSampledPass.usda"),
-            rule=CustomizedMaterialUsdPreviewSurfaceChecker,
-            asserts=[],
-        )
+    async def test_examples(self):
+        await self.assertExamplesSuggestionsAsync(requirement=cap.Requirements.VM_PS_001)
 
     async def test_interface_only_connections(self):
         stage = Usd.Stage.CreateInMemory()

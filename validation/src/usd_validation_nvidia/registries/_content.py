@@ -6,11 +6,11 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol
 
+from ..capabilities import RequirementRefProtocol
 from ._capabilities import Capability, register_capabilities, unregister_capabilities
 from ._features import Feature, register_features, unregister_features
 from ._profiles import Profile, register_profiles, unregister_profiles
 from ._requirements import Requirement, register_requirements, unregister_requirements
-from .capabilities import RequirementRefProtocol
 
 __all__ = [
     "register_content",

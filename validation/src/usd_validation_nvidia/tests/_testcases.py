@@ -5,18 +5,15 @@
 from pxr import Sdf, Usd
 
 from .._assets import AssetType
-from .._base_rule_checker import BaseRuleChecker
-from .._capabilities import Capability
 from .._context_managers import DelegateContextManager
 from .._engine import ValidationEngine
-from .._examples import ExampleResult
-from .._features import Feature
 from .._fix import FixStatus, IssueFixer
-from .._issues import Issue, IssuePredicate
+from .._issues import Issue, IssuePredicate, IssuePredicates
 from .._parameters import ParameterMapping, UserParameter
-from .._profiles import Profile
-from .._requirements import Requirement
 from .._results import Results
+from ..capabilities import ExampleResult
+from ..registries import Capability, Feature, Profile, Requirement
+from ..rules import BaseRuleChecker
 from ..utils import deprecated
 from ._assertions import IsAFailure, IsAnAsset, IsAnIssue
 
@@ -122,7 +119,7 @@ class ValidationTestCaseMixin(ValidationAssertionsMixin):
 
         Args:
             asset: A single asset to validate
-            rule: Either a BaseRuleChecker derived class or the str class name of such a class
+            rule: Either a BaseRule derived class or the str class name of such a class
             asserts: A list of assertions.
         """
         result: Results = self.validate(
@@ -250,7 +247,7 @@ class ValidationTestCaseMixin(ValidationAssertionsMixin):
 
         Args:
             asset: A single asset to validate
-            rule: Either a BaseRuleChecker derived class or the str class name of such a class
+            rule: Either a BaseRule derived class or the str class name of such a class
             predicate: A predicate (i.e. Callable[[Issue], bool]) to filter out issues.
         """
         with DelegateContextManager():
@@ -289,6 +286,7 @@ class ValidationTestCaseMixin(ValidationAssertionsMixin):
         Args:
             requirement: The requirement to assert the examples of.
         """
+        self.assertTrue(requirement.examples, f"Requirement {requirement.code} has no examples to assert.")
         for example in requirement.examples:
             with DelegateContextManager():
                 try:
@@ -300,7 +298,9 @@ class ValidationTestCaseMixin(ValidationAssertionsMixin):
             if example.result == ExampleResult.SUCCESS:
                 self.assertSuccess(asset=stage, requirement=requirement)
             else:
-                self.assertFailure(asset=stage, requirement=requirement)
+                self.assertFailure(
+                    asset=stage, requirement=requirement, predicate=IssuePredicates.IsRequirement(requirement)
+                )
 
 
 class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
@@ -529,6 +529,7 @@ class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
         """
         Same as assertExamples, but for async tests.
         """
+        self.assertTrue(requirement.examples, f"Requirement {requirement.code} has no examples to assert.")
         for example in requirement.examples:
             with DelegateContextManager():
                 try:
@@ -540,7 +541,9 @@ class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
             if example.result == ExampleResult.SUCCESS:
                 await self.assertSuccessAsync(asset=stage, requirement=requirement)
             else:
-                await self.assertFailureAsync(asset=stage, requirement=requirement)
+                await self.assertFailureAsync(
+                    asset=stage, requirement=requirement, predicate=IssuePredicates.IsRequirement(requirement)
+                )
 
     async def assertExamplesSuggestionsAsync(
         self,
@@ -551,6 +554,7 @@ class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
         Same as assertExamplesAsync, but failure examples are asserted via assertSuggestionAsync
         (i.e. failures must have a working fix that yields success).
         """
+        self.assertTrue(requirement.examples, f"Requirement {requirement.code} has no examples to assert.")
         for example in requirement.examples:
             with DelegateContextManager():
                 try:
@@ -562,4 +566,6 @@ class AsyncioValidationTestCaseMixin(ValidationAssertionsMixin):
             if example.result == ExampleResult.SUCCESS:
                 await self.assertSuccessAsync(asset=stage, requirement=requirement)
             else:
-                await self.assertSuggestionAsync(asset=stage, requirement=requirement)
+                await self.assertSuggestionAsync(
+                    asset=stage, requirement=requirement, predicate=IssuePredicates.IsRequirement(requirement)
+                )

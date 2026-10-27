@@ -21,9 +21,9 @@ def multiprocess_safe(method: F) -> F:
 
     .. code-block:: python
 
-        from usd_validation_nvidia import BaseRuleChecker, multiprocess_safe
+        from usd_validation_nvidia import BaseRule, multiprocess_safe
 
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             @multiprocess_safe
             def CheckLayer(self, layer):
                 ...

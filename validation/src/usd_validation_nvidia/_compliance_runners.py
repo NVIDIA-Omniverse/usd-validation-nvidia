@@ -19,11 +19,10 @@ from typing import Any, Generic, TypeVar, cast
 
 from pxr import Ar
 
-from ._base_rule_checker import BaseRuleChecker
-from ._base_rule_metadata import BaseRuleCheckerMetadata
 from ._context_managers import MAXIMUM_BATCH_SIZE, DelegateContextManager
 from ._identifiers import restore_identifier, to_identifier
 from ._stats import ValidationStats
+from .rules import BaseRuleChecker, BaseRuleCheckerMetadata
 from .utils import is_multiprocess_safe
 
 __all__ = [

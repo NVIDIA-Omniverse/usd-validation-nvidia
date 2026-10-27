@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.23.0] - TBD
+### Added
+- Add `IssuePredicates.IsRequirement()` to filter issues by requirement code and version.
+- Add `--exit-zero` / `--no-exit-zero` to control whether validation issues affect the exit status. By default, issues
+  produce a non-zero exit code; execution errors remain non-zero regardless of the option.
+- Export `RequirementRef`, `FeatureRef`, `ProfileFeature`, `FeatureRefProtocol`, and `ProfileFeatureProtocol` from the
+  top-level `usd_validation_nvidia` and compatibility `omni.asset_validator` APIs.
+- Add `optional=False` to `ProfileRegistry.get_requirements` to collect only mandatory profile features.
+- Add `recursive=False` to profile and feature `get_requirements` to exclude feature dependencies.
+- Document `ValidationEngine.validate_async()` and writing async (`async def`) rule `Check*`
+  callbacks, in a new "Running rules asynchronously" section of the authoring guide.
+
+### Changed
+- Rename the public rule base class to `BaseRule` and move its implementation and metadata into the `rules` package.
+  `BaseRuleChecker` remains a backward-compatible alias, while user-facing documentation and examples use `BaseRule`.
+- Reuse the generated capability API types and parameter protocol for examples and parameters, and export them from
+  the top-level `usd_validation_nvidia` API.
+- `Parameter` is now the generated immutable DTO; custom parameter implementations should use `ParameterProtocol`
+  for type annotations and runtime structural checks.
+- Resolve versioned profile feature references by exact registered version instead of a newer compatible version.
+
+### Fixed
+- Example assertion helpers now reject requirements without examples and require failure issues to match the tested
+  requirement.
+- `ExtentsChecker` and `PrimEncapsulationChecker` now cache paths instead of retaining prim handles.
+- Registered non-USD asset formats now skip USD dependency precomputation, allowing their format handlers to report
+  validation failures when asset-level rules are enabled.
+
 ## [1.22.0] - 2026-09-10
 ### Added
 - Add `register_content(...)` and `unregister_content(...)` helpers for managing loaded requirements, capabilities,

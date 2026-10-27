@@ -9,20 +9,20 @@
 import inspect
 from collections.abc import Sequence
 
-from ._asset_format import FormatDependency
-from ._identifiers import AtType
-from ._issues import Issue, IssueSeverity, Suggestion
-from ._parameters import ParameterMapping
-from ._requirements import Requirement
-from .capabilities import RequirementRefProtocol
+from .._identifiers import AtType
+from .._issues import Issue, IssueSeverity, Suggestion
+from .._parameters import ParameterMapping
+from ..capabilities import RequirementRefProtocol
+from ..registries import FormatDependency, Requirement
 
 __all__ = [
+    "BaseRule",
     "BaseRuleChecker",
 ]
 
 
-class BaseRuleChecker:
-    """This is Base class for all the rule-checkers.
+class BaseRule:
+    """Base class for all validation rules.
 
     Args:
         verbose: Deprecated parameter, kept for backward compatibility. Not used in new rules.
@@ -223,3 +223,7 @@ class BaseRuleChecker:
         occurs, such as when we iterate through VariantSet combinations.
         """
         pass
+
+
+# Backward-compatible public name for plugins using the original API.
+BaseRuleChecker = BaseRule

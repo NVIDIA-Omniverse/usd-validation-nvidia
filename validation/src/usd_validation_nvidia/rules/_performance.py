@@ -6,10 +6,9 @@ from dataclasses import dataclass
 import usd_validation_nvidia.capabilities
 from pxr import Gf, Usd, UsdGeom, Vt
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
 from .._issues import IssueSeverity
-from .._requirements import register_requirements
+from ..registries import register_requirements, register_rule
+from ._base import BaseRuleChecker
 
 __all__ = [
     "AlmostExtremeExtentChecker",

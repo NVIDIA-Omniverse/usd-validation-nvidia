@@ -8,8 +8,14 @@ from dataclasses import fields
 
 from usd_profiles_nvidia.api import (
     Capability,
+    Example,
+    ExampleResult,
+    ExampleSnippet,
+    ExampleSnippetLanguage,
     Feature,
     FeatureRef,
+    Parameter,
+    ParameterType,
     Profile,
     ProfileFeature,
     Requirement,
@@ -17,14 +23,8 @@ from usd_profiles_nvidia.api import (
 )
 from usd_profiles_nvidia.model import (
     Compatibility,
-    Example,
-    ExampleResult,
-    ExampleSnippet,
-    ExampleSnippetLanguage,
     IdVersion,
     Metadata,
-    Parameter,
-    ParameterType,
     Tag,
     Version,
 )
@@ -33,6 +33,9 @@ __all__ = ["JsonDeserialize"]
 
 _FEATURE_FIELDS = frozenset(field.name for field in fields(Feature))
 _FEATURE_JSON_FIELDS = _FEATURE_FIELDS | {"metadata"}
+
+_CAPABILITY_FIELDS = frozenset(field.name for field in fields(Capability))
+_CAPABILITY_JSON_FIELDS = _CAPABILITY_FIELDS | {"metadata"}
 
 
 class JsonDeserialize(json.JSONDecoder):
@@ -63,12 +66,22 @@ class JsonDeserialize(json.JSONDecoder):
     @classmethod
     def decode_capability(cls, dct):
         metadata = dct.get("metadata")
-        return Capability(
+        authored_custom_data = dct.get("custom_data", {})
+        if not isinstance(authored_custom_data, Mapping):
+            raise TypeError(f"'custom_data' must be an object, got {type(authored_custom_data).__name__}")
+
+        capability_data = {key: value for key, value in dct.items() if key in _CAPABILITY_FIELDS}
+        capability_data.update(
             id=dct["id"],
             version=dct.get("version", ""),
             requirements=dct.get("requirements", []),
             path=(metadata.path if isinstance(metadata, Metadata) else dct.get("path")) or "",
+            custom_data={
+                **authored_custom_data,
+                **{key: value for key, value in dct.items() if key not in _CAPABILITY_JSON_FIELDS},
+            },
         )
+        return Capability(**capability_data)
 
     @classmethod
     def decode_profile(cls, dct):
@@ -96,6 +109,7 @@ class JsonDeserialize(json.JSONDecoder):
             path=metadata.path if isinstance(metadata, Metadata) else dct.get("path", ""),
             requirements=cls.decode_requirement_refs(dct.get("requirements")),
             dependencies=cls.decode_feature_refs(dct.get("dependencies")),
+            parameters=tuple(dct.get("parameters", ())),
             custom_data={
                 **authored_custom_data,
                 **{key: value for key, value in dct.items() if key not in _FEATURE_JSON_FIELDS},
@@ -127,7 +141,7 @@ class JsonDeserialize(json.JSONDecoder):
             display_name=dct["display_name"],
             type=ParameterType(dct["type"]),
             assigned_value=dct.get("assigned_value"),
-            enum_values=dct.get("enum_values"),
+            enum_values=tuple(dct["enum_values"]) if dct.get("enum_values") is not None else None,
         )
 
     @classmethod
@@ -142,7 +156,7 @@ class JsonDeserialize(json.JSONDecoder):
     def decode_example_snippet(cls, dct):
         return ExampleSnippet(
             language=ExampleSnippetLanguage(dct["language"]),
-            content=dct["content"],
+            inline_content=dct["content"],
         )
 
     @classmethod

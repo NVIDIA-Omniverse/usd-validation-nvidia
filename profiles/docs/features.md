@@ -32,6 +32,31 @@ requirements = ["GEOMETRY.001@1.0.0"]
 Requirements from dependent features are not repeated in this list. The validation engine resolves them from the
 feature's `dependencies` when the feature or a profile containing it is enabled.
 
+## Parameters
+
+A feature can define parameters. If a requirement defines a parameter and is part of the feature, the value defined
+by the feature overrides the requirement's default. Parameters are matched by name, so no requirement code is needed.
+
+In Markdown, add the table under a `Parameters` heading, using the same columns as a requirement:
+
+```markdown
+| Parameter           | Type  | Default Value |
+|---------------------|-------|---------------|
+| TRANSFORM_TOLERANCE | float | 0.001         |
+```
+
+In TOML and JSON, use a `parameters` list whose items have the same fields as a requirement parameter:
+
+```toml
+[[parameters]]
+display_name = "TRANSFORM_TOLERANCE"
+type = "float"
+assigned_value = 0.001
+```
+
+Parsing exposes the parameters as `Feature.parameters`. The type is declared again in the feature; it is not yet
+checked against the requirement declaration, and the override is not yet applied to the requirement.
+
 ## Configuration Pattern
 
 The feature selects the parameterized requirement; the requirement supplies default values. Runtime callers can then

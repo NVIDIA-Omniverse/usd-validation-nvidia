@@ -7,8 +7,14 @@ import unittest
 
 from usd_profiles_nvidia.api import (
     Capability,
+    Example,
+    ExampleResult,
+    ExampleSnippet,
+    ExampleSnippetLanguage,
     Feature,
     FeatureRef,
+    Parameter,
+    ParameterType,
     Profile,
     ProfileFeature,
     Requirement,
@@ -19,13 +25,7 @@ from usd_profiles_nvidia.json import (
 )
 from usd_profiles_nvidia.model import (
     Compatibility,
-    Example,
-    ExampleResult,
-    ExampleSnippet,
-    ExampleSnippetLanguage,
     Metadata,
-    Parameter,
-    ParameterType,
     Tag,
 )
 
@@ -212,7 +212,7 @@ class TestJsonDeserialization(unittest.TestCase):
         self.assertEqual(result.display_name, "UP_AXIS")
         self.assertEqual(result.type, ParameterType.ENUM)
         self.assertEqual(result.assigned_value, "Y")
-        self.assertEqual(result.enum_values, ["X", "Y", "Z"])
+        self.assertEqual(result.enum_values, ("X", "Y", "Z"))
 
     def test_deserialize_capability_graph_as_plain_dict(self):
         """Test generic deserialization leaves graph JSON untouched."""

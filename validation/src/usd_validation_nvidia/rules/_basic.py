@@ -17,9 +17,8 @@ from typing import Any
 import usd_validation_nvidia.capabilities as cap
 from pxr import Ar, Gf, Kind, Plug, Sdf, Tf, Usd, UsdGeom, UsdLux, UsdShade, UsdSkel, Vt
 
-from .._base_rule_checker import BaseRuleChecker, Suggestion
-from .._categories import register_rule
-from .._requirements import register_requirements
+from ..registries import register_requirements, register_rule
+from ._base import BaseRuleChecker, Suggestion
 from ._usd_validator_adapter import UsdValidatorAdapter
 
 __all__ = [
@@ -474,7 +473,7 @@ class PrimEncapsulationChecker(BaseRuleChecker):
             self._hasGprimInPathMap[path] = val
             return val
 
-    def _FindConnectableAncestor(self, prim):
+    def _FindConnectableAncestor(self, prim: Usd.Prim) -> Sdf.Path | None:
         from pxr import Sdf, UsdShade
 
         path = prim.GetPath()
@@ -487,10 +486,10 @@ class PrimEncapsulationChecker(BaseRuleChecker):
             val = self._FindConnectableAncestor(prim.GetParent())
             # The GetTypeName() check is to work around a bug in
             # ConnectableAPIBehavior registry.
-            if prim.GetTypeName() and not val:
+            if prim.GetTypeName() and val is None:
                 conn = UsdShade.ConnectableAPI(prim)
                 if conn:
-                    val = prim
+                    val = path
             self._connectableAncestorMap[path] = val
             return val
 
@@ -539,12 +538,13 @@ class PrimEncapsulationChecker(BaseRuleChecker):
                     # error message we give is targeted at the most common
                     # infraction, using Scope or other grouping prims inside
                     # a Container like a Material
-                    conn_anstr = self._FindConnectableAncestor(parent)
-                    if conn_anstr is not None:
+                    path = self._FindConnectableAncestor(parent)
+                    if path is not None:
+                        ancestor = prim.GetStage().GetPrimAtPath(path)
                         self._AddFailedCheck(
                             f"Connectable {prim.GetTypeName()} <{prim.GetPath()}> can only have"
                             " Connectable Container ancestors"
-                            f" up to {conn_anstr.GetTypeName()} ancestor <{conn_anstr.GetPath()}>, but its"
+                            f" up to {ancestor.GetTypeName()} ancestor <{path}>, but its"
                             f" parent {parent.GetName()} is a {parent.GetTypeName()}.",
                             at=prim,
                         )
@@ -1032,7 +1032,7 @@ class ExtentsChecker(BaseRuleChecker):
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
         # Skip checked prims.
-        if prim in self._checked_prims:
+        if prim.GetPath() in self._checked_prims:
             return
 
         # Check UsdSkel prims
@@ -1136,7 +1136,7 @@ class ExtentsChecker(BaseRuleChecker):
                     child_prim,
                     extent_time_samples=self._get_compute_extent_time_samples(child_prim, skel_root_cache),
                 )
-                self._checked_prims.add(child_prim)
+                self._checked_prims.add(child_prim.GetPath())
 
         # The time samples of a SkelRoot are all the time samples of the Skeletons underneath it.
         self._check_extent(
@@ -1145,7 +1145,7 @@ class ExtentsChecker(BaseRuleChecker):
         )
 
     def ResetCaches(self):
-        self._checked_prims: set[Usd.Prim] = set()
+        self._checked_prims: set[Sdf.Path] = set()
 
 
 @register_rule("Basic")

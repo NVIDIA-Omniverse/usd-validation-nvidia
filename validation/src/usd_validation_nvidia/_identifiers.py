@@ -11,7 +11,7 @@ from typing import Any, Generic, TypeVar
 
 from pxr import Sdf, Usd, UsdGeom
 
-from ._asset_format import FormatDependency
+from .registries import FormatDependency
 from .utils import DedupeMetaclass, LocalUriResolver, deprecated, normalize_url
 
 __all__ = [

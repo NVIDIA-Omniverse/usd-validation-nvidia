@@ -155,45 +155,6 @@ class Parameter(Enum):
         self.enum_values = enum_values
 
 
-class Requirement(Enum):
-    """
-    Test requirements
-    """
-
-    R1 = ("R1", "R1", "Message 1", "/r1", ("tag1", "tag2"), "1.0.0", ())
-    R2 = ("R2", "R2", "Message 2", "/r2", ("tag2", "tag3"), "1.0.0", ())
-    R3 = ("R3", "R3", "Message 3", "/r3", ("tag3", "tag4"), "1.0.0", ())
-    R4 = ("R4", "R4", "Message 4", "/r4", ("tag4", "tag5"), "1.0.0", ())
-    R5 = ("R5", "R5", "Message 5", "/r5", ("tag5", "tag6"), "1.0.0", ())
-    R6 = ("R6", "R6", "Message 6", "/r6", ("tag6", "tag7"), "1.0.0", ())
-    R7 = ("R7", "R7", "Message 7", "/r7", ("tag7", "tag8"), "1.0.0", ())
-    R8 = ("R8", "R8", "Message 8", "/r8", ("tag8", "tag9"), "1.0.0", ())
-    R9 = ("R9", "R9", "Message 9", "/r9", ("tag9", "tag10"), "1.0.0", (Parameter.TOLERANCE,))
-    R10 = ("R10", "R10", "Message 10", "/r10", ("tag10", "tag11"), "1.0.0", (Parameter.TOLERANCE,))
-    R11 = ("R11", "R11", "Message 11", "/r11", ("tag11", "tag12"), "1.0.0", (Parameter.TOLERANCE,))
-
-    def __init__(
-        self,
-        code: str,
-        display_name: str,
-        message: str,
-        path: str,
-        tags: tuple[str, ...],
-        version: str,
-        parameters: tuple[Parameter, ...],
-    ):
-        self.code = code
-        self.display_name = display_name
-        self.message = message
-        self.path = path
-        self.tags = tags
-        self.version = version
-        self.parameters = parameters
-        self.compatibility = None
-        self.validator = None
-        self.examples = ()
-
-
 class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTestCaseMixin, ValidationTestCaseMixin):
     async def asyncSetUp(self):
         await super().asyncSetUp()
@@ -468,29 +429,35 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         )
 
     async def test_enable_single_requirement(self):
-        @register_requirements(Requirement.R1, Requirement.R2)
+        requirement_1 = RequirementDTO(code="R1", version="1.0.0", message="Message 1")
+        requirement_2 = RequirementDTO(code="R2", version="1.0.0", message="Message 2")
+
+        @register_requirements(requirement_1, requirement_2)
         class MyRuleChecker(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
-                self._AddFailedCheck(requirement=Requirement.R1)
-                self._AddFailedCheck(requirement=Requirement.R2)
+                self._AddFailedCheck(requirement=requirement_1)
+                self._AddFailedCheck(requirement=requirement_2)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh")
 
         await self.assertRequirementAsync(
             asset=stage,
-            requirement=Requirement.R1,
+            requirement=requirement_1,
             asserts=[
-                IsAFailure(message=ANY, requirement=Requirement.R1),
+                IsAFailure(message=ANY, requirement=requirement_1),
             ],
         )
 
     async def test_enable_rule_and_requirement(self):
-        @register_requirements(Requirement.R3, Requirement.R4)
+        requirement_3 = RequirementDTO(code="R3", version="1.0.0", message="Message 3")
+        requirement_4 = RequirementDTO(code="R4", version="1.0.0", message="Message 4")
+
+        @register_requirements(requirement_3, requirement_4)
         class MyRuleChecker(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
-                self._AddFailedCheck(requirement=Requirement.R3)
-                self._AddFailedCheck(requirement=Requirement.R4)
+                self._AddFailedCheck(requirement=requirement_3)
+                self._AddFailedCheck(requirement=requirement_4)
 
         class MyRuleChecker1(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
@@ -500,31 +467,35 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         UsdGeom.Mesh.Define(stage, "/Mesh")
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_requirement(Requirement.R3)
+        engine.enable_requirement(requirement_3)
         engine.enable_rule(MyRuleChecker1)
         results = await engine.validate_async(stage)
         self.assertEqual(len(results.issues()), 2)
 
     async def test_enable_overlapping_rule_and_requirement(self):
-        @register_requirements(Requirement.R5, Requirement.R6)
+        requirement_5 = RequirementDTO(code="R5", version="1.0.0", message="Message 5")
+        requirement_6 = RequirementDTO(code="R6", version="1.0.0", message="Message 6")
+
+        @register_requirements(requirement_5, requirement_6)
         class MyRuleChecker(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
-                self._AddFailedCheck(requirement=Requirement.R5)
-                self._AddFailedCheck(requirement=Requirement.R6)
+                self._AddFailedCheck(requirement=requirement_5)
+                self._AddFailedCheck(requirement=requirement_6)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh")
 
         engine = ValidationEngine(init_rules=False)
         engine.enable_rule(MyRuleChecker)
-        engine.enable_requirement(Requirement.R5)
+        engine.enable_requirement(requirement_5)
         results = await engine.validate_async(stage)
         self.assertEqual(len(results.issues()), 2)
 
     async def test_enable_disable_requirement(self):
+        requirement = RequirementDTO(code="R5", version="1.0.0", message="Message 5")
         engine = ValidationEngine(init_rules=False)
-        engine.enable_requirement(Requirement.R5)
-        engine.disable_requirement(Requirement.R5)
+        engine.enable_requirement(requirement)
+        engine.disable_requirement(requirement)
         self.assertEqual(len(engine.requirements), 0)
 
     async def test_enable_disable_capability(self):
@@ -671,16 +642,17 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         finally:
             unregister_requirements(FeatureDependencyRule)
 
-    def _create_mock_profile(self, capabilities=None):
-        mock_profile = Mock()
-        mock_profile.features = []
-        mock_profile.profile_features = []
-        mock_profile.capabilities = capabilities or [Capabilities.GEOMETRY]
-        return mock_profile
+    def _create_profile(self, capabilities=None):
+        return ProfileDTO(
+            id="Test-Profile",
+            version="1.0.0",
+            path="",
+            capabilities=capabilities or [Capabilities.GEOMETRY],
+        )
 
     async def test_enable_profile(self):
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(self._create_mock_profile())
+        engine.enable_profile(self._create_profile())
         self.assertEqual(len(engine.enabled_profiles), 1)
         self.assertTrue(engine.requirements)
 
@@ -712,14 +684,14 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
 
     async def test_enable_disable_profile(self):
         engine = ValidationEngine(init_rules=False)
-        mock_profile = self._create_mock_profile()
-        engine.enable_profile(mock_profile)
-        engine.disable_profile(mock_profile)
+        profile = self._create_profile()
+        engine.enable_profile(profile)
+        engine.disable_profile(profile)
         self.assertEqual(len(engine.requirements), 0)
 
     async def test_enable_disable_profile_requirement(self):
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(self._create_mock_profile())
+        engine.enable_profile(self._create_profile())
         engine.disable_requirement(Requirements.VG_025_V1_0_0)
         self.assertTrue(engine.requirements)
         self.assertNotIn(Requirements.VG_025_V1_0_0, engine.requirements)
@@ -728,14 +700,9 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         stage = Usd.Stage.CreateInMemory()
         stage.DefinePrim("/Root", "Xform")
         stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
-        mock_profile = Mock()
-        mock_profile.id = "Test-Profile"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = []
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        profile = ProfileDTO(id="Test-Profile", version="1.0.0", path="")
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         engine.enable_rule(EmptyRule)
         results = engine.validate(stage)
         engine.stamp_asset(stage, results)
@@ -748,14 +715,14 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
 
     async def test_stamp_skipped_on_failure(self):
         stage = Usd.Stage.CreateInMemory()
-        mock_profile = Mock()
-        mock_profile.id = "Test-Profile"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = [Capabilities.GEOMETRY]
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        profile = ProfileDTO(
+            id="Test-Profile",
+            version="1.0.0",
+            path="",
+            capabilities=[Capabilities.GEOMETRY],
+        )
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         engine.enable_rule(StageMetadataChecker)
         results = engine.validate(stage)
         engine.stamp_asset(stage, results)
@@ -776,14 +743,9 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         stage = Usd.Stage.CreateInMemory()
         stage.DefinePrim("/Root", "Xform")
         stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
-        mock_profile = Mock()
-        mock_profile.id = "Test-Profile"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = []
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        profile = ProfileDTO(id="Test-Profile", version="1.0.0", path="")
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         engine.enable_rule(EmptyRule)
         results = engine.validate(stage)
         engine.stamp_asset(stage, results, key="SimReady_Metadata")
@@ -804,14 +766,9 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             stage.SetDefaultPrim(stage.GetPrimAtPath("/Root"))
             stage.Save()
             del stage
-            mock_profile = Mock()
-            mock_profile.id = "Test-Profile"
-            mock_profile.version = "1.0.0"
-            mock_profile.capabilities = []
-            mock_profile.features = []
-            mock_profile.profile_features = []
+            profile = ProfileDTO(id="Test-Profile", version="1.0.0", path="")
             engine = ValidationEngine(init_rules=False)
-            engine.enable_profile(mock_profile)
+            engine.enable_profile(profile)
             engine.enable_rule(EmptyRule)
             results = engine.validate(tmp_path)
             layer = engine.stamp_asset(tmp_path, results)
@@ -828,18 +785,21 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
             os.unlink(tmp_path)
 
     async def test_unregistered_requirement(self):
-        @register_requirements(Requirement.R7)
+        registered_requirement = RequirementDTO(code="R7", version="1.0.0", message="Message 7")
+        unregistered_requirement = RequirementDTO(code="R8", version="1.0.0", message="Message 8")
+
+        @register_requirements(registered_requirement)
         class RuleChecker(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
-                self._AddFailedCheck(requirement=Requirement.R7)
-                self._AddFailedCheck(requirement=Requirement.R8)
+                self._AddFailedCheck(requirement=registered_requirement)
+                self._AddFailedCheck(requirement=unregistered_requirement)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh1")
 
         await self.assertRequirementAsync(
             asset=stage,
-            requirement=Requirement.R7,
+            requirement=registered_requirement,
             asserts=[
                 IsAFailure(message=ANY),
                 IsAnError(message=ANY),
@@ -847,16 +807,18 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         )
         await self.assertRequirementAsync(
             asset=stage,
-            requirement=Requirement.R8,
+            requirement=unregistered_requirement,
             asserts=[
                 IsAnError(message=ANY),
             ],
         )
 
     async def test_report_unregistered_requirement(self):
+        requirement = RequirementDTO(code="R1", version="1.0.0", message="Message 1")
+
         class RuleChecker(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
-                self._AddFailedCheck(requirement=Requirement.R1)
+                self._AddFailedCheck(requirement=requirement)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh")
@@ -869,17 +831,24 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
         )
 
     async def test_engine_passes_parameters_to_rules(self):
-        @register_requirements(Requirement.R9)
+        requirement = RequirementDTO(
+            code="R9",
+            version="1.0.0",
+            message="Message 9",
+            parameters=(Parameter.TOLERANCE,),
+        )
+
+        @register_requirements(requirement)
         class ParameterizedRule(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
                 tolerance = self.parameters["tolerance"]
-                self._AddFailedCheck(f"Parameter value: {tolerance.assigned_value}", requirement=Requirement.R9)
+                self._AddFailedCheck(f"Parameter value: {tolerance.assigned_value}", requirement=requirement)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh")
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_requirement(Requirement.R9)
+        engine.enable_requirement(requirement)
 
         self.assertIn("tolerance", engine.parameters)
         self.assertEqual(engine.parameters["tolerance"].assigned_value, 0.001)
@@ -892,17 +861,24 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
     async def test_engine_override_value(self):
         """Test that engine.add_parameter() with UserParameter updates the parameter value and rules receive the new value."""
 
-        @register_requirements(Requirement.R10)
+        requirement = RequirementDTO(
+            code="R10",
+            version="1.0.0",
+            message="Message 10",
+            parameters=(Parameter.TOLERANCE,),
+        )
+
+        @register_requirements(requirement)
         class ParameterizedRule(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim):
                 tolerance = self.parameters["tolerance"]
-                self._AddFailedCheck(f"Parameter value: {tolerance.assigned_value}", requirement=Requirement.R10)
+                self._AddFailedCheck(f"Parameter value: {tolerance.assigned_value}", requirement=requirement)
 
         stage = Usd.Stage.CreateInMemory()
         UsdGeom.Mesh.Define(stage, "/Mesh")
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_requirement(Requirement.R10)
+        engine.enable_requirement(requirement)
 
         # Validate with initial parameter value
         results = await engine.validate_async(stage)
@@ -923,15 +899,28 @@ class ValidationEngineTest(unittest.IsolatedAsyncioTestCase, AsyncioValidationTe
 
     async def test_engine_override_value_nonexistent(self):
         """Test that accessing non-existent parameter raises KeyError."""
+        requirement = RequirementDTO(
+            code="R10",
+            version="1.0.0",
+            message="Message 10",
+            parameters=(Parameter.TOLERANCE,),
+        )
         engine = ValidationEngine(init_rules=False)
-        engine.enable_requirement(Requirement.R10)
+        engine.enable_requirement(requirement)
 
         with self.assertRaises(KeyError):
             # Trying to get a parameter that doesn't exist
             engine.parameters["nonexistent"]
 
     async def test_enable_disable_rule_updates_parameters(self):
-        @register_requirements(Requirement.R11)
+        requirement = RequirementDTO(
+            code="R11",
+            version="1.0.0",
+            message="Message 11",
+            parameters=(Parameter.TOLERANCE,),
+        )
+
+        @register_requirements(requirement)
         class ParameterizedRule(BaseRuleChecker):
             def CheckPrim(self, prim: Usd.Prim): ...
 
@@ -1653,16 +1642,11 @@ class ValidationContextTest(unittest.TestCase):
         self.assertIsNone(context)
 
     def test_validation_context_feature_pass(self):
-        mock_req = Mock()
-        mock_req.code = "VG.001"
-        mock_req.version = "1.0.0"
-        mock_feature = Mock()
-        mock_feature.id = "FET001"
-        mock_feature.version = "1.0.0"
-        mock_feature.requirements = [mock_req]
+        requirement = RequirementDTO(code="VG.001", version="1.0.0")
+        feature = FeatureDTO(id="FET001", version="1.0.0", path="", requirements=[requirement])
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_feature(mock_feature)
+        engine.enable_feature(feature)
         results = ResultsList([Results(asset="test.usd", issues=[])])
         context = engine.build_context(results)
 
@@ -1673,21 +1657,16 @@ class ValidationContextTest(unittest.TestCase):
         self.assertEqual(context.features[0].requirements[0].status, "PASS")
 
     def test_validation_context_feature_fail(self):
-        mock_req = Mock()
-        mock_req.code = "RB.001"
-        mock_req.version = "1.0.0"
-        mock_feature = Mock()
-        mock_feature.id = "FET003"
-        mock_feature.version = "0.1.0"
-        mock_feature.requirements = [mock_req]
+        requirement = RequirementDTO(code="RB.001", version="1.0.0")
+        feature = FeatureDTO(id="FET003", version="0.1.0", path="", requirements=[requirement])
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_feature(mock_feature)
+        engine.enable_feature(feature)
         results = ResultsList(
             [
                 Results(
                     asset="test.usd",
-                    issues=[Issue(severity=IssueSeverity.FAILURE, message="rigid body fail", requirement=mock_req)],
+                    issues=[Issue(severity=IssueSeverity.FAILURE, message="rigid body fail", requirement=requirement)],
                 )
             ]
         )
@@ -1697,36 +1676,36 @@ class ValidationContextTest(unittest.TestCase):
         self.assertEqual(context.features[0].requirements[0].status, "FAIL")
 
     def test_validation_context_profile_with_mixed_features(self):
-        req_pass = Mock()
-        req_pass.code = "VG.001"
-        req_pass.version = "1.0.0"
-        cap_pass = Mock()
-        cap_pass.id = "geometry"
-        cap_pass.version = "1.0.0"
-        cap_pass.requirements = [req_pass]
-
-        req_fail = Mock()
-        req_fail.code = "RB.MB.001"
-        req_fail.version = "1.0.0"
-        cap_fail = Mock()
-        cap_fail.id = "physics"
-        cap_fail.version = "1.0.0"
-        cap_fail.requirements = [req_fail]
-
-        mock_profile = Mock()
-        mock_profile.id = "Robot-Body-Isaac"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = [cap_pass, cap_fail]
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        requirement_pass = RequirementDTO(code="VG.001", version="1.0.0")
+        capability_pass = CapabilityDTO(
+            id="geometry",
+            version="1.0.0",
+            path="",
+            requirements=[requirement_pass],
+        )
+        requirement_fail = RequirementDTO(code="RB.MB.001", version="1.0.0")
+        capability_fail = CapabilityDTO(
+            id="physics",
+            version="1.0.0",
+            path="",
+            requirements=[requirement_fail],
+        )
+        profile = ProfileDTO(
+            id="Robot-Body-Isaac",
+            version="1.0.0",
+            path="",
+            capabilities=[capability_pass, capability_fail],
+        )
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         results = ResultsList(
             [
                 Results(
                     asset="test.usd",
-                    issues=[Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=req_fail)],
+                    issues=[
+                        Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=requirement_fail)
+                    ],
                 )
             ]
         )
@@ -1772,36 +1751,36 @@ class ValidationContextTest(unittest.TestCase):
         self.assertEqual([status.feature.id for status in context.profiles[0].features], ["feature"])
 
     def test_log_validation_context_simready_format(self):
-        req_pass = Mock()
-        req_pass.code = "VG.001"
-        req_pass.version = "1.0.0"
-        cap_pass = Mock()
-        cap_pass.id = "FET001_BASE_NEUTRAL"
-        cap_pass.version = "1.0.0"
-        cap_pass.requirements = [req_pass]
-
-        req_fail = Mock()
-        req_fail.code = "RB.MB.001"
-        req_fail.version = "1.0.0"
-        cap_fail = Mock()
-        cap_fail.id = "FET004_BASE_NEUTRAL"
-        cap_fail.version = "0.1.0"
-        cap_fail.requirements = [req_fail]
-
-        mock_profile = Mock()
-        mock_profile.id = "Prop-Robotics-Neutral"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = [cap_pass, cap_fail]
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        requirement_pass = RequirementDTO(code="VG.001", version="1.0.0")
+        capability_pass = CapabilityDTO(
+            id="FET001_BASE_NEUTRAL",
+            version="1.0.0",
+            path="",
+            requirements=[requirement_pass],
+        )
+        requirement_fail = RequirementDTO(code="RB.MB.001", version="1.0.0")
+        capability_fail = CapabilityDTO(
+            id="FET004_BASE_NEUTRAL",
+            version="0.1.0",
+            path="",
+            requirements=[requirement_fail],
+        )
+        profile = ProfileDTO(
+            id="Prop-Robotics-Neutral",
+            version="1.0.0",
+            path="",
+            capabilities=[capability_pass, capability_fail],
+        )
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         results = ResultsList(
             [
                 Results(
                     asset="test.usd",
-                    issues=[Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=req_fail)],
+                    issues=[
+                        Issue(severity=IssueSeverity.FAILURE, message="multi body fail", requirement=requirement_fail)
+                    ],
                 )
             ]
         )
@@ -1818,32 +1797,30 @@ class ValidationContextTest(unittest.TestCase):
         self.assertNotIn("FET004_BASE_NEUTRAL", log_output.split("Features:")[1])
 
     def test_validation_context_failed_requirements(self):
-        req_a = Mock()
-        req_a.code = "VG.001"
-        req_a.version = "1.0.0"
-        req_b = Mock()
-        req_b.code = "RB.001"
-        req_b.version = "1.0.0"
-        cap = Mock()
-        cap.id = "cap"
-        cap.version = "1.0.0"
-        cap.requirements = [req_a, req_b]
-        mock_profile = Mock()
-        mock_profile.id = "Test-Profile"
-        mock_profile.version = "1.0.0"
-        mock_profile.capabilities = [cap]
-        mock_profile.features = []
-        mock_profile.profile_features = []
+        requirement_a = RequirementDTO(code="VG.001", version="1.0.0")
+        requirement_b = RequirementDTO(code="RB.001", version="1.0.0")
+        capability = CapabilityDTO(
+            id="cap",
+            version="1.0.0",
+            path="",
+            requirements=[requirement_a, requirement_b],
+        )
+        profile = ProfileDTO(
+            id="Test-Profile",
+            version="1.0.0",
+            path="",
+            capabilities=[capability],
+        )
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_profile(mock_profile)
+        engine.enable_profile(profile)
         results = ResultsList(
             [
                 Results(
                     asset="test.usd",
                     issues=[
-                        Issue(severity=IssueSeverity.FAILURE, message="a", requirement=req_a),
-                        Issue(severity=IssueSeverity.FAILURE, message="b", requirement=req_b),
+                        Issue(severity=IssueSeverity.FAILURE, message="a", requirement=requirement_a),
+                        Issue(severity=IssueSeverity.FAILURE, message="b", requirement=requirement_b),
                     ],
                 )
             ]
@@ -1851,25 +1828,20 @@ class ValidationContextTest(unittest.TestCase):
         context = engine.build_context(results)
 
         failed = context.failed_requirements
-        self.assertIn(req_a, failed)
-        self.assertIn(req_b, failed)
+        self.assertIn(requirement_a, failed)
+        self.assertIn(requirement_b, failed)
         self.assertEqual(len(failed), 2)
 
     def test_validation_context_single_result(self):
         """build_context accepts a single Results directly via dispatch."""
-        mock_req = Mock()
-        mock_req.code = "RB.001"
-        mock_req.version = "1.0.0"
-        mock_feature = Mock()
-        mock_feature.id = "FET003"
-        mock_feature.version = "0.1.0"
-        mock_feature.requirements = [mock_req]
+        requirement = RequirementDTO(code="RB.001", version="1.0.0")
+        feature = FeatureDTO(id="FET003", version="0.1.0", path="", requirements=[requirement])
 
         engine = ValidationEngine(init_rules=False)
-        engine.enable_feature(mock_feature)
+        engine.enable_feature(feature)
         result = Results(
             asset="test.usd",
-            issues=[Issue(severity=IssueSeverity.FAILURE, message="fail", requirement=mock_req)],
+            issues=[Issue(severity=IssueSeverity.FAILURE, message="fail", requirement=requirement)],
         )
         context = engine.build_context(result)
         self.assertEqual(context.features[0].status, "FAIL")

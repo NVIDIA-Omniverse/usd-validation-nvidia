@@ -73,8 +73,8 @@ usd-profiles-nvidia workflow, add a matching skill there and reference a runnabl
   * Keep examples, skills, and CLI option names in sync with code behavior.
   * Keep runnable examples under `examples/` and have skills point to those files.
   * Use `--package-name` for codegen examples; the older namespace option is deprecated.
-  * Mention `usd-profiles-nvidia[sphinx]` only for optional Sphinx documentation integration, not as a codegen
-    requirement.
+  * Sphinx and MyST-Parser are installed separately by documentation tooling. Neither tool is required for parsing
+    specs or code generation.
   * Preserve licensing headers and proprietary notices where present.
   * Do not commit generated `_build/`, local virtual environments, or package caches.
   * Keep profile codegen guidance focused on usd-profiles-nvidia. Runtime validation integration belongs in

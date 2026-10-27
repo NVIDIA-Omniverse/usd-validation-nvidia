@@ -10,8 +10,11 @@ from typing import Any
 
 from usd_profiles_nvidia.api import (
     Capability,
+    Example,
+    ExampleSnippet,
     Feature,
     FeatureRef,
+    Parameter,
     Profile,
     ProfileFeature,
     Requirement,
@@ -22,11 +25,8 @@ from usd_profiles_nvidia.model import (
     BuildCapabilityGraph,
     CapabilityNode,
     Compatibility,
-    Example,
-    ExampleSnippet,
     IdVersion,
     Metadata,
-    Parameter,
     Tag,
     Version,
 )
@@ -120,6 +120,7 @@ class JsonSerialize(json.JSONEncoder):
     def _(self, o: Capability):
         return {
             "capability": {
+                **o.custom_data,
                 "id": o.id,
                 "version": o.version,
                 "requirements": o.requirements,
@@ -150,6 +151,7 @@ class JsonSerialize(json.JSONEncoder):
             "version": o.version,
             "requirements": o.requirements,
             "dependencies": o.dependencies,
+            "parameters": o.parameters,
             "metadata": Metadata(path=o.path) if o.path else None,
         }
         return {

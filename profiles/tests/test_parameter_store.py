@@ -4,10 +4,10 @@
 
 import unittest
 
-from usd_profiles_nvidia.api import Requirement
-from usd_profiles_nvidia.model import (
+from usd_profiles_nvidia.api import (
     Parameter,
     ParameterType,
+    Requirement,
 )
 from usd_profiles_nvidia.store import ParameterStore
 

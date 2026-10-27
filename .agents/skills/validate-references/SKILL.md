@@ -216,6 +216,8 @@ uv run `
 - Do not register duplicate rules for requirements already implemented by another package unless intentionally
   overriding the requirement validator.
 - Confirm the feature appears in `nvidia_usd_validate --help` before debugging rule execution.
+- Use `LoadedSpecifications.validate()` for optional, non-mutating local structural diagnostics. It does not eagerly
+  resolve lazy references, and unresolved references remain valid loaded state.
 
 ## Troubleshooting
 

@@ -15,12 +15,6 @@ Install the profile tooling and validation engine:
 pip install usd-profiles-nvidia usd-validation-nvidia
 ```
 
-Add the Sphinx extra when building profile documentation:
-
-```bash
-pip install usd-profiles-nvidia[sphinx]
-```
-
 ## Create a Specs Tree
 
 Create a `specs/` directory in your profile package:

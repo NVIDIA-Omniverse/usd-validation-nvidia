@@ -8,9 +8,10 @@ from collections.abc import Mapping
 from dataclasses import dataclass, fields, replace
 from typing import Any
 
-from usd_profiles_nvidia.api import Feature, FeatureRef, RequirementRef
+from usd_profiles_nvidia.api import Feature, FeatureRef, Parameter, RequirementRef
 
 from ._identifiers import qualify_identifier
+from ._parameters import parse_parameter
 
 _CORE_FEATURE_FIELDS = frozenset(field.name for field in fields(Feature))
 
@@ -28,6 +29,7 @@ class FeatureDescriptorDecoder:
         path = data.get("path", "")
         requirements = data.get("requirements", [])
         dependencies = data.get("dependencies", [])
+        parameters = data.get("parameters", [])
 
         if not isinstance(feature_id, str):
             raise TypeError(f"'id' must be a string, got {type(feature_id).__name__}")
@@ -39,6 +41,8 @@ class FeatureDescriptorDecoder:
             raise TypeError(f"'requirements' must be a list, got {type(requirements).__name__}")
         if not isinstance(dependencies, list):
             raise TypeError(f"'dependencies' must be a list, got {type(dependencies).__name__}")
+        if not isinstance(parameters, list):
+            raise TypeError(f"'parameters' must be a list, got {type(parameters).__name__}")
         authored_custom_data = data.get("custom_data", {})
         if not isinstance(authored_custom_data, Mapping):
             raise TypeError(f"'custom_data' must be an object, got {type(authored_custom_data).__name__}")
@@ -50,12 +54,32 @@ class FeatureDescriptorDecoder:
             path=path,
             requirements=[self._decode_requirement_ref(value) for value in requirements],
             dependencies=[self._decode_feature_ref(value) for value in dependencies],
+            parameters=self._decode_parameters(parameters),
             custom_data={
                 **authored_custom_data,
                 **{key: value for key, value in data.items() if key not in _CORE_FEATURE_FIELDS},
             },
         )
         return Feature(**feature_data)
+
+    @staticmethod
+    def _decode_parameters(value: list[Any]) -> tuple[Parameter, ...]:
+        parameters: list[Parameter] = []
+        for item in value:
+            if not isinstance(item, Mapping):
+                raise TypeError(f"parameter must be an object, got {type(item).__name__}")
+            parameters.append(
+                parse_parameter(
+                    display_name=item["display_name"],
+                    parameter_type=item["type"],
+                    assigned_value=item.get("assigned_value"),
+                    enum_values=item.get("enum_values"),
+                )
+            )
+        names = [parameter.display_name for parameter in parameters]
+        if len(names) != len(set(names)):
+            raise ValueError(f"duplicate parameter names: {names}")
+        return tuple(parameters)
 
     def _decode_requirement_ref(self, value: Any) -> RequirementRef:
         code, version = self._decode_versioned_ref(value)

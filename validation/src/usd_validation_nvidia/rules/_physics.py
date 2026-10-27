@@ -14,9 +14,8 @@ from collections.abc import Callable
 import usd_validation_nvidia.capabilities as cap
 from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
-from .._requirements import Requirement, register_requirements
+from ..registries import Requirement, register_requirements, register_rule
+from ._base import BaseRuleChecker
 from ._usd_validator_adapter import UsdValidatorAdapter
 
 

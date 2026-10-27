@@ -6,56 +6,28 @@ from __future__ import annotations
 import dataclasses
 from collections import UserDict
 from collections.abc import Iterable, Iterator
-from enum import Enum
-from typing import Protocol, runtime_checkable
+
+from .capabilities import ParameterProtocol, ParameterType
 
 __all__ = [
-    "Parameter",
     "ParameterMapping",
-    "ParameterType",
+    "UserParameter",
 ]
 
 
-class ParameterType(str, Enum):
-    """Valid parameter types for requirements."""
-
-    INT = "int"
-    BOOL = "bool"
-    FLOAT = "float"
-    ENUM = "enum"
-
-
-@runtime_checkable
-class Parameter(Protocol):
-    """
-    Protocol for parameter definition objects.
-
-    Args:
-        display_name: The display name of the parameter
-        type: The type of the parameter (int, bool, float, or enum)
-        assigned_value: The assigned value of the parameter
-        enum_values: The possible enum values (only for enum type)
-    """
-
-    display_name: str
-    type: ParameterType
-    assigned_value: int | bool | float | str | None
-    enum_values: tuple[str, ...] | None
-
-
 @dataclasses.dataclass(frozen=True)
-class UserParameter(Parameter):
+class UserParameter(ParameterProtocol):
     """User-level parameter override.
 
     Wraps an immutable Parameter (like an Enum member or frozen dataclass)
     and only stores the overridden assigned_value. All other properties are delegated
-    to the wrapped parameter. This satisfies the Parameter Protocol.
+    to the wrapped parameter.
 
     This represents a user-level override (e.g., from CLI --parameter arguments) which
     takes precedence over requirement-level and feature-level parameter values.
     """
 
-    parameter: Parameter
+    parameter: ParameterProtocol
     assigned_value: int | bool | float | str | None
 
     def __post_init__(self):
@@ -104,7 +76,7 @@ class ParameterMapping(UserDict):
     Iterates over resolved values, not keys.
     """
 
-    def __init__(self, parameters: Iterable[Parameter] | None = None):
+    def __init__(self, parameters: Iterable[ParameterProtocol] | None = None):
         """Initialize from an iterable of Parameters.
 
         Each parameter name maps to a list of Parameter objects, ordered by
@@ -115,7 +87,7 @@ class ParameterMapping(UserDict):
             for param in parameters:
                 self.add(param)
 
-    def add(self, parameter: Parameter) -> None:
+    def add(self, parameter: ParameterProtocol) -> None:
         """Add a parameter to the top of the stack for its display_name.
 
         Parameters are always prepended to the front of the list (top of stack).
@@ -125,30 +97,30 @@ class ParameterMapping(UserDict):
             parameter: The parameter to add
 
         Raises:
-            TypeError: If parameter doesn't conform to Parameter protocol
+            TypeError: If parameter doesn't conform to ParameterProtocol.
         """
-        if not isinstance(parameter, Parameter):
-            raise TypeError(f"Expected Parameter protocol instance, got {type(parameter).__name__}")
-        parameters: list[Parameter] = self.data.setdefault(parameter.display_name, [])
+        if not isinstance(parameter, ParameterProtocol):
+            raise TypeError(f"Expected Parameter instance, got {type(parameter).__name__}")
+        parameters: list[ParameterProtocol] = self.data.setdefault(parameter.display_name, [])
         if isinstance(parameter, UserParameter):
             parameters[:] = [p for p in parameters if not isinstance(p, UserParameter)]
         parameters.insert(0, parameter)
 
-    def __getitem__(self, key: str) -> Parameter:
+    def __getitem__(self, key: str) -> ParameterProtocol:
         return self.data[key][0]
 
-    def __iter__(self) -> Iterator[Parameter]:
+    def __iter__(self) -> Iterator[ParameterProtocol]:
         return iter(self.values())
 
-    def __contains__(self, name: str | Parameter) -> bool:
-        key: str = name.display_name if isinstance(name, Parameter) else name
+    def __contains__(self, name: str | ParameterProtocol) -> bool:
+        key: str = name.display_name if isinstance(name, ParameterProtocol) else name
         return key in self.data
 
     def keys(self) -> list[str]:
         return list(self.data.keys())
 
-    def values(self) -> list[Parameter]:
+    def values(self) -> list[ParameterProtocol]:
         return [value[0] for value in self.data.values()]
 
-    def items(self) -> list[tuple[str, Parameter]]:
+    def items(self) -> list[tuple[str, ParameterProtocol]]:
         return [(name, value[0]) for name, value in self.data.items()]

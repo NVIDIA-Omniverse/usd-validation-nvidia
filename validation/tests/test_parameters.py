@@ -3,52 +3,45 @@
 #
 
 import unittest
-from dataclasses import dataclass
 
 from usd_validation_nvidia import (
     Parameter,
     ParameterMapping,
+    ParameterProtocol,
     ParameterType,
     UserParameter,
 )
 
-
-@dataclass(frozen=True)
-class MyParameter:
-    """Example dataclass parameter that conforms to the Parameter protocol."""
-
-    display_name: str
-    type: ParameterType
-    assigned_value: int | bool | float | str | None = None
-    enum_values: tuple[str, ...] | None = None
-
-
 # Create some test parameter instances
-UP_AXIS = MyParameter(display_name="UP_AXIS", type=ParameterType.ENUM, assigned_value="Y", enum_values=("X", "Y", "Z"))
-TOLERANCE = MyParameter(display_name="TOLERANCE", type=ParameterType.FLOAT, assigned_value=1e-6)
-ENABLE_WARNINGS = MyParameter(display_name="ENABLE_WARNINGS", type=ParameterType.BOOL, assigned_value=True)
-MAX_ITERATIONS = MyParameter(display_name="MAX_ITERATIONS", type=ParameterType.INT, assigned_value=100)
+UP_AXIS = Parameter(display_name="UP_AXIS", type=ParameterType.ENUM, assigned_value="Y", enum_values=("X", "Y", "Z"))
+TOLERANCE = Parameter(display_name="TOLERANCE", type=ParameterType.FLOAT, assigned_value=1e-6)
+ENABLE_WARNINGS = Parameter(display_name="ENABLE_WARNINGS", type=ParameterType.BOOL, assigned_value=True)
+MAX_ITERATIONS = Parameter(display_name="MAX_ITERATIONS", type=ParameterType.INT, assigned_value=100)
 
 
-class ParameterProtocolTests(unittest.TestCase):
-    """Tests for the Parameter protocol."""
+class ParameterApiTests(unittest.TestCase):
+    def test_parameter_is_concrete_dto(self):
+        parameter = Parameter(display_name="enabled", type=ParameterType.BOOL, assigned_value=True)
+
+        self.assertIsInstance(parameter, Parameter)
+        self.assertIsInstance(parameter, ParameterProtocol)
 
     def test_int_parameter(self):
         """Test a parameter with int type."""
-        param = MyParameter(display_name="max_iterations", type=ParameterType.INT, assigned_value=100)
+        param = Parameter(display_name="max_iterations", type=ParameterType.INT, assigned_value=100)
 
-        self.assertIsInstance(param, Parameter)
+        self.assertIsInstance(param, ParameterProtocol)
         self.assertEqual(param.display_name, "max_iterations")
         self.assertEqual(param.type, ParameterType.INT)
         self.assertEqual(param.assigned_value, 100)
 
     def test_enum_parameter(self):
         """Test a parameter with enum type."""
-        param = MyParameter(
+        param = Parameter(
             display_name="color", type=ParameterType.ENUM, assigned_value="red", enum_values=("red", "green", "blue")
         )
 
-        self.assertIsInstance(param, Parameter)
+        self.assertIsInstance(param, ParameterProtocol)
         self.assertEqual(param.display_name, "color")
         self.assertEqual(param.type, ParameterType.ENUM)
         self.assertEqual(param.assigned_value, "red")
@@ -56,18 +49,18 @@ class ParameterProtocolTests(unittest.TestCase):
 
     def test_bool_parameter(self):
         """Test a parameter with bool type."""
-        param = MyParameter(display_name="enabled", type=ParameterType.BOOL, assigned_value=True)
+        param = Parameter(display_name="enabled", type=ParameterType.BOOL, assigned_value=True)
 
-        self.assertIsInstance(param, Parameter)
+        self.assertIsInstance(param, ParameterProtocol)
         self.assertEqual(param.display_name, "enabled")
         self.assertEqual(param.type, ParameterType.BOOL)
         self.assertEqual(param.assigned_value, True)
 
     def test_float_parameter(self):
         """Test a parameter with float type."""
-        param = MyParameter(display_name="tolerance", type=ParameterType.FLOAT, assigned_value=1e-6)
+        param = Parameter(display_name="tolerance", type=ParameterType.FLOAT, assigned_value=1e-6)
 
-        self.assertIsInstance(param, Parameter)
+        self.assertIsInstance(param, ParameterProtocol)
         self.assertEqual(param.display_name, "tolerance")
         self.assertEqual(param.type, ParameterType.FLOAT)
         self.assertEqual(param.assigned_value, 1e-6)

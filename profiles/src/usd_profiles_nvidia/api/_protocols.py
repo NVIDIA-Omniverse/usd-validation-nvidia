@@ -7,7 +7,17 @@ from __future__ import annotations
 from typing import Any, Protocol, runtime_checkable
 
 from ._examples import Example
-from ._parameters import Parameter
+from ._parameters import ParameterType
+
+
+@runtime_checkable
+class ParameterProtocol(Protocol):
+    """A protocol definition of a requirement parameter."""
+
+    display_name: str
+    type: ParameterType
+    assigned_value: int | bool | float | str | None
+    enum_values: tuple[str, ...] | None
 
 
 @runtime_checkable
@@ -34,7 +44,7 @@ class RequirementProtocol(Protocol):
     compatibility: str | None
     validator: str | None
     tags: tuple[str, ...]
-    parameters: tuple[Parameter, ...]
+    parameters: tuple[ParameterProtocol, ...]
     examples: tuple[Example, ...]
 
 
@@ -62,12 +72,14 @@ class CapabilityProtocol(Protocol):
         version: The version of the capability
         path: The path to the capability
         requirements: The requirements of the capability
+        custom_data: Additional authored capability fields
     """
 
     id: str
     version: str
     path: str
     requirements: list[RequirementProtocol | RequirementRefProtocol]
+    custom_data: dict[str, Any]
 
 
 @runtime_checkable

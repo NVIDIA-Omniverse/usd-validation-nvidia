@@ -7,9 +7,9 @@ from collections import defaultdict
 from collections.abc import Callable
 from typing import Any, Protocol, TypeVar, runtime_checkable
 
+from ..capabilities import RequirementProtocol, RequirementRefProtocol
+from ..utils import EventListener, SemVer, deprecated, singleton
 from ._registry import IdVersion, VersionedRegistry
-from .capabilities import RequirementProtocol, RequirementRefProtocol
-from .utils import EventListener, SemVer, deprecated, singleton
 
 __all__ = [
     "Requirement",
@@ -330,12 +330,12 @@ class RequirementsRegistry(VersionedRegistry[Requirement]):
 def register_requirements(
     *requirements: Requirement | RequirementRefProtocol, override: bool = False
 ) -> Callable[[type[BaseRuleChecker] | None], type[BaseRuleChecker] | None]:
-    """Decorator. Register a new :py:class:`BaseRuleChecker` to a set of requirements.
+    """Decorator. Register a new :py:class:`BaseRule` to a set of requirements.
 
     .. code-block:: python
 
         @register_requirements(Requirement1, Requirement2)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             ...
 
     To override a registered rule, use the ``override`` parameter.
@@ -343,7 +343,7 @@ def register_requirements(
     .. code-block:: python
 
         @register_requirements(Requirement1, override=True)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             ...
 
     Pass ``None`` to register concrete requirement definitions without creating
@@ -387,7 +387,7 @@ def unregister_requirements(
     .. code-block:: python
 
         @register_requirements(Requirement1, Requirement2)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             ...
 
         unregister_requirements(MyRule)
@@ -406,7 +406,7 @@ def unregister_requirements(
     candidate = requirements_or_rule[0]
     if isinstance(candidate, type):
         # Import lazily because BaseRuleChecker imports Requirement from this module.
-        from ._base_rule_checker import BaseRuleChecker as BaseRuleCheckerType
+        from ..rules import BaseRuleChecker as BaseRuleCheckerType
 
         if len(requirements_or_rule) != 1 or not issubclass(candidate, BaseRuleCheckerType):
             raise TypeError(expected)
@@ -430,7 +430,7 @@ def add_registry_requirement_callback(callback: Callable[[], None]) -> EventList
         subscription = add_registry_requirement_callback(lambda: print("Requirement registered"))
 
         @register_requirements(Requirement1, Requirement2)
-        class MyRule(BaseRuleChecker):
+        class MyRule(BaseRule):
             ...
 
     Args:

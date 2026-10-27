@@ -9,9 +9,12 @@ and distribute your own rules.
 The rule interface
 ==================
 
-A rule subclasses :py:class:`~usd_validation_nvidia.BaseRuleChecker` and overrides one or
+A rule subclasses :py:class:`~usd_validation_nvidia.BaseRule` and overrides one or
 more ``Check*`` callbacks. The engine invokes them as it walks an asset, so a rule only
 implements the callbacks it needs:
+
+``BaseRuleChecker`` remains available as a backward-compatible alias, but new rules should
+subclass ``BaseRule``.
 
 .. list-table::
     :header-rows: 1
@@ -59,11 +62,11 @@ name. Registered rules become part of every default ``ValidationEngine``:
 .. code-block:: python
 
     from pxr import UsdGeom
-    from usd_validation_nvidia import BaseRuleChecker, register_rule
+    from usd_validation_nvidia import BaseRule, register_rule
 
 
     @register_rule("MyStudio")
-    class VisibilityAttributeChecker(BaseRuleChecker):
+    class VisibilityAttributeChecker(BaseRule):
         """Meshes should author a 'visibility' attribute."""
 
         def CheckPrim(self, prim):
@@ -89,6 +92,81 @@ rules:
 ``overwrite=`` (replace an existing rule in a category). Categories group related rules:
 the CLI's ``--category`` flag and ``register_rule`` use them. To turn individual rules on or
 off on an engine, use :py:meth:`enable_rule` / :py:meth:`disable_rule`.
+
+Running rules asynchronously
+=============================
+
+Validation can also work asynchronously, to avoid blocking the calling thread:
+
+.. code-block:: python
+
+    import asyncio
+    from usd_validation_nvidia import ValidationEngine
+
+    async def run_validation():
+        engine = ValidationEngine()
+        results = await engine.validate_async("asset.usda")
+
+    asyncio.run(run_validation())
+
+``validate_async`` also recursively validates folder/container URIs, which the blocking
+``validate()`` method does not support. For per-asset and progress callbacks while a folder is
+being validated, use :py:meth:`~usd_validation_nvidia.ValidationEngine.validate_with_callbacks`,
+which returns an ``asyncio.Task``:
+
+.. code-block:: python
+
+    import asyncio
+    from usd_validation_nvidia import AssetProgress, Results, ValidationEngine
+
+    async def run_validation():
+        engine = ValidationEngine()
+
+        def on_progress(progress: AssetProgress) -> None:
+            print(f"{progress.asset}: {progress.progress:.0%}")
+
+        def on_validated(results: Results) -> None:
+            for issue in results.issues():
+                print(f"{results.asset} - {issue.severity}: {issue.message}")
+
+        task = engine.validate_with_callbacks(
+            "path/to/assets/",
+            asset_progress_fn=on_progress,
+            asset_validated_fn=on_validated,
+        )
+        await task
+
+    asyncio.run(run_validation())
+
+A ``Check*`` callback can also be declared ``async def`` directly, for example to await an
+async lookup from inside the callback itself:
+
+.. code-block:: python
+
+    import asyncio
+
+    from pxr import UsdGeom
+    from usd_validation_nvidia import BaseRule, register_rule
+
+
+    @register_rule("MyStudio")
+    class VisibilityAttributeChecker(BaseRule):
+        """Meshes should author a 'visibility' attribute."""
+
+        async def CheckPrim(self, prim):
+            if not prim.IsA(UsdGeom.Mesh):
+                return
+            if not prim.GetAttribute("visibility").IsValid():
+                # await an async lookup here, e.g. a studio license/asset service call
+                await asyncio.sleep(0)
+                self._AddWarning(
+                    message=f"Mesh <{prim.GetPath()}> does not author 'visibility'.",
+                    at=prim,
+                )
+
+The engine detects coroutine callbacks automatically, so no special handling is needed to run
+this rule: it works under the blocking ``engine.validate("asset.usda")`` just as well as under
+``validate_async()``, and sync and async callbacks can be freely mixed on the same rule.
 
 Providing an auto-fix
 =====================
@@ -134,11 +212,11 @@ process pool that ``--process COUNT`` enables:
 
 .. code-block:: python
 
-    from usd_validation_nvidia import BaseRuleChecker, multiprocess_safe, register_rule
+    from usd_validation_nvidia import BaseRule, multiprocess_safe, register_rule
 
 
     @register_rule("Basic")
-    class MyLayerRule(BaseRuleChecker):
+    class MyLayerRule(BaseRule):
         @multiprocess_safe
         def CheckLayer(self, layer):
             ...

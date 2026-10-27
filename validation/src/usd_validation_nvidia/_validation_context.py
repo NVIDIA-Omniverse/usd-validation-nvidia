@@ -7,11 +7,15 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
 
-from ._capabilities import Capability
-from ._features import Feature, FeatureRegistry
-from ._profiles import Profile
-from ._requirements import Requirement, RequirementsRegistry
 from .capabilities import RequirementRefProtocol
+from .registries import (
+    Capability,
+    Feature,
+    FeatureRegistry,
+    Profile,
+    Requirement,
+    RequirementsRegistry,
+)
 
 __all__ = [
     "FeatureStatus",

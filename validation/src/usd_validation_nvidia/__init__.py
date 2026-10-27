@@ -25,38 +25,12 @@ if is_usd_distribution_conflict():
         )
 
 elif is_usd_available():
-    from ._asset_format import (
-        AssetFormat,
-        AssetFormatRegistry,
-        FormatDependency,
-        add_registry_asset_format_callback,
-        register_format,
-        unregister_format,
-    )
     from ._assets import (
         AssetLocatedCallback,
         AssetProgress,
         AssetProgressCallback,
         AssetType,
         AssetValidatedCallback,
-    )
-    from ._base_rule_checker import BaseRuleChecker
-    from ._base_rule_metadata import BaseRuleCheckerMetadata
-    from ._capabilities import (
-        Capability,
-        CapabilityRegistry,
-        add_registry_capability_callback,
-        register_capabilities,
-        register_capability,
-        unregister_capabilities,
-        unregister_capability,
-    )
-    from ._categories import (
-        CategoryRuleRegistry,
-        add_registry_rule_callback,
-        get_category_rules_registry,
-        register_rule,
-        unregister_rule,
     )
     from ._compliance_checker import ComplianceChecker
     from ._compliance_runners import (
@@ -73,7 +47,6 @@ elif is_usd_available():
         skip_if,
         skip_unless,
     )
-    from ._content import register_content, unregister_content
     from ._context_managers import (
         AsyncBatchRunner,
         AsyncCounter,
@@ -83,15 +56,6 @@ elif is_usd_available():
     from ._default_categories import DefaultCategoryRules
     from ._default_plugin import DefaultPlugin
     from ._engine import ValidationEngine
-    from ._features import (
-        Feature,
-        FeatureRegistry,
-        add_registry_feature_callback,
-        register_feature,
-        register_features,
-        unregister_feature,
-        unregister_features,
-    )
     from ._fix import AuthoringLayers, FixResult, FixResultList, FixStatus, IssueFixer
     from ._identifiers import (
         AttributeId,
@@ -140,25 +104,8 @@ elif is_usd_available():
         is_typename_array,
         remove_unused_values_and_remap_indices,
     )
-    from ._parameters import Parameter, ParameterMapping, ParameterType, UserParameter
+    from ._parameters import ParameterMapping, UserParameter
     from ._plugins import LoadedPlugin, PluginManager, PluginProtocol
-    from ._profiles import (
-        Profile,
-        ProfileRegistry,
-        add_registry_profile_callback,
-        register_profile,
-        register_profiles,
-        unregister_profile,
-        unregister_profiles,
-    )
-    from ._registry import IdVersion, Registry, VersionedRegistry
-    from ._requirements import (
-        Requirement,
-        RequirementsRegistry,
-        add_registry_requirement_callback,
-        register_requirements,
-        unregister_requirements,
-    )
     from ._results import Results, ResultsList, to_issues_list
     from ._stats import ValidationStats
     from ._validation_context import (
@@ -175,9 +122,21 @@ elif is_usd_available():
     )
     from .capabilities import (
         CapabilityProtocol,
+        Example,
+        ExampleResult,
+        ExampleSnippet,
+        ExampleSnippetLanguage,
         FeatureProtocol,
+        FeatureRef,
+        FeatureRefProtocol,
+        Parameter,
+        ParameterProtocol,
+        ParameterType,
+        ProfileFeature,
+        ProfileFeatureProtocol,
         ProfileProtocol,
         RequirementProtocol,
+        RequirementRef,
         RequirementRefProtocol,
     )
 
@@ -187,6 +146,50 @@ elif is_usd_available():
         ValidationNamespaceExec,
         cli_main,
         create_validation_parser,
+    )
+    from .registries import (
+        AssetFormat,
+        AssetFormatRegistry,
+        Capability,
+        CapabilityRegistry,
+        CategoryRuleRegistry,
+        Feature,
+        FeatureRegistry,
+        FormatDependency,
+        IdVersion,
+        Profile,
+        ProfileRegistry,
+        Registry,
+        Requirement,
+        RequirementsRegistry,
+        VersionedRegistry,
+        add_registry_asset_format_callback,
+        add_registry_capability_callback,
+        add_registry_feature_callback,
+        add_registry_profile_callback,
+        add_registry_requirement_callback,
+        add_registry_rule_callback,
+        get_category_rules_registry,
+        register_capabilities,
+        register_capability,
+        register_content,
+        register_feature,
+        register_features,
+        register_format,
+        register_profile,
+        register_profiles,
+        register_requirements,
+        register_rule,
+        unregister_capabilities,
+        unregister_capability,
+        unregister_content,
+        unregister_feature,
+        unregister_features,
+        unregister_format,
+        unregister_profile,
+        unregister_profiles,
+        unregister_requirements,
+        unregister_rule,
     )
     from .reporting import (
         ColumnCSVTable,
@@ -202,6 +205,9 @@ elif is_usd_available():
         ArticulationChecker,
         AssetOriginPositioningChecker,
         BaseBoundsChecker,
+        BaseRule,
+        BaseRuleChecker,
+        BaseRuleCheckerMetadata,
         BoundsLimit,
         ByteAlignmentChecker,
         ColliderChecker,
@@ -314,6 +320,7 @@ elif is_usd_available():
         "AttributeId",
         "AuthoringLayers",
         "BaseBoundsChecker",
+        "BaseRule",
         "BaseRuleChecker",
         "BaseRuleCheckerMetadata",
         "BoundsLimit",
@@ -339,9 +346,15 @@ elif is_usd_available():
         "EditTargetIdList",
         "EventListener",
         "EventStream",
+        "Example",
+        "ExampleResult",
+        "ExampleSnippet",
+        "ExampleSnippetLanguage",
         "ExtentsChecker",
         "Feature",
         "FeatureProtocol",
+        "FeatureRef",
+        "FeatureRefProtocol",
         "FeatureRegistry",
         "FeatureStatus",
         "FixResult",
@@ -382,6 +395,7 @@ elif is_usd_available():
         "NormalsWindingsChecker",
         "Parameter",
         "ParameterMapping",
+        "ParameterProtocol",
         "ParameterType",
         "PeriodicCallback",
         "PhysicsJointChecker",
@@ -396,6 +410,8 @@ elif is_usd_available():
         "PrimId",
         "PrimvarId",
         "Profile",
+        "ProfileFeature",
+        "ProfileFeatureProtocol",
         "ProfileProtocol",
         "ProfileRegistry",
         "ProfileStatus",
@@ -406,6 +422,7 @@ elif is_usd_available():
         "RepeatedValuesSet",
         "Requirement",
         "RequirementProtocol",
+        "RequirementRef",
         "RequirementRefProtocol",
         "RequirementStatus",
         "RequirementsRegistry",

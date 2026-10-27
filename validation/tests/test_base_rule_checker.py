@@ -8,6 +8,7 @@ from unittest.mock import Mock
 from common import get_url
 from pxr import Sdf, Usd
 from usd_validation_nvidia import (
+    BaseRule,
     BaseRuleChecker,
     Issue,
     IssueSeverity,
@@ -45,6 +46,9 @@ class MyRuleChecker(BaseRuleChecker):
 
 
 class BaseRuleCheckerTestCase(unittest.IsolatedAsyncioTestCase):
+    def test_backward_compatible_alias(self):
+        self.assertIs(BaseRuleChecker, BaseRule)
+
     async def asyncSetUp(self) -> None:
         super().setUp()
         self.message = "A message"

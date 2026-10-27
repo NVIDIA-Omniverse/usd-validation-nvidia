@@ -275,6 +275,22 @@ class IssueGroupsByTest(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(p1(issues[2]))
         self.assertFalse(p2(issues[2]))
 
+    def test_is_requirement(self):
+        issues = [
+            Issue(severity=IssueSeverity.ERROR, message="This is an error at Prim1", requirement=Requirements.AA_001),
+            Issue(severity=IssueSeverity.ERROR, message="This is an error at Prim2", requirement=Requirements.AA_002),
+            Issue(severity=IssueSeverity.ERROR, message="This is an error at Prim3"),
+        ]
+
+        p1 = IssuePredicates.IsRequirement(Requirements.AA_001)
+        p2 = IssuePredicates.IsRequirement(Requirements.AA_002)
+        self.assertTrue(p1(issues[0]))
+        self.assertFalse(p1(issues[1]))
+        self.assertFalse(p1(issues[2]))
+        self.assertFalse(p2(issues[0]))
+        self.assertTrue(p2(issues[1]))
+        self.assertFalse(p2(issues[2]))
+
     def test_requirement(self):
         requirement = RequirementDTO(code="001", message="message", tags=("tag1", "tag2"))
 

@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from usd_profiles_nvidia.api import FeatureRef, RequirementRef
+from usd_profiles_nvidia.api import FeatureRef, Parameter, ParameterType, RequirementRef
 from usd_profiles_nvidia.descriptors import DescriptorError
 from usd_profiles_nvidia.json import JsonFeaturesParser
 from usd_profiles_nvidia.markdown import FeaturesParser
@@ -273,3 +273,46 @@ requirements = ["REQ.001"]
         self.assertEqual(v10.id, "FET_001")
         self.assertEqual(v10.version, "1.0.0")
         self.assertEqual(v10.requirements, [RequirementRef("NP.001", "0.1.0")])
+
+    def test_parse_with_parameters_ok(self):
+        root_dir = Path(__file__).parent / "resources" / "simple-feature-parameters"
+        features = FeaturesParser(root_dir=str(root_dir), path=str(root_dir)).parse()
+
+        self.assertEqual(len(features), 1)
+        self.assertEqual(
+            features[0].parameters,
+            (
+                Parameter("TRANSFORM_TOLERANCE", ParameterType.FLOAT, 0.001),
+                Parameter("MODE", ParameterType.ENUM, "strict", ("strict", "lax")),
+            ),
+        )
+
+    def test_parse_with_parameters_json_toml(self):
+        parameter = {"display_name": "TRANSFORM_TOLERANCE", "type": "float", "assigned_value": 0.001}
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            root_dir = Path(tmpdirname)
+            descriptor = {"id": "f", "version": "1.0.0", "requirements": ["VG.025"], "parameters": [parameter]}
+            (root_dir / "f.json").write_text(json.dumps(descriptor), encoding="utf-8")
+            (root_dir / "g.toml").write_text(
+                """
+id = "g"
+version = "1.0.0"
+requirements = ["VG.025"]
+
+[[parameters]]
+display_name = "TRANSFORM_TOLERANCE"
+type = "float"
+assigned_value = 0.001
+""".strip(),
+                encoding="utf-8",
+            )
+            expected = (Parameter("TRANSFORM_TOLERANCE", ParameterType.FLOAT, 0.001),)
+            for parser_type in (JsonFeaturesParser, TomlFeaturesParser):
+                with self.subTest(parser=parser_type.__name__):
+                    (feature,) = parser_type(root_dir=str(root_dir), path=str(root_dir)).parse()
+                    self.assertEqual(feature.parameters, expected)
+
+            descriptor["parameters"] = [parameter, parameter]
+            (root_dir / "f.json").write_text(json.dumps(descriptor), encoding="utf-8")
+            with self.assertRaises(DescriptorError):
+                JsonFeaturesParser(root_dir=str(root_dir), path=str(root_dir / "f.json")).parse()

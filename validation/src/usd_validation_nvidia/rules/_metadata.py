@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from functools import cache
 from inspect import iscoroutinefunction
 
-from ._base_rule_checker import BaseRuleChecker
+from ._base import BaseRuleChecker
 
 __all__ = [
     "BaseRuleCheckerMetadata",

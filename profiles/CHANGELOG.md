@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.23.0] - TBD
+### Added
+- Add `parameters` to the `Feature` DTO. Features authored in Markdown, TOML, or JSON can now override requirement
+  parameter values, and the JSON codec round-trips them.
+- Add non-mutating `LoadedSpecifications.validate()` structural diagnostics for malformed versions, duplicate
+  definitions, and invalid profile feature optionality.
+- Add `ParameterProtocol` to the public API and generated capability packages.
+- Export `PythonGenerator` from the top-level `usd_profiles_nvidia` package.
+- Add `custom_data` to the `Capability` DTO and `CapabilityProtocol`, matching the field `Feature` already exposes.
+  JSON-authored capabilities now round-trip unrecognized fields through `custom_data`, same as features.
+
+### Changed
+- Remove the `usd-profiles-nvidia[sphinx]` optional dependency extra. Sphinx integration remains available;
+  install Sphinx and MyST-Parser separately in documentation build environments. Specification parsing and code
+  generation continue to use `markdown-it-py` without these documentation dependencies.
+- Use the public API example and parameter DTOs throughout profile parsing and storage, keeping Python-specific
+  example filenames and parameter enum names in code-generation models.
+
+### Fixed
+- Parse the first word of fenced code block info strings as the example language, allowing trailing metadata such as
+  `usd payload`.
+
 ## [1.22.0] - 2026-09-10
 ### Added
 - Load SimReady-style TOML and JSON profiles through `SpecificationsLoader`, preserving unresolved feature references

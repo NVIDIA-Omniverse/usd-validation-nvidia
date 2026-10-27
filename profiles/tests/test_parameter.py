@@ -4,11 +4,16 @@
 
 import unittest
 
+from usd_profiles_nvidia.api import Parameter, ParameterProtocol, ParameterType
 from usd_profiles_nvidia.markdown import ParameterParser
-from usd_profiles_nvidia.model import Parameter, ParameterType
 
 
 class TestParameter(unittest.TestCase):
+
+    def test_parameter_conforms_to_protocol(self):
+        parameter = Parameter(display_name="COUNT", type=ParameterType.INT)
+
+        self.assertIsInstance(parameter, ParameterProtocol)
 
     def test_parameter_int(self):
         """Test int parameter with native int assigned value."""
@@ -30,21 +35,21 @@ class TestParameter(unittest.TestCase):
 
     def test_parameter_enum(self):
         """Test enum parameter with string assigned value."""
-        param = Parameter(display_name="AXIS", type=ParameterType.ENUM, assigned_value="X", enum_values=["X", "Y", "Z"])
+        param = Parameter(
+            display_name="AXIS",
+            type=ParameterType.ENUM,
+            assigned_value="X",
+            enum_values=("X", "Y", "Z"),
+        )
         self.assertEqual(param.display_name, "AXIS")
         self.assertEqual(param.type, ParameterType.ENUM)
         self.assertEqual(param.assigned_value, "X")
-        self.assertEqual(param.enum_values, ["X", "Y", "Z"])
+        self.assertEqual(param.enum_values, ("X", "Y", "Z"))
 
-    def test_parameter_enum_without_values_raises_error(self):
-        with self.assertRaises(ValueError) as context:
-            Parameter(display_name="AXIS", type=ParameterType.ENUM, assigned_value="X")
-        self.assertIn("enum type but has no enum_values", str(context.exception))
+    def test_api_parameter_does_not_parse_assigned_value(self):
+        param = Parameter(display_name="COUNT", type=ParameterType.INT, assigned_value="10")
 
-    def test_parameter_non_enum_with_values_raises_error(self):
-        with self.assertRaises(ValueError) as context:
-            Parameter(display_name="COUNT", type=ParameterType.INT, assigned_value=10, enum_values=["A", "B"])
-        self.assertIn("but has enum_values", str(context.exception))
+        self.assertEqual(param.assigned_value, "10")
 
     def test_parameter_int_no_default(self):
         param = Parameter(display_name="OPTIONAL_INT", type=ParameterType.INT)
@@ -77,63 +82,6 @@ class TestParameter(unittest.TestCase):
         param = Parameter(display_name="SCALE", type=ParameterType.FLOAT, assigned_value=1.5)
         self.assertEqual(param.assigned_value, 1.5)
         self.assertIsInstance(param.assigned_value, float)
-
-    def test_parameter_float_from_int(self):
-        """Test float parameter accepts int and converts it."""
-        param = Parameter(display_name="MULTIPLIER", type=ParameterType.FLOAT, assigned_value=10)
-        self.assertEqual(param.assigned_value, 10.0)
-        self.assertIsInstance(param.assigned_value, float)
-
-    # String conversion tests (fallback/convenience feature for markdown parsing)
-    def test_parameter_int_from_string(self):
-        """Test int parameter accepts string and converts it (convenience for markdown)."""
-        param = Parameter(display_name="COUNT", type=ParameterType.INT, assigned_value="10")
-        self.assertEqual(param.assigned_value, 10)
-        self.assertIsInstance(param.assigned_value, int)
-
-    def test_parameter_int_from_string_negative(self):
-        """Test int parameter converts negative string."""
-        param = Parameter(display_name="NEGATIVE", type=ParameterType.INT, assigned_value="-10")
-        self.assertEqual(param.assigned_value, -10)
-        self.assertIsInstance(param.assigned_value, int)
-
-    def test_parameter_bool_from_string(self):
-        """Test bool parameter accepts string and converts it (convenience for markdown)."""
-        param1 = Parameter(display_name="ENABLED", type=ParameterType.BOOL, assigned_value="true")
-        param2 = Parameter(display_name="DISABLED", type=ParameterType.BOOL, assigned_value="false")
-        self.assertEqual(param1.assigned_value, True)
-        self.assertEqual(param2.assigned_value, False)
-
-    def test_parameter_bool_from_string_case_insensitive(self):
-        """Test that bool strings are case-insensitive."""
-        param1 = Parameter(display_name="BOOL1", type=ParameterType.BOOL, assigned_value="True")
-        param2 = Parameter(display_name="BOOL2", type=ParameterType.BOOL, assigned_value="FALSE")
-        self.assertEqual(param1.assigned_value, True)
-        self.assertEqual(param2.assigned_value, False)
-
-    def test_parameter_float_from_str(self):
-        """Test float parameter accepts string and converts it (convenience for markdown)."""
-        param = Parameter(display_name="THRESHOLD", type=ParameterType.FLOAT, assigned_value="1.5e-3")
-        self.assertAlmostEqual(param.assigned_value, 0.0015, places=6)
-        self.assertIsInstance(param.assigned_value, float)
-
-    def test_parameter_invalid_int_string_raises_error(self):
-        """Test that invalid int string raises error."""
-        with self.assertRaises(ValueError) as context:
-            Parameter(display_name="INVALID", type=ParameterType.INT, assigned_value="abc")
-        self.assertIn("must be a valid integer", str(context.exception))
-
-    def test_parameter_invalid_bool_string_raises_error(self):
-        """Test that invalid bool string raises error."""
-        with self.assertRaises(ValueError) as context:
-            Parameter(display_name="INVALID", type=ParameterType.BOOL, assigned_value="maybe")
-        self.assertIn("must be 'true' or 'false'", str(context.exception))
-
-    def test_parameter_float_from_invalid(self):
-        """Test that invalid float value raises error."""
-        with self.assertRaises(ValueError) as context:
-            Parameter(display_name="INVALID", type=ParameterType.FLOAT, assigned_value="abc")
-        self.assertIn("must be a valid float", str(context.exception))
 
 
 class TestParameterParser(unittest.TestCase):
@@ -175,25 +123,25 @@ class TestParameterParser(unittest.TestCase):
         """Test that enum with single valid quoted value works."""
         param_type, enum_values = ParameterParser._parse_parameter_type('enum("A")')
         self.assertEqual(param_type, ParameterType.ENUM)
-        self.assertEqual(enum_values, ["A"])
+        self.assertEqual(enum_values, ("A",))
 
     def test_parse_enum_valid_multiple_values(self):
         """Test that enum with multiple valid quoted values works."""
         param_type, enum_values = ParameterParser._parse_parameter_type('enum("X", "Y", "Z")')
         self.assertEqual(param_type, ParameterType.ENUM)
-        self.assertEqual(enum_values, ["X", "Y", "Z"])
+        self.assertEqual(enum_values, ("X", "Y", "Z"))
 
     def test_parse_enum_with_spaces(self):
         """Test that enum with spaces around values works."""
         param_type, enum_values = ParameterParser._parse_parameter_type('enum( "A" , "B" , "C" )')
         self.assertEqual(param_type, ParameterType.ENUM)
-        self.assertEqual(enum_values, ["A", "B", "C"])
+        self.assertEqual(enum_values, ("A", "B", "C"))
 
     def test_parse_enum_case_insensitive_keyword(self):
         """Test that enum keyword is case-insensitive."""
         param_type, enum_values = ParameterParser._parse_parameter_type('ENUM("A", "B")')
         self.assertEqual(param_type, ParameterType.ENUM)
-        self.assertEqual(enum_values, ["A", "B"])
+        self.assertEqual(enum_values, ("A", "B"))
 
     def test_parse_enum_with_double_comma_raises_error(self):
         """Test that enum with double comma raises error."""

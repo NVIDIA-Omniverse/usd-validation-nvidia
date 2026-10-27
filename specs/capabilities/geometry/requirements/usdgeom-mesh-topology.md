@@ -23,6 +23,47 @@ Mesh topology must be valid for proper rendering and simulation. Invalid topolog
 
 ## Examples
 
+### Valid: Time-varying topology
+
+```usd
+#usda 1.0
+
+def Mesh "ValidTimeVaryingTopology"
+{
+    int[] faceVertexCounts.timeSamples = {
+        0: [4],
+        1: [4]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        0: [0, 1, 2, 3],
+        1: [0, 1, 2, 3]
+    }
+    point3f[] points.timeSamples = {
+        0: [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)],
+        1: [(0, 0, 0), (2, 0, 0), (2, 2, 0), (0, 2, 0)]
+    }
+}
+```
+
+### Valid: Time samples that start after time 0
+
+```usd
+#usda 1.0
+
+def Mesh "ValidLaterTimeSamples"
+{
+    int[] faceVertexCounts.timeSamples = {
+        1: [4]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        1: [0, 1, 2, 3]
+    }
+    point3f[] points.timeSamples = {
+        1: [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    }
+}
+```
+
 ### Invalid: Degenerate faces and invalid indices
 
 ```usd
@@ -50,6 +91,122 @@ def Mesh "GoodTopology" {
         0, 1, 2      # Proper triangle
     ]
     point3f[] points = [(0,0,0), (1,0,0), (1,1,0), (0,1,0)]
+}
+```
+
+### Invalid: Face vertex counts that do not match the indices
+
+```usd
+#usda 1.0
+
+def Mesh "CountsDoNotMatchIndices"
+{
+    int[] faceVertexCounts = [4, 3]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+}
+```
+
+### Invalid: Missing face vertex index
+
+```usd
+#usda 1.0
+
+def Mesh "MissingIndex"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+}
+```
+
+### Invalid: Mesh without data
+
+```usd
+#usda 1.0
+
+def Mesh "MeshWithoutData"
+{
+
+}
+```
+
+### Invalid: Time-varying counts that do not match the indices
+
+```usd
+#usda 1.0
+
+def Mesh "TimeVaryingCounts"
+{
+    int[] faceVertexCounts.timeSamples = {
+        0: [4],
+        1: [4, 3]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        0: [0, 1, 2, 3],
+        1: [0, 1, 2, 3]
+    }
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+}
+```
+
+### Invalid: Time-varying topology with a missing index
+
+```usd
+#usda 1.0
+
+def Mesh "TimeVaryingMissingIndex"
+{
+    int[] faceVertexCounts.timeSamples = {
+        0: [4],
+        1: [4]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        0: [0, 1, 2, 3],
+        1: [0, 1, 2]
+    }
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+}
+```
+
+### Invalid: Time-varying topology with a missing point
+
+```usd
+#usda 1.0
+
+def Mesh "TimeVaryingMissingPoint"
+{
+    int[] faceVertexCounts.timeSamples = {
+        0: [4],
+        1: [4]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        0: [0, 1, 2, 3],
+        1: [0, 1, 2, 3]
+    }
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0)]
+}
+```
+
+### Invalid: Time-varying points and counts that do not match the indices
+
+```usd
+#usda 1.0
+
+def Mesh "TimeVaryingPointsAndCounts"
+{
+    int[] faceVertexCounts.timeSamples = {
+        0: [4],
+        1: [4, 3]
+    }
+    int[] faceVertexIndices.timeSamples = {
+        0: [0, 1, 2, 3],
+        1: [0, 1, 2, 3]
+    }
+    point3f[] points.timeSamples = {
+        0: [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)],
+        1: [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    }
 }
 ```
 

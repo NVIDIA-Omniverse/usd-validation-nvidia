@@ -5,8 +5,8 @@
 import unittest
 from pathlib import Path
 
+from usd_profiles_nvidia.api import ExampleResult, ExampleSnippetLanguage
 from usd_profiles_nvidia.markdown import RequirementsParser
-from usd_profiles_nvidia.model import ExampleResult, ExampleSnippetLanguage
 
 
 class TestExamplesParser(unittest.TestCase):
@@ -29,3 +29,16 @@ class TestExamplesParser(unittest.TestCase):
         self.assertEqual(requirements[0].examples[1].snippet.language, ExampleSnippetLanguage.USD)
         self.assertIn('def Xform "RootXform"', requirements[0].examples[1].snippet.content)
         self.assertEqual("All Xforms under single root", requirements[0].examples[1].display_name)
+
+    def test_parse_info_string_metadata(self):
+        base_dir = Path(__file__).parent / "resources" / "example-payload-specs"
+        parser = RequirementsParser(root_dir=str(base_dir), paths=[str(base_dir / "requirements")])
+        requirements = parser.parse()
+
+        self.assertEqual(len(requirements), 1)
+        self.assertIsInstance(requirements[0].examples, tuple)
+        self.assertEqual(len(requirements[0].examples), 1)
+        self.assertEqual(requirements[0].examples[0].result, ExampleResult.SUCCESS)
+        self.assertEqual(requirements[0].examples[0].snippet.language, ExampleSnippetLanguage.USD)
+        self.assertEqual(requirements[0].examples[0].snippet.content, 'def Xform "Root" {}')
+        self.assertEqual("Payload layer", requirements[0].examples[0].display_name)

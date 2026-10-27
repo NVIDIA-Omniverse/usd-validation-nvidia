@@ -13,7 +13,10 @@ class Examples(Example, Enum):
     """
     {%- for partition, example in examples.partition() %}
     {{ example.enum_name }} = (
-        ExampleSnippet(language={{ example.snippet.language }}, path="{{ partition }}/{{ example.snippet.filename }}"),
+        ExampleSnippet(
+            language={{ example.snippet.language }},
+            path="resources/examples/{{ partition }}/{{ example.filename }}",
+        ),
         {{ example.display_name | tojson }},
         {{ example.result }},
     )

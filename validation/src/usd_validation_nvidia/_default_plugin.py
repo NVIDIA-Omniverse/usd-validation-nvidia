@@ -18,13 +18,19 @@ import logging
 from pxr import Usd
 from usd_validation_nvidia.capabilities import Capabilities, Features, Profiles
 
-from ._base_rule_checker import BaseRuleChecker
-from ._capabilities import register_capabilities, unregister_capabilities
-from ._categories import CategoryRuleRegistry, register_rule
-from ._features import register_features, unregister_features
-from ._profiles import register_profiles, unregister_profiles
+from .registries import (
+    CategoryRuleRegistry,
+    register_capabilities,
+    register_features,
+    register_profiles,
+    register_rule,
+    unregister_capabilities,
+    unregister_features,
+    unregister_profiles,
+)
 from .rules import (
     ArticulationChecker,
+    BaseRuleChecker,
     ByteAlignmentChecker,
     ColliderChecker,
     CompressionChecker,

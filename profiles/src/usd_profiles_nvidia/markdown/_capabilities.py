@@ -36,6 +36,7 @@ class _CapabilityParser(ReferencesParser):
             version=str(self.default_version),
             path=Metadata(path=self.relpath).path,
             requirements=requirements,
+            custom_data={},
         )
 
 

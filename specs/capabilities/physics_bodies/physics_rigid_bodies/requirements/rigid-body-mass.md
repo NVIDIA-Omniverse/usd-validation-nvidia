@@ -37,19 +37,35 @@ All units must be consistent with the stage's unit system as defined by [meters-
 
 ## Examples
 
-### Invalid: No mass or inertia specified
+### Valid: Mass API without values
 
 ```usd
 #usda 1.0
 
-def Xform "RobotHead" () {
-   prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+}
 
-   def Mesh "Head" (
-      prepend apiSchemas = ["PhysicsCollisionAPI"]
-   )
-   {
-   }
+def Cube "Collider" (
+    prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMassAPI"]
+)
+{
+}
+```
+
+### Valid: Fallback inertia values
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (0, 0, 0, 0)
+    float3 physics:diagonalInertia = (0, 0, 0)
 }
 ```
 
@@ -58,8 +74,10 @@ def Xform "RobotHead" () {
 ```usd
 #usda 1.0
 
-def Xform "RobotHead" () {
+def Xform "RobotHead" (
    prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+)
+{
 
    def Mesh "Head" (
       prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMassAPI"]
@@ -78,8 +96,10 @@ def Xform "RobotHead" () {
 ```usd
 #usda 1.0
 
-def Xform "RobotHead" () {
+def Xform "RobotHead" (
    prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+)
+{
 
    def Cube "Jaw" (
       prepend apiSchemas = ["PhysicsCollisionAPI", "PhysicsMassAPI"]
@@ -98,8 +118,10 @@ def Xform "RobotHead" () {
 ```usd
 #usda 1.0
 
-def Xform "RobotBody" () {
+def Xform "RobotBody" (
    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
 
    float physics:mass = 2.32712
    point3f physics:centerOfMass = (-0.00160396, 0.0292536, -0.0972966)
@@ -117,6 +139,140 @@ def Xform "RobotBody" () {
    )
    {
    }
+}
+```
+
+### Invalid: Mass API on a prim that is neither a rigid body nor a collider
+
+```usd
+#usda 1.0
+
+def Xform "Xform" (
+    prepend apiSchemas = ["PhysicsMassAPI"]
+)
+{
+}
+```
+
+### Invalid: Negative mass
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    float physics:mass = -5
+}
+```
+
+### Invalid: Negative density
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    float physics:density = -10
+}
+```
+
+### Invalid: Principal axes without diagonal inertia
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (1, 0, 0, 0)
+}
+```
+
+### Invalid: Diagonal inertia without principal axes
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    float3 physics:diagonalInertia = (1, 2, 3)
+}
+```
+
+### Invalid: Fallback principal axes with diagonal inertia
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (0, 0, 0, 0)
+    float3 physics:diagonalInertia = (1, 2, 3)
+}
+```
+
+### Invalid: Principal axes with fallback diagonal inertia
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (1, 0, 0, 0)
+    float3 physics:diagonalInertia = (0, 0, 0)
+}
+```
+
+### Invalid: Principal axes that are not a unit quaternion
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (2, 0, 0, 0)
+    float3 physics:diagonalInertia = (1, 2, 3)
+}
+```
+
+### Invalid: Negative diagonal inertia
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (1, 0, 0, 0)
+    float3 physics:diagonalInertia = (-1, 2, 3)
+}
+```
+
+### Invalid: Zero diagonal inertia
+
+```usd
+#usda 1.0
+
+def Xform "RigidBody" (
+    prepend apiSchemas = ["PhysicsRigidBodyAPI", "PhysicsMassAPI"]
+)
+{
+    quatf physics:principalAxes = (1, 0, 0, 0)
+    float3 physics:diagonalInertia = (0, 2, 3)
 }
 ```
 

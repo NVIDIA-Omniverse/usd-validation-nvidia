@@ -14,9 +14,13 @@ from functools import singledispatch
 from pathlib import Path
 from types import ModuleType, TracebackType
 
-from ._base_rule_checker import BaseRuleChecker
-from ._categories import CategoryRuleRegistry, unregister_rule
-from ._requirements import RequirementsRegistry, unregister_requirements
+from .registries import (
+    CategoryRuleRegistry,
+    RequirementsRegistry,
+    unregister_requirements,
+    unregister_rule,
+)
+from .rules import BaseRuleChecker
 from .utils import singleton
 
 __all__ = [

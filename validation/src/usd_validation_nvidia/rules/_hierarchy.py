@@ -12,9 +12,9 @@ ensuring proper organization and structure of the prim hierarchy.
 import usd_validation_nvidia.capabilities as cap
 from pxr import Usd, UsdGeom, UsdShade
 
-from .._base_rule_checker import BaseRuleChecker
 from .._issues import Suggestion
-from .._requirements import register_requirements
+from ..registries import register_requirements
+from ._base import BaseRuleChecker
 
 
 @register_requirements(cap.Requirements.HI_001)

@@ -4,16 +4,21 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterator
 from dataclasses import dataclass
+from math import sqrt
 from typing import Any
 
 from usd_profiles_nvidia.api import (
     Capability,
     Example,
+    ExampleResult,
+    ExampleSnippet,
     Feature,
     FeatureRef,
     Parameter,
+    ParameterType,
     Profile,
     ProfileFeature,
     Requirement,
@@ -39,6 +44,58 @@ def _namespaced_id(identifier: str, namespace: str) -> str:
 def _strip_namespace(identifier: str, namespace: str) -> str:
     prefix = f"{namespace.rstrip('.')}."
     return identifier.removeprefix(prefix) if namespace and identifier.startswith(prefix) else identifier
+
+
+@dataclass(frozen=True)
+class PyParameter:
+    parameter: Parameter
+
+    @property
+    def display_name(self) -> str:
+        return self.parameter.display_name
+
+    @property
+    def type(self) -> ParameterType:
+        return self.parameter.type
+
+    @property
+    def assigned_value(self) -> int | bool | float | str | None:
+        return self.parameter.assigned_value
+
+    @property
+    def enum_values(self) -> tuple[str, ...] | None:
+        return self.parameter.enum_values
+
+    @property
+    def enum_name(self) -> str:
+        return Naming.enum_name(self.display_name)
+
+
+@dataclass(frozen=True)
+class PyExample:
+    example: Example
+
+    @property
+    def snippet(self) -> ExampleSnippet:
+        return self.example.snippet
+
+    @property
+    def display_name(self) -> str:
+        return self.example.display_name
+
+    @property
+    def result(self) -> ExampleResult:
+        return self.example.result
+
+    @property
+    def enum_name(self) -> str:
+        suffix = "_OK" if self.result is ExampleResult.SUCCESS else "_NOK"
+        return Naming.enum_name(self.display_name) + suffix
+
+    @property
+    def filename(self) -> str:
+        digest = hashlib.sha256(self.snippet.content.encode("utf-8")).hexdigest()[:12]
+        return f"{digest}.{self.snippet.language.value}"
 
 
 @dataclass(frozen=True)
@@ -80,12 +137,12 @@ class PyRequirement:
         return self.requirement.tags
 
     @property
-    def parameters(self) -> tuple[Parameter, ...]:
-        return tuple(self.requirement.parameters)
+    def parameters(self) -> tuple[PyParameter, ...]:
+        return tuple(PyParameter(parameter) for parameter in self.requirement.parameters)
 
     @property
-    def examples(self) -> tuple[Example, ...]:
-        return tuple(self.requirement.examples)
+    def examples(self) -> tuple[PyExample, ...]:
+        return tuple(PyExample(example) for example in self.requirement.examples)
 
     @property
     def namespaced_id(self) -> str:
@@ -342,6 +399,43 @@ class PyProfileStore:
 
 
 @dataclass(frozen=True)
+class PyParameterStore:
+    store: ParameterStore
+
+    def __iter__(self) -> Iterator[PyParameter]:
+        return (PyParameter(parameter) for parameter in self.store)
+
+    def __len__(self) -> int:
+        return len(self.store)
+
+
+@dataclass(frozen=True)
+class PyExampleStore:
+    store: ExampleStore
+
+    def __iter__(self) -> Iterator[PyExample]:
+        examples: dict[str, PyExample] = {}
+        for example in self.store:
+            py_example = PyExample(example)
+            if existing := examples.get(py_example.enum_name):
+                if existing.example != example:
+                    raise ValueError(f"Example with name {py_example.enum_name} already exists")
+                continue
+            examples[py_example.enum_name] = py_example
+            yield py_example
+
+    def __len__(self) -> int:
+        return len(self.store)
+
+    def partition(self) -> Iterator[tuple[str, PyExample]]:
+        partition_size = max(1, int(sqrt(len(self.store))))
+        examples = list(self)
+        for partition_index, start_index in enumerate(range(0, len(examples), partition_size)):
+            for example in examples[start_index : start_index + partition_size]:
+                yield (f"{partition_index:02x}", example)
+
+
+@dataclass(frozen=True)
 class PythonStoreView:
     store: SpecificationsStore
     namespace: str = ""
@@ -363,9 +457,9 @@ class PythonStoreView:
         return PyFeatureStore(self.store.features, self.namespace)
 
     @property
-    def parameters(self) -> ParameterStore:
-        return self.store.parameters
+    def parameters(self) -> PyParameterStore:
+        return PyParameterStore(self.store.parameters)
 
     @property
-    def examples(self) -> ExampleStore:
-        return self.store.examples
+    def examples(self) -> PyExampleStore:
+        return PyExampleStore(self.store.examples)

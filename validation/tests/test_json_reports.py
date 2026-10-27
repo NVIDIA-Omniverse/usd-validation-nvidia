@@ -7,7 +7,7 @@ import os
 import pathlib
 import unittest
 from tempfile import TemporaryDirectory
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 from common import get_url
 from usd_validation_nvidia import (
@@ -25,7 +25,9 @@ from usd_validation_nvidia import (
     ValidationContext,
     export_json_file,
 )
-from usd_validation_nvidia.capabilities import Requirement as CapRequirement
+from usd_validation_nvidia.capabilities import Feature as FeatureDTO
+from usd_validation_nvidia.capabilities import Profile as ProfileDTO
+from usd_validation_nvidia.capabilities import Requirement as RequirementDTO
 
 
 class MyRuleChecker(BaseRuleChecker):
@@ -141,26 +143,20 @@ class IssueJSONEncoderTest(unittest.TestCase):
 
     def test_issue_json_tree_metadata(self):
         """JSON output includes tree-structured metadata with pass/fail when provided"""
-        mock_req = Mock()
-        mock_req.code = "VG.001"
-        mock_req.version = "1.0.0"
-        mock_feature = Mock()
-        mock_feature.id = "FET001"
-        mock_feature.version = "1.0.0"
-        mock_profile = Mock()
-        mock_profile.id = "Robot-Body-Isaac"
-        mock_profile.version = "1.0.0"
+        requirement = RequirementDTO(code="VG.001", version="1.0.0")
+        feature = FeatureDTO(id="FET001", version="1.0.0", path="")
+        profile = ProfileDTO(id="Robot-Body-Isaac", version="1.0.0", path="")
 
         metadata = ValidationContext(
             profiles=[
                 ProfileStatus(
-                    profile=mock_profile,
+                    profile=profile,
                     status="FAIL",
                     features=[
                         FeatureStatus(
-                            feature=mock_feature,
+                            feature=feature,
                             status="PASS",
-                            requirements=[RequirementStatus(requirement=mock_req, status="PASS")],
+                            requirements=[RequirementStatus(requirement=requirement, status="PASS")],
                         )
                     ],
                 )
@@ -205,19 +201,15 @@ class IssueJSONEncoderTest(unittest.TestCase):
 
     def test_export_json_file_with_tree_metadata(self):
         """export_json_file includes tree-structured metadata when provided"""
-        mock_req = Mock()
-        mock_req.code = "VG.001"
-        mock_req.version = "1.0.0"
-        mock_feature = Mock()
-        mock_feature.id = "FET001"
-        mock_feature.version = "1.0.0"
+        requirement = RequirementDTO(code="VG.001", version="1.0.0")
+        feature = FeatureDTO(id="FET001", version="1.0.0", path="")
 
         metadata = ValidationContext(
             features=[
                 FeatureStatus(
-                    feature=mock_feature,
+                    feature=feature,
                     status="PASS",
-                    requirements=[RequirementStatus(requirement=mock_req, status="PASS")],
+                    requirements=[RequirementStatus(requirement=requirement, status="PASS")],
                 )
             ]
         )
@@ -252,7 +244,7 @@ class IssueJSONEncoderTest(unittest.TestCase):
 
     def test_issue_json_with_requirement(self):
         """JSON output includes requirement info when present on an issue"""
-        req = CapRequirement(code="VG.001", version="1.0.0")
+        req = RequirementDTO(code="VG.001", version="1.0.0")
         issue = Issue(
             severity=IssueSeverity.FAILURE,
             message="failure with requirement",

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from functools import cached_property, total_ordering
 from typing import Generic, TypeVar
 
-from .utils import EventListener, EventStream, SemVer, create_event_stream
+from ..utils import EventListener, EventStream, SemVer, create_event_stream
 
 K = TypeVar("K")
 V = TypeVar("V")

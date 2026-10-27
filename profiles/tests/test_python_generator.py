@@ -10,6 +10,8 @@ import unittest
 from contextlib import contextmanager
 from tempfile import TemporaryDirectory
 
+from usd_profiles_nvidia import PythonGenerator
+
 
 @contextmanager
 def import_generated_module(root_dir: str, module_name: str):
@@ -24,6 +26,13 @@ def import_generated_module(root_dir: str, module_name: str):
 
 
 class TestPythonGenerator(unittest.TestCase):
+    def test_generator_is_available_from_top_level_package(self):
+        from usd_profiles_nvidia.codegen import (
+            PythonGenerator as CodegenPythonGenerator,
+        )
+
+        self.assertIs(PythonGenerator, CodegenPythonGenerator)
+
     def assert_files(self, output_dir: str, destination_dir: str) -> None:
         self.assertTrue(os.path.exists(output_dir))
         self.assertTrue(os.path.exists(os.path.join(output_dir, "__init__.py")))
@@ -153,6 +162,7 @@ class TestPythonGenerator(unittest.TestCase):
                 self.assertEqual(invalid_example.display_name, "Scattered Xforms without common root")
                 self.assertEqual(valid_example.display_name, "All Xforms under single root")
                 self.assertEqual(invalid_example.result, profile_examples.ExampleResult.FAILURE)
+                self.assertTrue(invalid_example.snippet.path.startswith("resources/examples/"))
                 self.assertTrue(invalid_example.snippet.content)
                 self.assertEqual(
                     profile_examples.Requirements.HI_001_V1_0_0.examples,

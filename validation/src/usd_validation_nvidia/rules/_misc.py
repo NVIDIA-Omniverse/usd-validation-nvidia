@@ -4,9 +4,9 @@
 
 from pxr import Usd, UsdGeom, UsdLux, UsdShade, UsdSkel
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
 from .._issues import Suggestion
+from ..registries import register_rule
+from ._base import BaseRuleChecker
 from ._usd_validator_adapter import UsdValidatorAdapter
 
 __all__ = [

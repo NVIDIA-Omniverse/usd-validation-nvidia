@@ -34,12 +34,14 @@ def Material "mtl_cube"
 {
     def Shader "PreviewSurfaceTexture"
     {
+        uniform token info:id = "UsdPreviewSurface"
         # Invalid: 'specular' connection not in specification
         float inputs:specular.connect = </World/Looks/mtl_cube/SpecularTex.outputs:r>
     }
 
     def Shader "diffuseColorTex"
     {
+        uniform token info:id = "UsdUVTexture"
         # Invalid: 'bad' not in allowed tokens ['raw', 'sRGB', 'auto']
         uniform token inputs:sourceColorSpace = "bad"
     }
@@ -55,12 +57,14 @@ def Material "mtl_sphere"
 {
     def Shader "Shader"
     {
+        uniform token info:id = "UsdPreviewSurface"
         # Invalid: Wrong type (color3f instead of float)
         color3f inputs:metallic = (0.5, 0.5, 0.5)
     }
 
     def Shader "roughnessTex"
     {
+        uniform token info:id = "UsdUVTexture"
         # Invalid: Token attribute should not have time samples
         uniform token inputs:wrapT.timeSamples = {
             0: "invalid_wrap",
@@ -107,6 +111,107 @@ def Material "mtl_cube"
             allowedTokens = ["black", "clamp", "repeat", "mirror", "useMetadata"]
         )
         float2 inputs:st.connect = </World/Looks/mtl_cube/st.outputs:result>
+        float3 outputs:rgb
+    }
+}
+```
+
+### Invalid: Connection to a parameter that is not in the specification
+
+```usd
+#usda 1.0
+
+def Material "mtl_cube"
+{
+    token outputs:surface.connect = </mtl_cube/PreviewSurface.outputs:surface>
+
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        # Invalid: 'specular' cannot be connected
+        float inputs:specular.connect = </mtl_cube/roughnessTex.outputs:r>
+        token outputs:surface
+    }
+
+    def Shader "roughnessTex"
+    {
+        uniform token info:id = "UsdUVTexture"
+        float outputs:r
+    }
+}
+```
+
+### Invalid: Time-sampled token
+
+```usd
+#usda 1.0
+
+def Material "mtl_cube"
+{
+    def Shader "roughnessTex"
+    {
+        uniform token info:id = "UsdUVTexture"
+        # Invalid: Token values must not be time-sampled
+        token inputs:wrapT.timeSamples = {
+            0: "invalid_wrap",
+            1: "another_invalid",
+        }
+        float outputs:r
+    }
+}
+```
+
+### Invalid: Wrong input type
+
+```usd
+#usda 1.0
+
+def Material "mtl_cube"
+{
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        # Invalid: 'metallic' is a float
+        color3f inputs:metallic = (0.5, 0.5, 0.5)
+        token outputs:surface
+    }
+}
+```
+
+### Invalid: Wrong type of a connected input
+
+```usd
+#usda 1.0
+
+def Material "mtl_cube"
+{
+    def Shader "PreviewSurface"
+    {
+        uniform token info:id = "UsdPreviewSurface"
+        # Invalid: 'diffuseColor' is a color3f
+        float3 inputs:diffuseColor.connect = </mtl_cube/diffuseColorTex.outputs:rgb>
+        token outputs:surface
+    }
+
+    def Shader "diffuseColorTex"
+    {
+        uniform token info:id = "UsdUVTexture"
+        float3 outputs:rgb
+    }
+}
+```
+
+### Invalid: Wrong output type
+
+```usd
+#usda 1.0
+
+def Material "mtl_cube"
+{
+    def Shader "diffuseColorTex"
+    {
+        uniform token info:id = "UsdUVTexture"
+        # Invalid: the 'rgb' output is a float3
         color3f outputs:rgb
     }
 }

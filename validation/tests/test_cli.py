@@ -54,6 +54,7 @@ class ValidationParserTest(unittest.TestCase):
         self.assertIn("--fix", stdout)
         self.assertIn("--stamp", stdout)
         self.assertIn("--predicate", stdout)
+        self.assertIn("--exit-zero", stdout)
         self.assertIn("--verbose", stdout)
         self.assertIn("--variants", stdout)
         self.assertIn("--instance-prototypes", stdout)
@@ -121,8 +122,19 @@ class ValidationParserTest(unittest.TestCase):
         self.assertEqual(args.process, 0)
         self.assertEqual(args.verbose, 0)
         self.assertEqual(args.predicate, None)
+        self.assertEqual(args.exit_zero, False)
         self.assertEqual(args.requirement, [])
         self.assertEqual(args.capability, [])
+
+    def test_exit_zero(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["--exit-zero", "asset.usda"])
+        self.assertEqual(args.exit_zero, True)
+
+    def test_no_exit_zero(self):
+        parser = create_validation_parser()
+        args = parser.parse_args(["--no-exit-zero", "asset.usda"])
+        self.assertEqual(args.exit_zero, False)
 
     def test_verbose(self):
         parser = create_validation_parser()
@@ -793,6 +805,11 @@ class ValidationArgsTest(unittest.TestCase):
             successful: bool = args.run_validation()
             self.assertFalse(successful)
 
+        with redirect_stdout(io.StringIO()), self.assertLogs(level="ERROR"):
+            args = ValidationArgsExec(parser.parse_args(["--exit-zero", "--rule", "TypeChecker", url]))
+            successful = args.run_validation()
+            self.assertTrue(successful)
+
     def test_cli_main_exit_codes(self):
         url = get_url("helloworld.usda")
         with redirect_stdout(io.StringIO()):
@@ -804,6 +821,9 @@ class ValidationArgsTest(unittest.TestCase):
             with self.assertRaises(SystemExit) as cm:
                 cli_main(["--rule", "TypeChecker", url])
             self.assertEqual(cm.exception.code, 1)
+
+        with redirect_stdout(io.StringIO()), self.assertLogs(level="ERROR"):
+            cli_main(["--exit-zero", "--rule", "TypeChecker", url])
 
     def test_cli(self):
         result = subprocess.run(
@@ -821,6 +841,7 @@ class ValidationArgsTest(unittest.TestCase):
         self.assertIn("--rule", stdout)
         self.assertIn("--fix", stdout)
         self.assertIn("--predicate", stdout)
+        self.assertIn("--exit-zero", stdout)
         self.assertIn("--verbose", stdout)
         self.assertIn("--variants", stdout)
         self.assertIn("--instance-prototypes", stdout)
@@ -941,7 +962,7 @@ importlib.metadata.distribution = distribution
         with TemporaryDirectory() as tmp:
             tmp_path = pathlib.Path(tmp) / "missing.usda"
             result = subprocess.run(
-                [sys.executable, "-m", "usd_validation_nvidia", str(tmp_path)],
+                [sys.executable, "-m", "usd_validation_nvidia", "--exit-zero", str(tmp_path)],
                 capture_output=True,
                 text=True,
                 timeout=30,

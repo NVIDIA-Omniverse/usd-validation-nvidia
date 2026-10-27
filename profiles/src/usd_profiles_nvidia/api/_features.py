@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from ._parameters import Parameter
 from ._requirements import Requirement, RequirementRef
 
 
@@ -33,6 +34,7 @@ class Feature:
         path: The path to the feature.
         requirements: The requirements of the feature.
         dependencies: Other features this feature depends on.
+        parameters: Parameters of the feature.
         custom_data: Additional authored fields that are not part of the core feature schema.
     """
 
@@ -41,4 +43,5 @@ class Feature:
     path: str
     requirements: list[Requirement | RequirementRef] = field(default_factory=list)
     dependencies: list[Feature | FeatureRef] = field(default_factory=list)
+    parameters: tuple[Parameter, ...] = ()
     custom_data: dict[str, Any] = field(default_factory=dict)

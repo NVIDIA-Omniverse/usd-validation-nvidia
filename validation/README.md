@@ -92,6 +92,9 @@ fixer.save()
 
 The `ValidationEngine` also supports selecting specific rules with `enable_rule()` / `disable_rule()`.
 To filter by category in Python, enable the rules returned by `CategoryRuleRegistry().get_rules(category)`.
+`ValidationEngine` also supports async validation, and rule `Check*` callbacks may be declared
+`async def`; see
+[Running rules asynchronously](https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/authoring.html#running-rules-asynchronously).
 
 ## Command Line Interface
 
@@ -119,6 +122,18 @@ nvidia_usd_validate --csv-output results.csv asset.usda
 # Show help
 nvidia_usd_validate --help
 ```
+
+### Exit codes
+
+By default, `nvidia_usd_validate` exits with the following status codes:
+
+- `0` when validation completes without issues.
+- `1` when validation issues are found or a requested report cannot be written.
+- `2` when command-line arguments are invalid.
+
+`--exit-zero` causes validation issues to exit with a status code of `0`. Execution errors and report-write failures
+still exit with a status code of `1`, while invalid command-line arguments still exit with a status code of `2`.
+Use `--no-exit-zero` to explicitly retain the default behavior.
 
 ## Documentation
 

@@ -9,8 +9,8 @@ from collections import defaultdict
 
 from pxr import Sdf, Usd
 
-from .._base_rule_checker import BaseRuleChecker
-from .._categories import register_rule
+from ..registries import register_rule
+from ._base import BaseRuleChecker
 
 
 @register_rule("Other")

@@ -6,7 +6,7 @@
 from example_requirements import Requirements
 from pxr import Usd
 from usd_validation_nvidia import (
-    BaseRuleChecker,
+    BaseRule,
     register_requirements,
     register_rule,
     unregister_requirements,
@@ -19,7 +19,7 @@ EXAMPLE_DEFAULT_PRIM = Requirements.EXAMPLE_001
 
 
 # [snippet:custom-rule]
-class ExampleDefaultPrimRequirementChecker(BaseRuleChecker):
+class ExampleDefaultPrimRequirementChecker(BaseRule):
     """Require the stage to define a valid default prim."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:

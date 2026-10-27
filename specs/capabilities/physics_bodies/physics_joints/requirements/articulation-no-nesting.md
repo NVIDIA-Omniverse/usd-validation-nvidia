@@ -37,6 +37,25 @@ def Xform "Xform" (
 }
 ```
 
+### Invalid: Nested articulation root through an intermediate prim
+
+```usd
+#usda 1.0
+
+def Xform "Xform" (
+   prepend apiSchemas = ["PhysicsArticulationRootAPI"]
+)
+{
+   def Xform "Intermediate"
+   {
+      def Xform "Xform" (
+         prepend apiSchemas = ["PhysicsArticulationRootAPI"]
+      ) {
+      }
+   }
+}
+```
+
 ### Valid: Non-nested articulation root
 
 ```usd

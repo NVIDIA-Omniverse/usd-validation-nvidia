@@ -10,10 +10,10 @@ import shutil
 from dataclasses import dataclass
 from functools import cache
 
-from usd_profiles_nvidia import SpecificationsLoader
 from usd_profiles_nvidia.graph import CapabilityGraphBuilder
 from usd_profiles_nvidia.json import JsonSerialize
 from usd_profiles_nvidia.model import Specifications
+from usd_profiles_nvidia.specs import SpecificationsLoader
 from usd_profiles_nvidia.store import SpecificationsStore
 
 from ._py_model import PythonStoreView
@@ -112,13 +112,13 @@ class PythonGenerator:
         destination_file: str = os.path.join(self.python_output_dir, "_protocols.py")
         shutil.copy2(source_file, destination_file)
 
-    def _generate_example_files(self, store: SpecificationsStore) -> None:
+    def _generate_example_files(self, store: PythonStoreView) -> None:
         examples_dir: str = os.path.join(self.python_output_dir, "resources", "examples")
         shutil.rmtree(examples_dir, ignore_errors=True)
         os.makedirs(examples_dir, exist_ok=True)
 
         for partition, example in store.examples.partition():
-            filename: str = example.snippet.filename
+            filename: str = example.filename
             filepath: str = os.path.join(examples_dir, partition, filename)
             os.makedirs(os.path.join(examples_dir, partition), exist_ok=True)
             with open(filepath, "w", encoding="utf-8") as f:
@@ -159,5 +159,5 @@ class PythonGenerator:
         self._generate_module("_features", py_store)
         self._generate_module("_examples", py_store)
         self._generate_protocols()
-        self._generate_example_files(store)
+        self._generate_example_files(py_store)
         self._generate_capability_graph_json(specifications)

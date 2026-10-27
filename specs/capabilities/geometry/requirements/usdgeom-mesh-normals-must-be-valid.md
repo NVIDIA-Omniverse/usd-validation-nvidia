@@ -27,6 +27,85 @@ Mesh normals need to follow a set of conventions to produce correct shading resu
 
 ## Examples
 
+### Valid: Unit normals with each interpolation
+
+```usd
+#usda 1.0
+
+def Mesh "VertexNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "IndexedFaceVaryingNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] primvars:normals = [(0, 0, 1), (1, 0, 0)] (
+        interpolation = "faceVarying"
+    )
+    int[] primvars:normals:indices = [0, 0, 1, 1]
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "UniformNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1)] (
+        interpolation = "uniform"
+    )
+    uniform token subdivisionScheme = "none"
+}
+
+def Mesh "ConstantNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] primvars:normals = [(0, 0, 1)] (
+        interpolation = "constant"
+    )
+    uniform token subdivisionScheme = "none"
+}
+```
+
+### Valid: Mesh without normals
+
+```usd
+#usda 1.0
+
+def Mesh "QuadWithoutNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    uniform token subdivisionScheme = "none"
+}
+```
+
+### Valid: Subdivision mesh without normals
+
+```usd
+#usda 1.0
+
+def Mesh "SubdivisionQuad"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    uniform token subdivisionScheme = "catmullClark"
+}
+```
+
 ### Invalid: Triangle with inconsistent winding order and normals
 
 ```usd
@@ -56,6 +135,92 @@ def Mesh "ConsistentWindingOrder"
     # Normal is set explicitly to point in the -Z direction
     normal3f[] normals = [(0, 0, 1)]
     uniform token normalsInterpolation = "faceVarying"
+}
+```
+
+### Invalid: Normals with non-finite components
+
+```usd
+#usda 1.0
+
+def Mesh "QuadWithNonFiniteNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (inf, 0, 1), (0, nan, nan), (0, 0, inf)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "none"
+}
+```
+
+### Invalid: Normals that are not unit length
+
+```usd
+#usda 1.0
+
+def Mesh "QuadWithNonUnitNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (1, 0, 1), (0, 1, 2), (0, 0, 177)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "none"
+}
+```
+
+### Invalid: Number of normals that does not match the interpolation
+
+```usd
+#usda 1.0
+
+def Mesh "QuadWithMissingNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    # Face-varying interpolation requires one normal per face corner
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "faceVarying"
+    )
+    uniform token subdivisionScheme = "none"
+}
+```
+
+### Invalid: Normals on a subdivision mesh
+
+```usd
+#usda 1.0
+
+def Mesh "SubdivisionQuadWithNormals"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "vertex"
+    )
+    uniform token subdivisionScheme = "catmullClark"
+}
+```
+
+### Invalid: Normals on a mesh without a subdivision scheme
+
+```usd
+#usda 1.0
+
+def Mesh "QuadWithNormalsAndNoScheme"
+{
+    int[] faceVertexCounts = [4]
+    int[] faceVertexIndices = [0, 1, 2, 3]
+    point3f[] points = [(0, 0, 0), (1, 0, 0), (1, 1, 0), (0, 1, 0)]
+    # The subdivision scheme is not authored, so it is catmullClark
+    normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+        interpolation = "vertex"
+    )
 }
 ```
 
