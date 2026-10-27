@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -592,11 +592,260 @@
                   
   <section id="python-api">
 <h1>Python API<a class="headerlink" href="#python-api" title="Link to this heading">#</a></h1>
-<section id="usd-profiles-nvidia-module">
-<h2><cite>usd_profiles_nvidia</cite> Module<a class="headerlink" href="#usd-profiles-nvidia-module" title="Link to this heading">#</a></h2>
+<section id="module-usd_profiles_nvidia">
+<span id="usd-profiles-nvidia-api"></span><h2><cite>usd_profiles_nvidia</cite> API<a class="headerlink" href="#module-usd_profiles_nvidia" title="Link to this heading">#</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="usd_profiles_nvidia.codegen.PythonGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.codegen.</span></span><span class="sig-name descname"><span class="pre">PythonGenerator</span></span><a class="headerlink" href="#usd_profiles_nvidia.codegen.PythonGenerator" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">CapabilityGraph</span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph" title="Link to this definition">#</a></dt>
+<dd><p>Capability DAG DTO with query methods.</p>
+<p>Load from <code class="docutils literal notranslate"><span class="pre">capabilities.json</span></code> data or files, then query predecessors,
+validators, requirements, and profiles.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.filter_by_namespace">
+<span class="sig-name descname"><span class="pre">filter_by_namespace</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">include_predecessors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.filter_by_namespace" title="Link to this definition">#</a></dt>
+<dd><p>Return capability ids matching the given namespace prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prefix</strong> – Dot-separated prefix (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;com.nvidia.simready&quot;</span></code>).</p></li>
+<li><p><strong>include_predecessors</strong> – If True, also include transitive
+predecessors of matching capabilities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sorted list of matching capability ids.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_all_capabilities">
+<span class="sig-name descname"><span class="pre">get_all_capabilities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_all_capabilities" title="Link to this definition">#</a></dt>
+<dd><p>Return all registered capability ids, sorted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_all_profiles">
+<span class="sig-name descname"><span class="pre">get_all_profiles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_all_profiles" title="Link to this definition">#</a></dt>
+<dd><p>Return all registered profile ids, sorted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_all_requirements">
+<span class="sig-name descname"><span class="pre">get_all_requirements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Requirement</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_all_requirements" title="Link to this definition">#</a></dt>
+<dd><p>Return all requirements across all nodes, deduplicated by code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of requirements, sorted by code.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_all_validators_for_capability">
+<span class="sig-name descname"><span class="pre">get_all_validators_for_capability</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_all_validators_for_capability" title="Link to this definition">#</a></dt>
+<dd><p>Return all validators for <em>id</em> and its transitive predecessors.
+Duplicates are removed (first occurrence wins).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_docstring">
+<span class="sig-name descname"><span class="pre">get_docstring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_docstring" title="Link to this definition">#</a></dt>
+<dd><p>Return the docstring for <em>id</em>, or empty string if unknown.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_domain">
+<span class="sig-name descname"><span class="pre">get_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_domain" title="Link to this definition">#</a></dt>
+<dd><p>Return the domain for <em>id</em>, or empty string if unknown.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_kind">
+<span class="sig-name descname"><span class="pre">get_kind</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_kind" title="Link to this definition">#</a></dt>
+<dd><p>Return the <code class="docutils literal notranslate"><span class="pre">kind</span></code> tag for <em>id</em>, or empty string if unknown.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_predecessors">
+<span class="sig-name descname"><span class="pre">get_predecessors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_predecessors" title="Link to this definition">#</a></dt>
+<dd><p>Return the direct predecessors of <em>id</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_requirement">
+<span class="sig-name descname"><span class="pre">get_requirement</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Requirement</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_requirement" title="Link to this definition">#</a></dt>
+<dd><p>Find a requirement by code across all nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>code</strong> – Requirement code (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;HI.004&quot;</span></code>).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requirement if found, else <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_requirements">
+<span class="sig-name descname"><span class="pre">get_requirements</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Requirement</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_requirements" title="Link to this definition">#</a></dt>
+<dd><p>Return all requirements declared directly on node <em>id</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> – Capability/feature/profile node id.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of requirements (empty for nodes without requirements).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_transitive_predecessors">
+<span class="sig-name descname"><span class="pre">get_transitive_predecessors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_transitive_predecessors" title="Link to this definition">#</a></dt>
+<dd><p>Return all transitive predecessors of <em>id</em> (BFS), not including
+<em>id</em> itself.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.get_validators">
+<span class="sig-name descname"><span class="pre">get_validators</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.get_validators" title="Link to this definition">#</a></dt>
+<dd><p>Return validators declared directly on <em>id</em>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.is_capability">
+<span class="sig-name descname"><span class="pre">is_capability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.is_capability" title="Link to this definition">#</a></dt>
+<dd><p>Return True if <em>id</em> is a registered capability.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.is_profile">
+<span class="sig-name descname"><span class="pre">is_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.is_profile" title="Link to this definition">#</a></dt>
+<dd><p>Return True if <em>id</em> is a registered profile.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.load_from_dict">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_dict</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#usd_profiles_nvidia.CapabilityGraph" title="usd_profiles_nvidia.graph._graph.CapabilityGraph"><span class="pre">CapabilityGraph</span></a></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.load_from_dict" title="Link to this definition">#</a></dt>
+<dd><p>Create a graph from a parsed JSON dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – Dict matching the <code class="docutils literal notranslate"><span class="pre">capabilities.json</span></code> schema.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.load_from_json">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_from_json</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#usd_profiles_nvidia.CapabilityGraph" title="usd_profiles_nvidia.graph._graph.CapabilityGraph"><span class="pre">CapabilityGraph</span></a></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.load_from_json" title="Link to this definition">#</a></dt>
+<dd><p>Create a graph from a <code class="docutils literal notranslate"><span class="pre">capabilities.json</span></code> file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> – Path to the JSON file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.merge">
+<span class="sig-name descname"><span class="pre">merge</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#usd_profiles_nvidia.CapabilityGraph" title="usd_profiles_nvidia.graph._graph.CapabilityGraph"><span class="pre">CapabilityGraph</span></a></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.merge" title="Link to this definition">#</a></dt>
+<dd><p>Merge another graph into this one. Duplicate node ids are skipped
+with a warning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>other</strong> – Graph to merge from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.CapabilityGraph.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_profiles_nvidia.CapabilityGraph.to_json" title="Link to this definition">#</a></dt>
+<dd><p>Write the graph to a <code class="docutils literal notranslate"><span class="pre">capabilities.json</span></code> file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.LoadedSpecifications">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">LoadedSpecifications</span></span><a class="headerlink" href="#usd_profiles_nvidia.LoadedSpecifications" title="Link to this definition">#</a></dt>
+<dd><p>Specifications loaded from authored descriptor files.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.LoadedSpecifications.requirements">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requirements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Requirement</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RequirementRef</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_profiles_nvidia.LoadedSpecifications.requirements" title="Link to this definition">#</a></dt>
+<dd><p>Return requirements and lazy references authored by loaded capabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.LoadedSpecifications.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_profiles_nvidia.SpecificationProblem" title="usd_profiles_nvidia.specs._types.SpecificationProblem"><span class="pre">SpecificationProblem</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_profiles_nvidia.LoadedSpecifications.validate" title="Link to this definition">#</a></dt>
+<dd><p>Return local structural problems without resolving references or mutating loaded objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.LoadedSpecificationsProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">LoadedSpecificationsProtocol</span></span><a class="headerlink" href="#usd_profiles_nvidia.LoadedSpecificationsProtocol" title="Link to this definition">#</a></dt>
+<dd><p>Runtime-checkable interface for one loaded specification result.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.PythonGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">PythonGenerator</span></span><a class="headerlink" href="#usd_profiles_nvidia.PythonGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Python code generator for USD Profiles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -612,6 +861,68 @@ If provided, capabilities_root, profiles_root, and features_root are derived fro
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationKind">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationKind</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationKind" title="Link to this definition">#</a></dt>
+<dd><p>Kinds of authored specifications represented in diagnostics.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationProblem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationProblem</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationProblem" title="Link to this definition">#</a></dt>
+<dd><p>A non-mutating structural diagnostic for loaded specifications.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationProblemKind">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationProblemKind</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationProblemKind" title="Link to this definition">#</a></dt>
+<dd><p>Kinds of structural problems in one loaded specification result.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationProblemSeverity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationProblemSeverity</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationProblemSeverity" title="Link to this definition">#</a></dt>
+<dd><p>Severity of a loaded specification problem.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationRef</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationRef" title="Link to this definition">#</a></dt>
+<dd><p>Stable identifying details for a specification involved in a problem.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationsLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">SpecificationsLoader</span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationsLoader" title="Link to this definition">#</a></dt>
+<dd><p>Load authored specification descriptors into public API DTOs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>root_dir</strong> – Root directory containing capabilities, profiles, and features.</p></li>
+<li><p><strong>capabilities_root</strong> – Directory containing authored capabilities.</p></li>
+<li><p><strong>profiles_root</strong> – Directory containing authored profiles.</p></li>
+<li><p><strong>features_root</strong> – Directory containing authored features.</p></li>
+<li><p><strong>features_roots</strong> – Additional feature descriptor files and/or directories.</p></li>
+<li><p><strong>profiles_roots</strong> – Additional profile descriptor files and/or directories.</p></li>
+<li><p><strong>reverse_domain</strong> – Prefix added to unqualified requirement references, profile IDs,
+and profile feature references after parsing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.SpecificationsLoader.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#usd_profiles_nvidia.LoadedSpecifications" title="usd_profiles_nvidia.specs._loader.LoadedSpecifications"><span class="pre">LoadedSpecifications</span></a></span></span><a class="headerlink" href="#usd_profiles_nvidia.SpecificationsLoader.load" title="Link to this definition">#</a></dt>
+<dd><p>Load configured specifications without resolving their references.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="usd_profiles_nvidia.get_version">
+<span class="sig-prename descclassname"><span class="pre">usd_profiles_nvidia.</span></span><span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_profiles_nvidia.get_version" title="Link to this definition">#</a></dt>
+<dd><p>Returns the version of this module.</p>
 </dd></dl>
 
 </section>
@@ -666,8 +977,46 @@ If provided, capabilities_root, profiles_root, and features_root are derived fro
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd-profiles-nvidia-module"><cite>usd_profiles_nvidia</cite> Module</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.codegen.PythonGenerator"><code class="docutils literal notranslate"><span class="pre">PythonGenerator</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-usd_profiles_nvidia"><cite>usd_profiles_nvidia</cite> API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph"><code class="docutils literal notranslate"><span class="pre">CapabilityGraph</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.filter_by_namespace"><code class="docutils literal notranslate"><span class="pre">filter_by_namespace()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_all_capabilities"><code class="docutils literal notranslate"><span class="pre">get_all_capabilities()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_all_profiles"><code class="docutils literal notranslate"><span class="pre">get_all_profiles()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_all_requirements"><code class="docutils literal notranslate"><span class="pre">get_all_requirements()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_all_validators_for_capability"><code class="docutils literal notranslate"><span class="pre">get_all_validators_for_capability()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_docstring"><code class="docutils literal notranslate"><span class="pre">get_docstring()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_domain"><code class="docutils literal notranslate"><span class="pre">get_domain()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_kind"><code class="docutils literal notranslate"><span class="pre">get_kind()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_predecessors"><code class="docutils literal notranslate"><span class="pre">get_predecessors()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_requirement"><code class="docutils literal notranslate"><span class="pre">get_requirement()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_requirements"><code class="docutils literal notranslate"><span class="pre">get_requirements()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_transitive_predecessors"><code class="docutils literal notranslate"><span class="pre">get_transitive_predecessors()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.get_validators"><code class="docutils literal notranslate"><span class="pre">get_validators()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.is_capability"><code class="docutils literal notranslate"><span class="pre">is_capability()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.is_profile"><code class="docutils literal notranslate"><span class="pre">is_profile()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.load_from_dict"><code class="docutils literal notranslate"><span class="pre">load_from_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.load_from_json"><code class="docutils literal notranslate"><span class="pre">load_from_json()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.merge"><code class="docutils literal notranslate"><span class="pre">merge()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.CapabilityGraph.to_json"><code class="docutils literal notranslate"><span class="pre">to_json()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.LoadedSpecifications"><code class="docutils literal notranslate"><span class="pre">LoadedSpecifications</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.LoadedSpecifications.requirements"><code class="docutils literal notranslate"><span class="pre">requirements</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.LoadedSpecifications.validate"><code class="docutils literal notranslate"><span class="pre">validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.LoadedSpecificationsProtocol"><code class="docutils literal notranslate"><span class="pre">LoadedSpecificationsProtocol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.PythonGenerator"><code class="docutils literal notranslate"><span class="pre">PythonGenerator</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationKind"><code class="docutils literal notranslate"><span class="pre">SpecificationKind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationProblem"><code class="docutils literal notranslate"><span class="pre">SpecificationProblem</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationProblemKind"><code class="docutils literal notranslate"><span class="pre">SpecificationProblemKind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationProblemSeverity"><code class="docutils literal notranslate"><span class="pre">SpecificationProblemSeverity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationRef"><code class="docutils literal notranslate"><span class="pre">SpecificationRef</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationsLoader"><code class="docutils literal notranslate"><span class="pre">SpecificationsLoader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.SpecificationsLoader.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_profiles_nvidia.get_version"><code class="docutils literal notranslate"><span class="pre">get_version()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -717,7 +1066,7 @@ If provided, capabilities_root, profiles_root, and features_root are derived fro
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

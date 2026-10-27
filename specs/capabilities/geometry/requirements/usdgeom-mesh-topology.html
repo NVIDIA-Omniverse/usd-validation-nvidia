@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../_static/modal-table.js"></script>
-    <script src="../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -630,6 +630,47 @@
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<section id="valid-time-varying-topology">
+<h3>Valid: Time-varying topology<a class="headerlink" href="#valid-time-varying-topology" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;ValidTimeVaryingTopology&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="valid-time-samples-that-start-after-time-0">
+<h3>Valid: Time samples that start after time 0<a class="headerlink" href="#valid-time-samples-that-start-after-time-0" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;ValidLaterTimeSamples&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="invalid-degenerate-faces-and-invalid-indices">
 <h3>Invalid: Degenerate faces and invalid indices<a class="headerlink" href="#invalid-degenerate-faces-and-invalid-indices" title="Link to this heading">#</a></h3>
 <div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
@@ -656,6 +697,122 @@
 <span class="w">        </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="w">      </span><span class="c1"># Proper triangle</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-face-vertex-counts-that-do-not-match-the-indices">
+<h3>Invalid: Face vertex counts that do not match the indices<a class="headerlink" href="#invalid-face-vertex-counts-that-do-not-match-the-indices" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;CountsDoNotMatchIndices&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-missing-face-vertex-index">
+<h3>Invalid: Missing face vertex index<a class="headerlink" href="#invalid-missing-face-vertex-index" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;MissingIndex&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-mesh-without-data">
+<h3>Invalid: Mesh without data<a class="headerlink" href="#invalid-mesh-without-data" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;MeshWithoutData&quot;</span>
+<span class="p">{</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-time-varying-counts-that-do-not-match-the-indices">
+<h3>Invalid: Time-varying counts that do not match the indices<a class="headerlink" href="#invalid-time-varying-counts-that-do-not-match-the-indices" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;TimeVaryingCounts&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-time-varying-topology-with-a-missing-index">
+<h3>Invalid: Time-varying topology with a missing index<a class="headerlink" href="#invalid-time-varying-topology-with-a-missing-index" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;TimeVaryingMissingIndex&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-time-varying-topology-with-a-missing-point">
+<h3>Invalid: Time-varying topology with a missing point<a class="headerlink" href="#invalid-time-varying-topology-with-a-missing-point" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;TimeVaryingMissingPoint&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-time-varying-points-and-counts-that-do-not-match-the-indices">
+<h3>Invalid: Time-varying points and counts that do not match the indices<a class="headerlink" href="#invalid-time-varying-points-and-counts-that-do-not-match-the-indices" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;TimeVaryingPointsAndCounts&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -712,8 +869,17 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-it-required">Why is it required?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-time-varying-topology">Valid: Time-varying topology</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-time-samples-that-start-after-time-0">Valid: Time samples that start after time 0</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-degenerate-faces-and-invalid-indices">Invalid: Degenerate faces and invalid indices</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-proper-topology">Valid: Proper topology</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-face-vertex-counts-that-do-not-match-the-indices">Invalid: Face vertex counts that do not match the indices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-missing-face-vertex-index">Invalid: Missing face vertex index</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-mesh-without-data">Invalid: Mesh without data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-time-varying-counts-that-do-not-match-the-indices">Invalid: Time-varying counts that do not match the indices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-time-varying-topology-with-a-missing-index">Invalid: Time-varying topology with a missing index</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-time-varying-topology-with-a-missing-point">Invalid: Time-varying topology with a missing point</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-time-varying-points-and-counts-that-do-not-match-the-indices">Invalid: Time-varying points and counts that do not match the indices</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-comply">How to comply</a></li>
@@ -765,7 +931,7 @@
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

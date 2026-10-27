@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -598,9 +598,11 @@
 and distribute your own rules.</p>
 <section id="the-rule-interface">
 <h2>The rule interface<a class="headerlink" href="#the-rule-interface" title="Link to this heading">#</a></h2>
-<p>A rule subclasses <a class="reference internal" href="api.html#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRuleChecker</span></code></a> and overrides one or
+<p>A rule subclasses <a class="reference internal" href="api.html#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRule</span></code></a> and overrides one or
 more <code class="docutils literal notranslate"><span class="pre">Check*</span></code> callbacks. The engine invokes them as it walks an asset, so a rule only
 implements the callbacks it needs:</p>
+<p><code class="docutils literal notranslate"><span class="pre">BaseRuleChecker</span></code> remains available as a backward-compatible alias, but new rules should
+subclass <code class="docutils literal notranslate"><span class="pre">BaseRule</span></code>.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <colgroup>
 <col style="width: 35.0%" />
@@ -659,11 +661,11 @@ more <code class="docutils literal notranslate"><span class="pre">suggestion</sp
 <p>Decorate the class with <code class="xref py py-func docutils literal notranslate"><span class="pre">register_rule()</span></code> and a category
 name. Registered rules become part of every default <code class="docutils literal notranslate"><span class="pre">ValidationEngine</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pxr</span><span class="w"> </span><span class="kn">import</span> <span class="n">UsdGeom</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRuleChecker</span><span class="p">,</span> <span class="n">register_rule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRule</span><span class="p">,</span> <span class="n">register_rule</span>
 
 
 <span class="nd">@register_rule</span><span class="p">(</span><span class="s2">&quot;MyStudio&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">VisibilityAttributeChecker</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VisibilityAttributeChecker</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Meshes should author a &#39;visibility&#39; attribute.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">CheckPrim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prim</span><span class="p">):</span>
@@ -688,6 +690,74 @@ rules:</p>
 <code class="docutils literal notranslate"><span class="pre">overwrite=</span></code> (replace an existing rule in a category). Categories group related rules:
 the CLI’s <code class="docutils literal notranslate"><span class="pre">--category</span></code> flag and <code class="docutils literal notranslate"><span class="pre">register_rule</span></code> use them. To turn individual rules on or
 off on an engine, use <code class="xref py py-meth docutils literal notranslate"><span class="pre">enable_rule()</span></code> / <code class="xref py py-meth docutils literal notranslate"><span class="pre">disable_rule()</span></code>.</p>
+</section>
+<section id="running-rules-asynchronously">
+<h2>Running rules asynchronously<a class="headerlink" href="#running-rules-asynchronously" title="Link to this heading">#</a></h2>
+<p>Validation can also work asynchronously, to avoid blocking the calling thread:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationEngine</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_validation</span><span class="p">():</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">ValidationEngine</span><span class="p">()</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">engine</span><span class="o">.</span><span class="n">validate_async</span><span class="p">(</span><span class="s2">&quot;asset.usda&quot;</span><span class="p">)</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_validation</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">validate_async</span></code> also recursively validates folder/container URIs, which the blocking
+<code class="docutils literal notranslate"><span class="pre">validate()</span></code> method does not support. For per-asset and progress callbacks while a folder is
+being validated, use <a class="reference internal" href="api.html#usd_validation_nvidia.ValidationEngine.validate_with_callbacks" title="usd_validation_nvidia.ValidationEngine.validate_with_callbacks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_with_callbacks()</span></code></a>,
+which returns an <code class="docutils literal notranslate"><span class="pre">asyncio.Task</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">AssetProgress</span><span class="p">,</span> <span class="n">Results</span><span class="p">,</span> <span class="n">ValidationEngine</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_validation</span><span class="p">():</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">ValidationEngine</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_progress</span><span class="p">(</span><span class="n">progress</span><span class="p">:</span> <span class="n">AssetProgress</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">progress</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">progress</span><span class="o">.</span><span class="n">progress</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_validated</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="n">Results</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">issues</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">asset</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">severity</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">task</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">validate_with_callbacks</span><span class="p">(</span>
+        <span class="s2">&quot;path/to/assets/&quot;</span><span class="p">,</span>
+        <span class="n">asset_progress_fn</span><span class="o">=</span><span class="n">on_progress</span><span class="p">,</span>
+        <span class="n">asset_validated_fn</span><span class="o">=</span><span class="n">on_validated</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">await</span> <span class="n">task</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_validation</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">Check*</span></code> callback can also be declared <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code> directly, for example to await an
+async lookup from inside the callback itself:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pxr</span><span class="w"> </span><span class="kn">import</span> <span class="n">UsdGeom</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRule</span><span class="p">,</span> <span class="n">register_rule</span>
+
+
+<span class="nd">@register_rule</span><span class="p">(</span><span class="s2">&quot;MyStudio&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VisibilityAttributeChecker</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Meshes should author a &#39;visibility&#39; attribute.&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">CheckPrim</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prim</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prim</span><span class="o">.</span><span class="n">IsA</span><span class="p">(</span><span class="n">UsdGeom</span><span class="o">.</span><span class="n">Mesh</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">prim</span><span class="o">.</span><span class="n">GetAttribute</span><span class="p">(</span><span class="s2">&quot;visibility&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">IsValid</span><span class="p">():</span>
+            <span class="c1"># await an async lookup here, e.g. a studio license/asset service call</span>
+            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_AddWarning</span><span class="p">(</span>
+                <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Mesh &lt;</span><span class="si">{</span><span class="n">prim</span><span class="o">.</span><span class="n">GetPath</span><span class="p">()</span><span class="si">}</span><span class="s2">&gt; does not author &#39;visibility&#39;.&quot;</span><span class="p">,</span>
+                <span class="n">at</span><span class="o">=</span><span class="n">prim</span><span class="p">,</span>
+            <span class="p">)</span>
+</pre></div>
+</div>
+<p>The engine detects coroutine callbacks automatically, so no special handling is needed to run
+this rule: it works under the blocking <code class="docutils literal notranslate"><span class="pre">engine.validate(&quot;asset.usda&quot;)</span></code> just as well as under
+<code class="docutils literal notranslate"><span class="pre">validate_async()</span></code>, and sync and async callbacks can be freely mixed on the same rule.</p>
 </section>
 <section id="providing-an-auto-fix">
 <h2>Providing an auto-fix<a class="headerlink" href="#providing-an-auto-fix" title="Link to this heading">#</a></h2>
@@ -724,11 +794,11 @@ as a rule:</p>
 <p>By default every rule callback runs in the calling process. Decorate a callback with
 <code class="xref py py-func docutils literal notranslate"><span class="pre">multiprocess_safe()</span></code> to declare it eligible for the
 process pool that <code class="docutils literal notranslate"><span class="pre">--process</span> <span class="pre">COUNT</span></code> enables:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRuleChecker</span><span class="p">,</span> <span class="n">multiprocess_safe</span><span class="p">,</span> <span class="n">register_rule</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRule</span><span class="p">,</span> <span class="n">multiprocess_safe</span><span class="p">,</span> <span class="n">register_rule</span>
 
 
 <span class="nd">@register_rule</span><span class="p">(</span><span class="s2">&quot;Basic&quot;</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MyLayerRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyLayerRule</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
     <span class="nd">@multiprocess_safe</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">CheckLayer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">):</span>
         <span class="o">...</span>
@@ -853,6 +923,7 @@ shutdown code can unregister exactly what it previously loaded.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-rule-interface">The rule interface</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-a-rule">Registering a rule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-rules-asynchronously">Running rules asynchronously</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#providing-an-auto-fix">Providing an auto-fix</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrapping-a-native-usd-validator">Wrapping a native USD validator</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-callback-in-a-process-pool">Running a callback in a process pool</a></li>
@@ -905,7 +976,7 @@ shutdown code can unregister exactly what it previously loaded.</p>
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

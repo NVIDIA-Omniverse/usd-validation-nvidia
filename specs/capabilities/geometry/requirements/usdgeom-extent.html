@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../_static/modal-table.js"></script>
-    <script src="../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -632,6 +632,18 @@ For time-varying geometry, the extent must be computed at each time sample where
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<section id="valid-extent-that-matches-the-geometry">
+<h3>Valid: Extent that matches the geometry<a class="headerlink" href="#valid-extent-that-matches-the-geometry" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;MeshWithExtent&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">extent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="invalid-incorrect-extent-on-static-geometry">
 <h3>Invalid: Incorrect extent on static geometry<a class="headerlink" href="#invalid-incorrect-extent-on-static-geometry" title="Link to this heading">#</a></h3>
 <div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
@@ -671,6 +683,82 @@ For time-varying geometry, the extent must be computed at each time sample where
 <span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">extent</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">1</span><span class="p">)],</span><span class="w">  </span><span class="c1"># Initial extent</span>
 <span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">,</span><span class="m">2</span><span class="p">)]</span><span class="w">   </span><span class="c1"># Extent changes with geometry</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-missing-extent-on-curves">
+<h3>Invalid: Missing extent on curves<a class="headerlink" href="#invalid-missing-extent-on-curves" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>BasisCurves<span class="w"> </span><span class="s">&quot;CurvesWithoutExtent&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;linear&quot;</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">curveVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">2</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">widths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-incorrect-extent-at-several-times">
+<h3>Invalid: Incorrect extent at several times<a class="headerlink" href="#invalid-incorrect-extent-at-several-times" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;MeshWithIncorrectExtents&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1"># The extent is wrong at both times</span>
+<span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">extent</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-incorrect-extent-at-one-time">
+<h3>Invalid: Incorrect extent at one time<a class="headerlink" href="#invalid-incorrect-extent-at-one-time" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Points<span class="w"> </span><span class="s">&quot;PointsWithIncorrectExtent&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">widths</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1"># The extent is correct at time 1 but was not updated at time 2</span>
+<span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">extent</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-incorrect-extent-after-the-widths-change">
+<h3>Invalid: Incorrect extent after the widths change<a class="headerlink" href="#invalid-incorrect-extent-after-the-widths-change" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Points<span class="w"> </span><span class="s">&quot;PointsWithChangingWidths&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">widths</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1"># The extent is correct at time 1 but was not updated when the widths grew at time 2</span>
+<span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">extent</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)],</span>
+<span class="w">        </span><span class="m">2</span><span class="p">:</span><span class="w"> </span><span class="p">[(</span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">,</span><span class="w"> </span><span class="m">-1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -732,9 +820,14 @@ For time-varying geometry, the extent must be computed at each time sample where
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-it-required">Why is it required?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-extent-that-matches-the-geometry">Valid: Extent that matches the geometry</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-incorrect-extent-on-static-geometry">Invalid: Incorrect extent on static geometry</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-missing-extent-on-time-varying-geometry">Invalid: Missing extent on time-varying geometry</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-extent-authored-only-when-it-changes">Valid: Extent authored only when it changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-missing-extent-on-curves">Invalid: Missing extent on curves</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-incorrect-extent-at-several-times">Invalid: Incorrect extent at several times</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-incorrect-extent-at-one-time">Invalid: Incorrect extent at one time</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-incorrect-extent-after-the-widths-change">Invalid: Incorrect extent after the widths change</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-comply">How to comply</a></li>
@@ -786,7 +879,7 @@ For time-varying geometry, the extent must be computed at each time sample where
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

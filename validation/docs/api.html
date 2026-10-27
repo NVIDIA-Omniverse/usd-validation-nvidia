@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -683,9 +683,9 @@ It is invoked at the beginning of asset validation.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">BaseRuleChecker</span></span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker" title="Link to this definition">#</a></dt>
-<dd><p>This is Base class for all the rule-checkers.</p>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">BaseRule</span></span><a class="headerlink" href="#usd_validation_nvidia.BaseRule" title="Link to this definition">#</a></dt>
+<dd><p>Base class for all validation rules.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -697,82 +697,82 @@ It is invoked at the beginning of asset validation.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckDependencies">
-<span class="sig-name descname"><span class="pre">CheckDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usdStage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerDeps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assetDeps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckDependencies" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckDependencies">
+<span class="sig-name descname"><span class="pre">CheckDependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usdStage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layerDeps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assetDeps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckDependencies" title="Link to this definition">#</a></dt>
 <dd><p>Check usdStage’s layer and asset dependencies that were gathered
 using UsdUtils.ComputeAllDependencies().</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckDiagnostics">
-<span class="sig-name descname"><span class="pre">CheckDiagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckDiagnostics" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckDiagnostics">
+<span class="sig-name descname"><span class="pre">CheckDiagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckDiagnostics" title="Link to this definition">#</a></dt>
 <dd><p>Check the diagnostic messages that were generated when opening the
 USD stage. The diagnostic messages are collected using a
 UsdUtilsCoalescingDiagnosticDelegate.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckFormatDependency">
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckFormatDependency">
 <span class="sig-name descname"><span class="pre">CheckFormatDependency</span></span><span class="sig-paren">(</span>
 
 <dl>
 <dd><em class="sig-param"><span class="n"><span class="pre">dependency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FormatDependency</span></span></em>,</dd>
 </dl>
 
-<span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckFormatDependency" title="Link to this definition">#</a></dt>
+<span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckFormatDependency" title="Link to this definition">#</a></dt>
 <dd><p>Check a single dependency returned by an <code class="xref py py-class docutils literal notranslate"><span class="pre">AssetFormat</span></code> handler.</p>
 <p>Called once per path in the flat list produced by <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_dependencies()</span></code>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckLayer">
-<span class="sig-name descname"><span class="pre">CheckLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckLayer" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckLayer">
+<span class="sig-name descname"><span class="pre">CheckLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckLayer" title="Link to this definition">#</a></dt>
 <dd><p>Check the given SdfLayer.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckPrim">
-<span class="sig-name descname"><span class="pre">CheckPrim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckPrim" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckPrim">
+<span class="sig-name descname"><span class="pre">CheckPrim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckPrim" title="Link to this definition">#</a></dt>
 <dd><p>Check the given prim, which may only exist is a specific combination
 of variant selections on the UsdStage.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckStage">
-<span class="sig-name descname"><span class="pre">CheckStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usdStage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckStage" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckStage">
+<span class="sig-name descname"><span class="pre">CheckStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usdStage</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckStage" title="Link to this definition">#</a></dt>
 <dd><p>Check the given usdStage.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckUnresolvedPaths">
-<span class="sig-name descname"><span class="pre">CheckUnresolvedPaths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unresolvedPaths</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckUnresolvedPaths" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckUnresolvedPaths">
+<span class="sig-name descname"><span class="pre">CheckUnresolvedPaths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unresolvedPaths</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckUnresolvedPaths" title="Link to this definition">#</a></dt>
 <dd><p>Check or process any unresolved asset paths that were found when
 analysing the dependencies.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.CheckZipFile">
-<span class="sig-name descname"><span class="pre">CheckZipFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packagePath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.CheckZipFile" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.CheckZipFile">
+<span class="sig-name descname"><span class="pre">CheckZipFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zipFile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packagePath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.CheckZipFile" title="Link to this definition">#</a></dt>
 <dd><p>Check the zipFile object created by opening the package at path
 packagePath.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.GetDescription">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GetDescription</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.GetDescription" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.GetDescription">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GetDescription</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.GetDescription" title="Link to this definition">#</a></dt>
 <dd><p>Returns the docstring describing the rule.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.ResetCaches">
-<span class="sig-name descname"><span class="pre">ResetCaches</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.ResetCaches" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.ResetCaches">
+<span class="sig-name descname"><span class="pre">ResetCaches</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.BaseRule.ResetCaches" title="Link to this definition">#</a></dt>
 <dd><p>Reset any caches the rule owns.  Called whenever stage authoring
 occurs, such as when we iterate through VariantSet combinations.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRuleChecker.parameters">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ParameterMapping</span></em><a class="headerlink" href="#usd_validation_nvidia.BaseRuleChecker.parameters" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="usd_validation_nvidia.BaseRule.parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ParameterMapping</span></em><a class="headerlink" href="#usd_validation_nvidia.BaseRule.parameters" title="Link to this definition">#</a></dt>
 <dd><p>Access the ParameterMapping instance containing rule checker configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -805,6 +805,48 @@ occurs, such as when we iterate through VariantSet combinations.</p>
 <dt class="sig sig-object py" id="usd_validation_nvidia.Feature">
 <span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">Feature</span></span><a class="headerlink" href="#usd_validation_nvidia.Feature" title="Link to this definition">#</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureProtocol</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.FeatureRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">FeatureRef</span></span><a class="headerlink" href="#usd_validation_nvidia.FeatureRef" title="Link to this definition">#</a></dt>
+<dd><p>A reference to another feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> – A unique identifier of the referenced feature.</p></li>
+<li><p><strong>version</strong> – The version of the referenced feature.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.FeatureRefProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">FeatureRefProtocol</span></span><a class="headerlink" href="#usd_validation_nvidia.FeatureRefProtocol" title="Link to this definition">#</a></dt>
+<dd><p>A protocol definition of a feature reference.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.FeatureRefProtocol.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#usd_validation_nvidia.FeatureRefProtocol.id" title="Link to this definition">#</a></dt>
+<dd><p>A unique identifier of the referenced feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.FeatureRefProtocol.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#usd_validation_nvidia.FeatureRefProtocol.version" title="Link to this definition">#</a></dt>
+<dd><p>The version of the referenced feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -988,7 +1030,7 @@ Use <code class="docutils literal notranslate"><span class="pre">fix_sites_for(s
 <dd><p>Optional. The class of rule detecting this issue.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Type[<a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker">BaseRuleChecker</a>] | None</p>
+<dd class="field-odd"><p>Type[<a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule">BaseRule</a>] | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1057,7 +1099,7 @@ provided, code and message are ignored.</p>
 <p>The following exemplifies the expected arguments of an issue:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">usd_validation_nvidia</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">usd_validation_nvidia</span><span class="o">.</span><span class="n">BaseRule</span><span class="p">):</span>
     <span class="k">pass</span>
 
 <span class="n">stage</span> <span class="o">=</span> <span class="n">Usd</span><span class="o">.</span><span class="n">Stage</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="s1">&#39;foo.usd&#39;</span><span class="p">)</span>
@@ -1569,6 +1611,25 @@ The layers affected by <cite>fix</cite> or <cite>fix_at</cite> methods.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="usd_validation_nvidia.IssuePredicates.IsRequirement">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IsRequirement</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#usd_validation_nvidia.IssuePredicate" title="usd_validation_nvidia._issues.IssuePredicate"><span class="pre">IssuePredicate</span></a></span></span><a class="headerlink" href="#usd_validation_nvidia.IssuePredicates.IsRequirement" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>requirement</strong> – The requirement to filter.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A filter for issues reported for the requirement, i.e. with matching code and version.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="usd_validation_nvidia.IssuePredicates.IsRule">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IsRule</span></span><span class="sig-paren">(</span>
 
@@ -2002,6 +2063,47 @@ The layers affected by <cite>fix</cite> or <cite>fix_at</cite> methods.</p>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">ProfileProtocol</span></code></p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.ProfileFeature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">ProfileFeature</span></span><a class="headerlink" href="#usd_validation_nvidia.ProfileFeature" title="Link to this definition">#</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> – The feature of the profile.</p></li>
+<li><p><strong>optional</strong> – Whether the feature is optional in the profile.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.ProfileFeatureProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">ProfileFeatureProtocol</span></span><a class="headerlink" href="#usd_validation_nvidia.ProfileFeatureProtocol" title="Link to this definition">#</a></dt>
+<dd><p>A protocol definition of a profile feature reference.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.ProfileFeatureProtocol.feature">
+<span class="sig-name descname"><span class="pre">feature</span></span><a class="headerlink" href="#usd_validation_nvidia.ProfileFeatureProtocol.feature" title="Link to this definition">#</a></dt>
+<dd><p>The referenced feature</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>usd_validation_nvidia.capabilities._api._protocols.FeatureProtocol | <a class="reference internal" href="#usd_validation_nvidia.FeatureRefProtocol" title="usd_validation_nvidia.capabilities._api._protocols.FeatureRefProtocol">usd_validation_nvidia.capabilities._api._protocols.FeatureRefProtocol</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.ProfileFeatureProtocol.optional">
+<span class="sig-name descname"><span class="pre">optional</span></span><a class="headerlink" href="#usd_validation_nvidia.ProfileFeatureProtocol.optional" title="Link to this definition">#</a></dt>
+<dd><p>Whether the feature is optional in the profile</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ProfileRegistry">
 <span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">ProfileRegistry</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#usd_validation_nvidia.ProfileRegistry" title="Link to this definition">#</a></dt>
@@ -2083,6 +2185,48 @@ The layers affected by <cite>fix</cite> or <cite>fix_at</cite> methods.</p>
 <dt class="sig sig-object py" id="usd_validation_nvidia.Requirement">
 <span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">Requirement</span></span><a class="headerlink" href="#usd_validation_nvidia.Requirement" title="Link to this definition">#</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">RequirementProtocol</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.RequirementRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">RequirementRef</span></span><a class="headerlink" href="#usd_validation_nvidia.RequirementRef" title="Link to this definition">#</a></dt>
+<dd><p>A reference to a requirement owned by another package.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> – A unique identifier of the referenced requirement.</p></li>
+<li><p><strong>version</strong> – The version of the referenced requirement.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="usd_validation_nvidia.RequirementRefProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">RequirementRefProtocol</span></span><a class="headerlink" href="#usd_validation_nvidia.RequirementRefProtocol" title="Link to this definition">#</a></dt>
+<dd><p>A protocol definition of a requirement reference.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.RequirementRefProtocol.code">
+<span class="sig-name descname"><span class="pre">code</span></span><a class="headerlink" href="#usd_validation_nvidia.RequirementRefProtocol.code" title="Link to this definition">#</a></dt>
+<dd><p>A unique identifier of the referenced requirement</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="usd_validation_nvidia.RequirementRefProtocol.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#usd_validation_nvidia.RequirementRefProtocol.version" title="Link to this definition">#</a></dt>
+<dd><p>The version of the referenced requirement</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str | None</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py function">
@@ -2275,7 +2419,7 @@ fix location itself. If None, the fix can be applied at any layer in the spec st
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationEngine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">ValidationEngine</span></span><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine" title="Link to this definition">#</a></dt>
 <dd><p>An engine for running rule-checkers on a given OpenUSD Asset.</p>
-<p>Rules are <a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRuleChecker</span></code></a> derived classes which perform specific validation checks over various aspects
+<p>Rules are <a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRule</span></code></a> derived classes which perform specific validation checks over various aspects
 of a USD layer/stage. Rules must be added through enable_rule. removed through disable_rule.</p>
 <p>Validation can be performed asynchronously (using either <a class="reference internal" href="#usd_validation_nvidia.ValidationEngine.validate_async" title="usd_validation_nvidia.ValidationEngine.validate_async"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_async()</span></code></a> or <a class="reference internal" href="#usd_validation_nvidia.ValidationEngine.validate_with_callbacks" title="usd_validation_nvidia.ValidationEngine.validate_with_callbacks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate_with_callbacks()</span></code></a>)
 or blocking (via <a class="reference internal" href="#usd_validation_nvidia.ValidationEngine.validate" title="usd_validation_nvidia.ValidationEngine.validate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">validate()</span></code></a>).</p>
@@ -2319,7 +2463,7 @@ or blocking (via <a class="reference internal" href="#usd_validation_nvidia.Vali
 <span class="sig-name descname"><span class="pre">add_parameter</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Parameter</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ParameterProtocol</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.add_parameter" title="Link to this definition">#</a></dt>
@@ -2436,14 +2580,14 @@ callers can skip structured output entirely for plain rule-based validation.</p>
 <span class="sig-name descname"><span class="pre">disable_rule</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.disable_rule" title="Link to this definition">#</a></dt>
 <dd><p>Disable a given rule on this engine.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rule</strong> (<em>type</em><em>[</em><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker"><em>BaseRuleChecker</em></a><em>]</em>) – A <cite>BaseRuleChecker</cite> derived class to be enabled</p>
+<dd class="field-odd"><p><strong>rule</strong> (<em>type</em><em>[</em><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule"><em>BaseRule</em></a><em>]</em>) – A <cite>BaseRule</cite> derived class to be enabled</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2513,7 +2657,7 @@ callers can skip structured output entirely for plain rule-based validation.</p>
 <span class="sig-name descname"><span class="pre">enable_requirement</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RequirementRefProtocol</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#usd_validation_nvidia.RequirementRefProtocol" title="usd_validation_nvidia.capabilities._api._protocols.RequirementRefProtocol"><span class="pre">RequirementRefProtocol</span></a></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.enable_requirement" title="Link to this definition">#</a></dt>
@@ -2530,21 +2674,21 @@ callers can skip structured output entirely for plain rule-based validation.</p>
 <span class="sig-name descname"><span class="pre">enable_rule</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.enable_rule" title="Link to this definition">#</a></dt>
 <dd><p>Enable a given rule on this engine.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rule</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker"><em>BaseRuleChecker</em></a><em>]</em>) – A <cite>BaseRuleChecker</cite> derived class to be enabled</p>
+<dd class="field-odd"><p><strong>rule</strong> (<em>Type</em><em>[</em><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule"><em>BaseRule</em></a><em>]</em>) – A <cite>BaseRule</cite> derived class to be enabled</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationEngine.initialized_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initialized_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.initialized_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initialized_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.initialized_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 A list of rules that have been initialized.</p>
 </dd></dl>
@@ -2591,14 +2735,14 @@ A predicate that filters issues by enabled requirements and rules.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationEngine.requirements">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requirements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RequirementRefProtocol</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.requirements" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">requirements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#usd_validation_nvidia.RequirementRefProtocol" title="usd_validation_nvidia.capabilities._api._protocols.RequirementRefProtocol"><span class="pre">RequirementRefProtocol</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.requirements" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 A list of requirements that are enabled on this engine.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationEngine.rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationEngine.rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 A list of rules that are enabled on this engine.</p>
 </dd></dl>
@@ -2758,7 +2902,7 @@ The <cite>capabilities</cite> option value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.category_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.category_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.category_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>category</cite> options value.</p>
 </dd></dl>
@@ -2772,7 +2916,7 @@ The <cite>csv-output</cite> option value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.disable_category_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disable_category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.disable_category_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disable_category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.disable_category_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>disable_category</cite> option value.</p>
 </dd></dl>
@@ -2793,14 +2937,14 @@ The <cite>disabled_profiles</cite> option value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.disabled_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disabled_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.disabled_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">disabled_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.disabled_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>disable_rules</cite> option value.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.enabled_category_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_category_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_category_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_category_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>enable_category</cite> options value.</p>
 </dd></dl>
@@ -2821,9 +2965,15 @@ The <cite>enabled_profiles</cite> option value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.enabled_rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enabled_rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>enable_rules</cite> option value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.exit_zero">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">exit_zero</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.exit_zero" title="Link to this definition">#</a></dt>
+<dd><p>Whether validation issues should produce a zero exit code.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -2898,7 +3048,7 @@ The <cite>requirements</cite> option value.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="usd_validation_nvidia.ValidationNamespaceExec.rules">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.rules" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rules</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#usd_validation_nvidia.ValidationNamespaceExec.rules" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 The <cite>rules</cite> option value.</p>
 </dd></dl>
@@ -2997,20 +3147,20 @@ except for AtomicAsset rules.</p>
 <span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">register_requirements</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">requirements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RequirementRefProtocol</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">requirements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#usd_validation_nvidia.RequirementRefProtocol" title="usd_validation_nvidia.capabilities._api._protocols.RequirementRefProtocol"><span class="pre">RequirementRefProtocol</span></a></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">override</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseRuleChecker</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseRuleChecker</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#usd_validation_nvidia.register_requirements" title="Link to this definition">#</a></dt>
-<dd><p>Decorator. Register a new <a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia.BaseRuleChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRuleChecker</span></code></a> to a set of requirements.</p>
+<dd><p>Decorator. Register a new <a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.BaseRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRule</span></code></a> to a set of requirements.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_requirements</span><span class="p">(</span><span class="n">Requirement1</span><span class="p">,</span> <span class="n">Requirement2</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
 <p>To override a registered rule, use the <code class="docutils literal notranslate"><span class="pre">override</span></code> parameter.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_requirements</span><span class="p">(</span><span class="n">Requirement1</span><span class="p">,</span> <span class="n">override</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -3095,7 +3245,7 @@ overlapping active registrations for the same module name are rejected.</p>
 <span class="sig-prename descclassname"><span class="pre">usd_validation_nvidia.</span></span><span class="sig-name descname"><span class="pre">unregister_requirements</span></span><span class="sig-paren">(</span>
 
 <dl>
-<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">requirements_or_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">RequirementRefProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseRuleChecker</span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">requirements_or_rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#usd_validation_nvidia.RequirementRefProtocol" title="usd_validation_nvidia.capabilities._api._protocols.RequirementRefProtocol"><span class="pre">RequirementRefProtocol</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseRuleChecker</span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
 <span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#usd_validation_nvidia.unregister_requirements" title="Link to this definition">#</a></dt>
@@ -3111,7 +3261,7 @@ or references. References are non-owning and are ignored.</p>
 </dl>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_requirements</span><span class="p">(</span><span class="n">Requirement1</span><span class="p">,</span> <span class="n">Requirement2</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRuleChecker</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyRule</span><span class="p">(</span><span class="n">BaseRule</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="n">unregister_requirements</span><span class="p">(</span><span class="n">MyRule</span><span class="p">)</span>
@@ -3213,7 +3363,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3247,7 +3397,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3296,7 +3446,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asserts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.tests.IsAnIssue" title="usd_validation_nvidia.tests._assertions.IsAnIssue"><span class="pre">IsAnIssue</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
@@ -3311,7 +3461,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3331,7 +3481,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#usd_validation_nvidia.IssuePredicate" title="usd_validation_nvidia._issues.IssuePredicate"><span class="pre">IssuePredicate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3348,7 +3498,7 @@ or references. References are non-owning and are ignored.</p>
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3564,7 +3714,7 @@ Validation Engine. Use <code class="docutils literal notranslate"><span class="p
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3598,7 +3748,7 @@ Validation Engine. Use <code class="docutils literal notranslate"><span class="p
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3616,7 +3766,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>asset</strong> – A single asset to validate</p></li>
-<li><p><strong>rule</strong> – Either a BaseRuleChecker derived class or the str class name of such a class</p></li>
+<li><p><strong>rule</strong> – Either a BaseRule derived class or the str class name of such a class</p></li>
 <li><p><strong>asserts</strong> – A list of assertions.</p></li>
 </ul>
 </dd>
@@ -3660,7 +3810,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asserts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.tests.IsAnIssue" title="usd_validation_nvidia.tests._assertions.IsAnIssue"><span class="pre">IsAnIssue</span></a><span class="p"><span class="pre">]</span></span></span></em>,</dd>
 </dl>
 
@@ -3675,7 +3825,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3694,7 +3844,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">predicate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#usd_validation_nvidia.IssuePredicate" title="usd_validation_nvidia._issues.IssuePredicate"><span class="pre">IssuePredicate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3710,7 +3860,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>asset</strong> – A single asset to validate</p></li>
-<li><p><strong>rule</strong> – Either a BaseRuleChecker derived class or the str class name of such a class</p></li>
+<li><p><strong>rule</strong> – Either a BaseRule derived class or the str class name of such a class</p></li>
 <li><p><strong>predicate</strong> – A predicate (i.e. Callable[[Issue], bool]) to filter out issues.</p></li>
 </ul>
 </dd>
@@ -3724,7 +3874,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <dl>
 <dd><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">asset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Stage</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRuleChecker" title="usd_validation_nvidia._base_rule_checker.BaseRuleChecker"><span class="pre">BaseRuleChecker</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
+<dd><em class="sig-param"><span class="n"><span class="pre">rule</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#usd_validation_nvidia.BaseRule" title="usd_validation_nvidia.rules._base.BaseRule"><span class="pre">BaseRule</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">requirement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">RequirementProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">capability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CapabilityProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
 <dd><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">FeatureProtocol</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
@@ -3805,24 +3955,30 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.AssetProgressCallback"><code class="docutils literal notranslate"><span class="pre">AssetProgressCallback</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.AssetValidatedCallback"><code class="docutils literal notranslate"><span class="pre">AssetValidatedCallback</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.AuthoringLayers"><code class="docutils literal notranslate"><span class="pre">AuthoringLayers()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker"><code class="docutils literal notranslate"><span class="pre">BaseRuleChecker</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckDependencies"><code class="docutils literal notranslate"><span class="pre">CheckDependencies()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckDiagnostics"><code class="docutils literal notranslate"><span class="pre">CheckDiagnostics()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckFormatDependency"><code class="docutils literal notranslate"><span class="pre">CheckFormatDependency()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckLayer"><code class="docutils literal notranslate"><span class="pre">CheckLayer()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckPrim"><code class="docutils literal notranslate"><span class="pre">CheckPrim()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckStage"><code class="docutils literal notranslate"><span class="pre">CheckStage()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckUnresolvedPaths"><code class="docutils literal notranslate"><span class="pre">CheckUnresolvedPaths()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.CheckZipFile"><code class="docutils literal notranslate"><span class="pre">CheckZipFile()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.GetDescription"><code class="docutils literal notranslate"><span class="pre">GetDescription()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.ResetCaches"><code class="docutils literal notranslate"><span class="pre">ResetCaches()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRuleChecker.parameters"><code class="docutils literal notranslate"><span class="pre">parameters</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule"><code class="docutils literal notranslate"><span class="pre">BaseRule</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckDependencies"><code class="docutils literal notranslate"><span class="pre">CheckDependencies()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckDiagnostics"><code class="docutils literal notranslate"><span class="pre">CheckDiagnostics()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckFormatDependency"><code class="docutils literal notranslate"><span class="pre">CheckFormatDependency()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckLayer"><code class="docutils literal notranslate"><span class="pre">CheckLayer()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckPrim"><code class="docutils literal notranslate"><span class="pre">CheckPrim()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckStage"><code class="docutils literal notranslate"><span class="pre">CheckStage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckUnresolvedPaths"><code class="docutils literal notranslate"><span class="pre">CheckUnresolvedPaths()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.CheckZipFile"><code class="docutils literal notranslate"><span class="pre">CheckZipFile()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.GetDescription"><code class="docutils literal notranslate"><span class="pre">GetDescription()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.ResetCaches"><code class="docutils literal notranslate"><span class="pre">ResetCaches()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.BaseRule.parameters"><code class="docutils literal notranslate"><span class="pre">parameters</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Capability"><code class="docutils literal notranslate"><span class="pre">Capability</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.CapabilityRegistry"><code class="docutils literal notranslate"><span class="pre">CapabilityRegistry()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.CategoryRuleRegistry"><code class="docutils literal notranslate"><span class="pre">CategoryRuleRegistry()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Feature"><code class="docutils literal notranslate"><span class="pre">Feature</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FeatureRef"><code class="docutils literal notranslate"><span class="pre">FeatureRef</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FeatureRefProtocol"><code class="docutils literal notranslate"><span class="pre">FeatureRefProtocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FeatureRefProtocol.id"><code class="docutils literal notranslate"><span class="pre">id</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FeatureRefProtocol.version"><code class="docutils literal notranslate"><span class="pre">version</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FeatureRegistry"><code class="docutils literal notranslate"><span class="pre">FeatureRegistry()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FixResult"><code class="docutils literal notranslate"><span class="pre">FixResult</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.FixResult.issue"><code class="docutils literal notranslate"><span class="pre">issue</span></code></a></li>
@@ -3893,6 +4049,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsError"><code class="docutils literal notranslate"><span class="pre">IsError()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsFailure"><code class="docutils literal notranslate"><span class="pre">IsFailure()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsInfo"><code class="docutils literal notranslate"><span class="pre">IsInfo()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsRequirement"><code class="docutils literal notranslate"><span class="pre">IsRequirement()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsRule"><code class="docutils literal notranslate"><span class="pre">IsRule()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsSuccess"><code class="docutils literal notranslate"><span class="pre">IsSuccess()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.IssuePredicates.IsWarning"><code class="docutils literal notranslate"><span class="pre">IsWarning()</span></code></a></li>
@@ -3939,6 +4096,12 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Profile"><code class="docutils literal notranslate"><span class="pre">Profile</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ProfileFeature"><code class="docutils literal notranslate"><span class="pre">ProfileFeature</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ProfileFeatureProtocol"><code class="docutils literal notranslate"><span class="pre">ProfileFeatureProtocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ProfileFeatureProtocol.feature"><code class="docutils literal notranslate"><span class="pre">feature</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ProfileFeatureProtocol.optional"><code class="docutils literal notranslate"><span class="pre">optional</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ProfileRegistry"><code class="docutils literal notranslate"><span class="pre">ProfileRegistry()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.PropertyId"><code class="docutils literal notranslate"><span class="pre">PropertyId</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.PropertyId.prim_id"><code class="docutils literal notranslate"><span class="pre">prim_id</span></code></a></li>
@@ -3949,6 +4112,12 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Requirement"><code class="docutils literal notranslate"><span class="pre">Requirement</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.RequirementRef"><code class="docutils literal notranslate"><span class="pre">RequirementRef</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.RequirementRefProtocol"><code class="docutils literal notranslate"><span class="pre">RequirementRefProtocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.RequirementRefProtocol.code"><code class="docutils literal notranslate"><span class="pre">code</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.RequirementRefProtocol.version"><code class="docutils literal notranslate"><span class="pre">version</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.RequirementsRegistry"><code class="docutils literal notranslate"><span class="pre">RequirementsRegistry()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Results"><code class="docutils literal notranslate"><span class="pre">Results</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.Results.asset"><code class="docutils literal notranslate"><span class="pre">asset</span></code></a></li>
@@ -4012,6 +4181,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_features"><code class="docutils literal notranslate"><span class="pre">enabled_features</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_profiles"><code class="docutils literal notranslate"><span class="pre">enabled_profiles</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.enabled_rules"><code class="docutils literal notranslate"><span class="pre">enabled_rules</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.exit_zero"><code class="docutils literal notranslate"><span class="pre">exit_zero</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.features"><code class="docutils literal notranslate"><span class="pre">features</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.fix"><code class="docutils literal notranslate"><span class="pre">fix</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usd_validation_nvidia.ValidationNamespaceExec.init_rules"><code class="docutils literal notranslate"><span class="pre">init_rules</span></code></a></li>
@@ -4141,7 +4311,7 @@ been produced by the provided rule or by the engine itself (eg non-existent file
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

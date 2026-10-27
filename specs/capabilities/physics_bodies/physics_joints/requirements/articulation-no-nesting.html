@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../../_static/modal-table.js"></script>
-    <script src="../../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../../_static/searchtools.js"></script>
@@ -644,6 +644,25 @@
 </pre></div>
 </div>
 </section>
+<section id="invalid-nested-articulation-root-through-an-intermediate-prim">
+<h3>Invalid: Nested articulation root through an intermediate prim<a class="headerlink" href="#invalid-nested-articulation-root-through-an-intermediate-prim" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Xform<span class="w"> </span><span class="s">&quot;Xform&quot;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">   </span><span class="kt">prepend</span><span class="w"> </span><span class="na">apiSchemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;PhysicsArticulationRootAPI&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="k k-Tokens">def</span><span class="w"> </span>Xform<span class="w"> </span><span class="s">&quot;Intermediate&quot;</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">      </span><span class="k k-Tokens">def</span><span class="w"> </span>Xform<span class="w"> </span><span class="s">&quot;Xform&quot;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">         </span><span class="kt">prepend</span><span class="w"> </span><span class="na">apiSchemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;PhysicsArticulationRootAPI&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="valid-non-nested-articulation-root">
 <h3>Valid: Non-nested articulation root<a class="headerlink" href="#valid-non-nested-articulation-root" title="Link to this heading">#</a></h3>
 <div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
@@ -708,6 +727,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-it-required">Why is it required?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-nested-articulation-root">Invalid: Nested articulation root</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-nested-articulation-root-through-an-intermediate-prim">Invalid: Nested articulation root through an intermediate prim</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-non-nested-articulation-root">Valid: Non-nested articulation root</a></li>
 </ul>
 </li>
@@ -760,7 +780,7 @@
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../_static/modal-table.js"></script>
-    <script src="../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -635,6 +635,85 @@
 </section>
 <section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<section id="valid-unit-normals-with-each-interpolation">
+<h3>Valid: Unit normals with each interpolation<a class="headerlink" href="#valid-unit-normals-with-each-interpolation" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;VertexNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;IndexedFaceVaryingNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">primvars:normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;faceVarying&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">primvars:normals:indices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">]</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;UniformNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;uniform&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;ConstantNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">primvars:normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;constant&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="valid-mesh-without-normals">
+<h3>Valid: Mesh without normals<a class="headerlink" href="#valid-mesh-without-normals" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;QuadWithoutNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="valid-subdivision-mesh-without-normals">
+<h3>Valid: Subdivision mesh without normals<a class="headerlink" href="#valid-subdivision-mesh-without-normals" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;SubdivisionQuad&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;catmullClark&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="invalid-triangle-with-inconsistent-winding-order-and-normals">
 <h3>Invalid: Triangle with inconsistent winding order and normals<a class="headerlink" href="#invalid-triangle-with-inconsistent-winding-order-and-normals" title="Link to this heading">#</a></h3>
 <div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
@@ -663,6 +742,92 @@
 <span class="w">    </span><span class="c1"># Normal is set explicitly to point in the -Z direction</span>
 <span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span>
 <span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">normalsInterpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;faceVarying&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-normals-with-non-finite-components">
+<h3>Invalid: Normals with non-finite components<a class="headerlink" href="#invalid-normals-with-non-finite-components" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;QuadWithNonFiniteNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span>inf<span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span>nan<span class="p">,</span><span class="w"> </span>nan<span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span>inf<span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-normals-that-are-not-unit-length">
+<h3>Invalid: Normals that are not unit length<a class="headerlink" href="#invalid-normals-that-are-not-unit-length" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;QuadWithNonUnitNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">177</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-number-of-normals-that-does-not-match-the-interpolation">
+<h3>Invalid: Number of normals that does not match the interpolation<a class="headerlink" href="#invalid-number-of-normals-that-does-not-match-the-interpolation" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;QuadWithMissingNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="c1"># Face-varying interpolation requires one normal per face corner</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;faceVarying&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;none&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-normals-on-a-subdivision-mesh">
+<h3>Invalid: Normals on a subdivision mesh<a class="headerlink" href="#invalid-normals-on-a-subdivision-mesh" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;SubdivisionQuadWithNormals&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">subdivisionScheme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;catmullClark&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-normals-on-a-mesh-without-a-subdivision-scheme">
+<h3>Invalid: Normals on a mesh without a subdivision scheme<a class="headerlink" href="#invalid-normals-on-a-mesh-without-a-subdivision-scheme" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;QuadWithNormalsAndNoScheme&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span>
+<span class="w">    </span><span class="c1"># The subdivision scheme is not authored, so it is catmullClark</span>
+<span class="w">    </span><span class="kt">normal3f[]</span><span class="w"> </span><span class="na">normals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span>
+<span class="w">        </span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span>
+<span class="w">    </span><span class="p">)</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -718,7 +883,15 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-it-required">Why is it required?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-unit-normals-with-each-interpolation">Valid: Unit normals with each interpolation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-mesh-without-normals">Valid: Mesh without normals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-subdivision-mesh-without-normals">Valid: Subdivision mesh without normals</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-triangle-with-inconsistent-winding-order-and-normals">Invalid: Triangle with inconsistent winding order and normals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-normals-with-non-finite-components">Invalid: Normals with non-finite components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-normals-that-are-not-unit-length">Invalid: Normals that are not unit length</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-number-of-normals-that-does-not-match-the-interpolation">Invalid: Number of normals that does not match the interpolation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-normals-on-a-subdivision-mesh">Invalid: Normals on a subdivision mesh</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-normals-on-a-mesh-without-a-subdivision-scheme">Invalid: Normals on a mesh without a subdivision scheme</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-comply">How to comply</a></li>
@@ -770,7 +943,7 @@
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

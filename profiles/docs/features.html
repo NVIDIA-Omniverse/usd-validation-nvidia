@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -617,6 +617,26 @@ package. The validation engine resolves them from the registered features at run
 <p>Requirements from dependent features are not repeated in this list. The validation engine resolves them from the
 feature’s <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> when the feature or a profile containing it is enabled.</p>
 </section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<p>A feature can define parameters. If a requirement defines a parameter and is part of the feature, the value defined
+by the feature overrides the requirement’s default. Parameters are matched by name, so no requirement code is needed.</p>
+<p>In Markdown, add the table under a <code class="docutils literal notranslate"><span class="pre">Parameters</span></code> heading, using the same columns as a requirement:</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span>| Parameter           | Type  | Default Value |
+|---------------------|-------|---------------|
+| TRANSFORM_TOLERANCE | float | 0.001         |
+</pre></div>
+</div>
+<p>In TOML and JSON, use a <code class="docutils literal notranslate"><span class="pre">parameters</span></code> list whose items have the same fields as a requirement parameter:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[[parameters]]</span>
+<span class="n">display_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;TRANSFORM_TOLERANCE&quot;</span>
+<span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;float&quot;</span>
+<span class="n">assigned_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.001</span>
+</pre></div>
+</div>
+<p>Parsing exposes the parameters as <code class="docutils literal notranslate"><span class="pre">Feature.parameters</span></code>. The type is declared again in the feature; it is not yet
+checked against the requirement declaration, and the override is not yet applied to the requirement.</p>
+</section>
 <section id="configuration-pattern">
 <h2>Configuration Pattern<a class="headerlink" href="#configuration-pattern" title="Link to this heading">#</a></h2>
 <p>The feature selects the parameterized requirement; the requirement supplies default values. Runtime callers can then
@@ -698,6 +718,7 @@ new feature version at that requirement.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metadata">Metadata</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-pattern">Configuration Pattern</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-example">Complete Example</a></li>
 </ul>
@@ -747,7 +768,7 @@ new feature version at that requirement.</p>
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

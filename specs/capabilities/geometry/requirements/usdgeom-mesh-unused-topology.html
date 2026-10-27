@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../_static/modal-table.js"></script>
-    <script src="../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -643,6 +643,27 @@
 </pre></div>
 </div>
 </section>
+<section id="invalid-mesh-with-unused-vertices-and-primvars">
+<h3>Invalid: Mesh with unused vertices and primvars<a class="headerlink" href="#invalid-mesh-with-unused-vertices-and-primvars" title="Link to this heading">#</a></h3>
+<p>Vertex and varying primvars have a value per vertex, so the values of the unused vertices are unused as well:</p>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;MeshWithUnusedPointsAndPrimvars&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexCounts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">4</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">faceVertexIndices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span>
+<span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span><span class="w">  </span><span class="c1"># The last vertex is unused</span>
+
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">primvars:value1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">primvars:value2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;varying&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">primvars:value3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">,</span><span class="w"> </span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">,</span><span class="w"> </span><span class="m">6</span><span class="p">,</span><span class="w"> </span><span class="m">7</span><span class="p">,</span><span class="w"> </span><span class="m">8</span><span class="p">,</span><span class="w"> </span><span class="m">9</span><span class="p">,</span><span class="w"> </span><span class="m">10</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span><span class="p">;</span><span class="w"> </span><span class="n n-Builtins">elementSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">float[]</span><span class="w"> </span><span class="na">primvars:value4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span><span class="w"> </span><span class="p">(</span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;faceVarying&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">float3[]</span><span class="w"> </span><span class="na">primvars:value5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[(</span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">)]</span><span class="w"> </span><span class="p">(</span><span class="n n-Builtins">interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;vertex&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="kt">int[]</span><span class="w"> </span><span class="na">primvars:value5:indices</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="m">1</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 <section id="valid-clean-topology">
 <h3>Valid: Clean topology<a class="headerlink" href="#valid-clean-topology" title="Link to this heading">#</a></h3>
 <div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
@@ -653,6 +674,16 @@
 <span class="w">    </span><span class="kt">point3f[]</span><span class="w"> </span><span class="na">points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">1</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="m">0</span><span class="p">,</span><span class="m">1</span><span class="p">,</span><span class="m">0</span><span class="p">)</span><span class="w">  </span><span class="c1"># Only required vertices</span>
 <span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="valid-mesh-without-data">
+<h3>Valid: Mesh without data<a class="headerlink" href="#valid-mesh-without-data" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Mesh<span class="w"> </span><span class="s">&quot;EmptyMesh&quot;</span>
+<span class="p">{</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -709,7 +740,9 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-is-it-required">Why is it required?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-mesh-with-unused-vertices">Invalid: Mesh with unused vertices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-mesh-with-unused-vertices-and-primvars">Invalid: Mesh with unused vertices and primvars</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-clean-topology">Valid: Clean topology</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-mesh-without-data">Valid: Mesh without data</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-comply">How to comply</a></li>
@@ -761,7 +794,7 @@
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

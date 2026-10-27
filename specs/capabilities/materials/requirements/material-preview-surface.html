@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../../../_static/modal-table.js"></script>
-    <script src="../../../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -73,7 +73,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -643,12 +643,14 @@
 <span class="p">{</span>
 <span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;PreviewSurfaceTexture&quot;</span>
 <span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdPreviewSurface&quot;</span>
 <span class="w">        </span><span class="c1"># Invalid: &#39;specular&#39; connection not in specification</span>
 <span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="na">inputs:specular</span><span class="p">.</span>connect<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">&lt;/World/Looks/mtl_cube/SpecularTex.outputs:r&gt;</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;diffuseColorTex&quot;</span>
 <span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
 <span class="w">        </span><span class="c1"># Invalid: &#39;bad&#39; not in allowed tokens [&#39;raw&#39;, &#39;sRGB&#39;, &#39;auto&#39;]</span>
 <span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">inputs:sourceColorSpace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;bad&quot;</span>
 <span class="w">    </span><span class="p">}</span>
@@ -664,12 +666,14 @@
 <span class="p">{</span>
 <span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;Shader&quot;</span>
 <span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdPreviewSurface&quot;</span>
 <span class="w">        </span><span class="c1"># Invalid: Wrong type (color3f instead of float)</span>
 <span class="w">        </span><span class="kt">color3f</span><span class="w"> </span><span class="na">inputs:metallic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">)</span>
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;roughnessTex&quot;</span>
 <span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
 <span class="w">        </span><span class="c1"># Invalid: Token attribute should not have time samples</span>
 <span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">inputs:wrapT</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid_wrap&quot;</span><span class="p">,</span>
@@ -716,6 +720,107 @@
 <span class="w">            </span>allowedTokens<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;black&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;clamp&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;repeat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mirror&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;useMetadata&quot;</span><span class="p">]</span>
 <span class="w">        </span><span class="p">)</span>
 <span class="w">        </span><span class="kt">float2</span><span class="w"> </span><span class="na">inputs:st</span><span class="p">.</span>connect<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">&lt;/World/Looks/mtl_cube/st.outputs:result&gt;</span>
+<span class="w">        </span><span class="kt">float3</span><span class="w"> </span><span class="na">outputs:rgb</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-connection-to-a-parameter-that-is-not-in-the-specification">
+<h3>Invalid: Connection to a parameter that is not in the specification<a class="headerlink" href="#invalid-connection-to-a-parameter-that-is-not-in-the-specification" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Material<span class="w"> </span><span class="s">&quot;mtl_cube&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">token</span><span class="w"> </span><span class="na">outputs:surface</span><span class="p">.</span>connect<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">&lt;/mtl_cube/PreviewSurface.outputs:surface&gt;</span>
+
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;PreviewSurface&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdPreviewSurface&quot;</span>
+<span class="w">        </span><span class="c1"># Invalid: &#39;specular&#39; cannot be connected</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="na">inputs:specular</span><span class="p">.</span>connect<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">&lt;/mtl_cube/roughnessTex.outputs:r&gt;</span>
+<span class="w">        </span><span class="kt">token</span><span class="w"> </span><span class="na">outputs:surface</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;roughnessTex&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="na">outputs:r</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-time-sampled-token">
+<h3>Invalid: Time-sampled token<a class="headerlink" href="#invalid-time-sampled-token" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Material<span class="w"> </span><span class="s">&quot;mtl_cube&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;roughnessTex&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
+<span class="w">        </span><span class="c1"># Invalid: Token values must not be time-sampled</span>
+<span class="w">        </span><span class="kt">token</span><span class="w"> </span><span class="na">inputs:wrapT</span>.<span class="n n-Keyword n-Keyword-Tokens">timeSamples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="m">0</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid_wrap&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="m">1</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;another_invalid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kt">float</span><span class="w"> </span><span class="na">outputs:r</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-wrong-input-type">
+<h3>Invalid: Wrong input type<a class="headerlink" href="#invalid-wrong-input-type" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Material<span class="w"> </span><span class="s">&quot;mtl_cube&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;PreviewSurface&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdPreviewSurface&quot;</span>
+<span class="w">        </span><span class="c1"># Invalid: &#39;metallic&#39; is a float</span>
+<span class="w">        </span><span class="kt">color3f</span><span class="w"> </span><span class="na">inputs:metallic</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">,</span><span class="w"> </span><span class="m">0.5</span><span class="p">)</span>
+<span class="w">        </span><span class="kt">token</span><span class="w"> </span><span class="na">outputs:surface</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-wrong-type-of-a-connected-input">
+<h3>Invalid: Wrong type of a connected input<a class="headerlink" href="#invalid-wrong-type-of-a-connected-input" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Material<span class="w"> </span><span class="s">&quot;mtl_cube&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;PreviewSurface&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdPreviewSurface&quot;</span>
+<span class="w">        </span><span class="c1"># Invalid: &#39;diffuseColor&#39; is a color3f</span>
+<span class="w">        </span><span class="kt">float3</span><span class="w"> </span><span class="na">inputs:diffuseColor</span><span class="p">.</span>connect<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nn">&lt;/mtl_cube/diffuseColorTex.outputs:rgb&gt;</span>
+<span class="w">        </span><span class="kt">token</span><span class="w"> </span><span class="na">outputs:surface</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;diffuseColorTex&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
+<span class="w">        </span><span class="kt">float3</span><span class="w"> </span><span class="na">outputs:rgb</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="invalid-wrong-output-type">
+<h3>Invalid: Wrong output type<a class="headerlink" href="#invalid-wrong-output-type" title="Link to this heading">#</a></h3>
+<div class="highlight-usd notranslate"><div class="highlight"><pre><span></span><span class="c1">#usda 1.0</span>
+
+<span class="k k-Tokens">def</span><span class="w"> </span>Material<span class="w"> </span><span class="s">&quot;mtl_cube&quot;</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k k-Tokens">def</span><span class="w"> </span>Shader<span class="w"> </span><span class="s">&quot;diffuseColorTex&quot;</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k k-Token">uniform</span><span class="w"> </span><span class="kt">token</span><span class="w"> </span><span class="na">info:id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;UsdUVTexture&quot;</span>
+<span class="w">        </span><span class="c1"># Invalid: the &#39;rgb&#39; output is a float3</span>
 <span class="w">        </span><span class="kt">color3f</span><span class="w"> </span><span class="na">outputs:rgb</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -776,6 +881,11 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-non-compliant-attributes">Invalid: Non-compliant attributes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-wrong-type-and-time-sampled-tokens">Invalid: Wrong type and time-sampled tokens</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#valid-compliant-attributes">Valid: Compliant attributes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-connection-to-a-parameter-that-is-not-in-the-specification">Invalid: Connection to a parameter that is not in the specification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-time-sampled-token">Invalid: Time-sampled token</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-wrong-input-type">Invalid: Wrong input type</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-wrong-type-of-a-connected-input">Invalid: Wrong type of a connected input</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-wrong-output-type">Invalid: Wrong output type</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-comply">How to comply</a></li>
@@ -827,7 +937,7 @@
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

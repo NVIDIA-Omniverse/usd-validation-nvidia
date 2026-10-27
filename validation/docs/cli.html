@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="../../_static/modal-table.js"></script>
-    <script src="../../_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="../../_static/documentation_options.js?v=9d1896fa"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -75,7 +75,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -598,6 +598,7 @@
 [–disable-feature FEATURE] [–profile PROFILE]
 [–disable-profile PROFILE] [–parameter PARAMETER]
 [-f | –fix | –no-fix] [–stamp | –no-stamp] [-p PREDICATE]
+[–exit-zero | –no-exit-zero]
 [–group-by GROUP_BY]
 [-d | –init-rules | –no-init-rules | –defaultRules | –no-defaultRules]
 [–variants | –no-variants]
@@ -911,6 +912,12 @@ prior to launching this tool.</p>
 <div class="line">IsWarning (default: None)</div>
 </div>
 </dd>
+<dt><kbd><span class="option">--exit-zero</span>, <span class="option">--no-exit-zero</span></kbd></dt>
+<dd><div class="line-block">
+<div class="line">Whether to exit with a status code of 0 even if validation issues are found.</div>
+<div class="line">Execution errors still produce a non-zero exit code. (default: False)</div>
+</div>
+</dd>
 <dt><kbd><span class="option">--group-by <var>GROUP_BY</var></span></kbd></dt>
 <dd><p>Group by. Valid options include:
 | requirement
@@ -1074,7 +1081,7 @@ them off. Assets with many sublayers benefit most.</p></li>
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       

@@ -47,7 +47,7 @@
 
 
     <script rel="preload" src="_static/modal-table.js"></script>
-    <script src="_static/documentation_options.js?v=8fdeaae0"></script>
+    <script src="_static/documentation_options.js?v=9d1896fa"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions1.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.23.0';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -74,7 +74,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
-    <meta name="docbuild:last-update" content="Sep 10, 2026"/>
+    <meta name="docbuild:last-update" content="Oct 27, 2026"/>
   
     
     <script src="_static/searchtools.js"></script>
@@ -654,7 +654,10 @@ uv<span class="w"> </span>build<span class="w"> </span>--all-packages<span class
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">ValidationEngine</span></code> also supports selecting specific rules with <code class="docutils literal notranslate"><span class="pre">enable_rule()</span></code> / <code class="docutils literal notranslate"><span class="pre">disable_rule()</span></code>.
-To filter by category in Python, enable the rules returned by <code class="docutils literal notranslate"><span class="pre">CategoryRuleRegistry().get_rules(category)</span></code>.</p>
+To filter by category in Python, enable the rules returned by <code class="docutils literal notranslate"><span class="pre">CategoryRuleRegistry().get_rules(category)</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ValidationEngine</span></code> also supports async validation, and rule <code class="docutils literal notranslate"><span class="pre">Check*</span></code> callbacks may be declared
+<code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">def</span></code>; see
+<a class="reference external" href="https://nvidia-omniverse.github.io/usd-validation-nvidia/validation/docs/authoring.html#running-rules-asynchronously">Running rules asynchronously</a>.</p>
 </section>
 <section id="command-line-interface">
 <h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Link to this heading">#</a></h2>
@@ -681,6 +684,18 @@ nvidia_usd_validate<span class="w"> </span>--csv-output<span class="w"> </span>r
 nvidia_usd_validate<span class="w"> </span>--help
 </pre></div>
 </div>
+<section id="exit-codes">
+<h3>Exit codes<a class="headerlink" href="#exit-codes" title="Link to this heading">#</a></h3>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">nvidia_usd_validate</span></code> exits with the following status codes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code> when validation completes without issues.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code> when validation issues are found or a requested report cannot be written.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">2</span></code> when command-line arguments are invalid.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">--exit-zero</span></code> causes validation issues to exit with a status code of <code class="docutils literal notranslate"><span class="pre">0</span></code>. Execution errors and report-write failures
+still exit with a status code of <code class="docutils literal notranslate"><span class="pre">1</span></code>, while invalid command-line arguments still exit with a status code of <code class="docutils literal notranslate"><span class="pre">2</span></code>.
+Use <code class="docutils literal notranslate"><span class="pre">--no-exit-zero</span></code> to explicitly retain the default behavior.</p>
+</section>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h2>
@@ -765,7 +780,10 @@ nvidia_usd_validate<span class="w"> </span>--help
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-layout-and-releases">Repository Layout and Releases</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-from-source">Build from Source</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-usage">Basic usage</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command Line Interface</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-interface">Command Line Interface</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exit-codes">Exit codes</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements">Requirements</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#license">License</a></li>
@@ -820,7 +838,7 @@ nvidia_usd_validate<span class="w"> </span>--help
 </div>
       
         <div class="footer-item"><p class="last-updated">
-  Last updated on Sep 10, 2026.
+  Last updated on Oct 27, 2026.
   <br/>
 </p></div>
       
